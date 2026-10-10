@@ -1,1 +1,43 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Welcome to Our Little World</title><link rel="stylesheet" href="login.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="auth.js" defer></script><script src="login.js" defer></script></head><body><div class="stars"></div><main class="login-page"><section class="login-card"><div class="login-flower">✿</div><p class="eyebrow">A little place meant only for us</p><h1>Welcome to<br>Our Little World</h1><p class="login-subtitle">Enter your details to step inside our universe.</p><form id="loginForm"><label for="email">Email</label><input type="email" id="email" placeholder="your@email.com" autocomplete="email" required><label for="password">Password</label><div class="password-wrap"><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required><button type="button" id="togglePassword" class="toggle-password">◉</button></div><button type="submit" class="login-button">Enter Our World <span>♡</span></button><p id="loginMessage" class="login-message"></p></form><p class="login-footer">Made with love, for Aaru &amp; Somo</p></section></main></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Our Little World</title>
+  <link rel="stylesheet" href="login.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js" defer></script>
+  <script src="login.js" defer></script>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="login-page">
+    <section class="login-card">
+      <div class="login-chibi login-chibi-somo" aria-hidden="true">
+        <img src="assets/login-chibis/somo.png" alt="">
+        <span class="chibi-heart">♥</span>
+      </div>
+      <div class="login-chibi login-chibi-aaru" aria-hidden="true">
+        <img src="assets/login-chibis/aaru.png" alt="">
+        <span class="chibi-heart">♥</span>
+      </div>
+
+      <div class="login-flower" aria-hidden="true">✿</div>
+      <h1>Welcome to<br>Our Little World</h1>
+      <p class="login-subtitle">Enter your details to step inside our universe.</p>
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email" required>
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+          <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password">◉</button>
+        </div>
+        <button type="submit" class="login-button">Enter Our World <span>♡</span></button>
+        <p id="loginMessage" class="login-message"></p>
+      </form>
+      <p class="login-footer">Made with love, for Aaru &amp; Somo</p>
+    </section>
+  </main>
+</body>
+</html>
