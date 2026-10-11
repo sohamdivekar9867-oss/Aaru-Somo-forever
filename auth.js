@@ -60,8 +60,12 @@ function queueWebsiteActivity(eventType, section) {
 }
 
 let activityEventFlushInProgress = false;
+let activityEventFlushRequested = false;
 async function flushWebsiteActivityQueue() {
-  if (activityEventFlushInProgress) return;
+  if (activityEventFlushInProgress) {
+    activityEventFlushRequested = true;
+    return;
+  }
   activityEventFlushInProgress = true;
   try {
     const user = await getCurrentUser();
@@ -84,6 +88,10 @@ async function flushWebsiteActivityQueue() {
     console.warn("[activity tracker] Could not flush section activity:", error);
   } finally {
     activityEventFlushInProgress = false;
+    if (activityEventFlushRequested) {
+      activityEventFlushRequested = false;
+      setTimeout(flushWebsiteActivityQueue, 0);
+    }
   }
 }
 
