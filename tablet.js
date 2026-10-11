@@ -92,7 +92,26 @@ async function loadActivity() {
       return `<tr><td>${formatDate(row.started_at)}</td><td>${formatTime(row.started_at)}</td><td>${duration(row.started_at,end)}</td><td>${endLabel}</td></tr>`;
     }).join('');
   }
-  message.textContent='Showing sessions from the last 3 days.';
+  const eventRows=document.getElementById('sectionEventRows');
+  const {data:eventData,error:eventError}=await tabletClient.from('website_activity_events')
+    .select('id,user_email,event_type,section,page_path,created_at')
+    .eq('user_email',AARU_EMAIL.toLowerCase()).gte('created_at',since).order('created_at',{ascending:false}).limit(250);
+  if(eventError) {
+    document.getElementById('sectionEventCount').textContent='—';
+    eventRows.innerHTML='<tr><td colspan="3" class="empty-row">Run the updated TABLET_SETUP.sql to enable section activity.</td></tr>';
+    message.textContent='Sessions are available. Section activity needs the updated TABLET_SETUP.sql.';
+    return;
+  }
+  const events=(eventData||[]).filter(row=>String(row.user_email||'').toLowerCase()===AARU_EMAIL.toLowerCase());
+  document.getElementById('sectionEventCount').textContent=String(events.length);
+  if(!events.length) {
+    eventRows.innerHTML='<tr><td colspan="3" class="empty-row">No section visits or changes recorded in the last 3 days.</td></tr>';
+  } else {
+    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const labels={section_view:'Opened',section_click:'Clicked',create:'Created',update:'Updated',delete:'Deleted'};
+    eventRows.innerHTML=events.map(row=>`<tr><td>${escapeHtml(formatDate(row.created_at,{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}))}</td><td>${escapeHtml(row.section)}</td><td>${escapeHtml(labels[row.event_type]||row.event_type)}</td></tr>`).join('');
+  }
+  message.textContent='Showing Aaru’s sessions and section activity from the last 3 days.';
 }
 
 const noteTitle=document.getElementById('noteTitle');
