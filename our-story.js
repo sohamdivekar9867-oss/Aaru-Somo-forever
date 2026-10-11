@@ -662,7 +662,7 @@ function showPage(index, smooth = true) {
     page.classList.toggle("active-page", i === nextIndex);
     if (i === nextIndex && smooth && changedPage) {
       page.classList.add(flipDirection === "next" ? "flip-in-next" : "flip-in-previous");
-      window.setTimeout(() => page.classList.remove("flip-in-next", "flip-in-previous"), 720);
+      window.setTimeout(() => page.classList.remove("flip-in-next", "flip-in-previous"), 1100);
     }
   });
   currentPage = nextIndex;
