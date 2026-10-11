@@ -1,46 +1,33 @@
-# Final setup
+# Supabase and deployment setup
 
-## 1. Supabase
+## 1. Supabase SQL
 
-Run **only** `MASTER_SHARED_SETUP.sql` in the Supabase SQL Editor.
+Run these scripts in the Supabase SQL Editor, in this order:
 
-The individual files are provided for reference/feature-specific reruns, but the master script is the intended setup for this final build.
+1. `MASTER_SHARED_SETUP.sql` — shared tables, couple account helper, RLS, Story, Dates, Music, and To Do / Not To Do.
+2. `REELS_SETUP.sql` — reels and private reel memories.
+3. `PHONE_PHOTOS_SETUP.sql` — private phone gallery and profile pictures.
 
-The master script:
-- creates/updates the shared tables
-- creates the two-account access helper
-- migrates the legacy Story data into the current Story structure when possible
-- updates RLS policies
-- configures Date Cat planned quests
-- configures date photo storage permissions
-- installs the two-person Story deletion functions
+The feature-specific files can be used for targeted repairs. These scripts include the current phone gallery and reels schema. Do not run `STORY_DIARY_UPDATE.sql` after the master script unless repairing Story policies on an existing project; it now follows the same per-account perspective rules.
 
-## 2. GitHub
+The master script makes Date photo storage private; the app signs existing public photo URLs and new object paths at read time, so existing `date_entries.photo_urls` values remain supported. The scripts create or replace only their named policies and schema objects. Before running against an existing Supabase project, review any older custom Storage policies: PostgreSQL combines permissive policies with OR, so a pre-existing broad policy can still grant access even after these policies are added.
 
-Replace the website files with the files in this ZIP. Do not mix files from older Date Cat / Story ZIPs.
+## 2. Deploy the website
 
-## 3. After deployment
+Deploy the website files together from this branch. Do not mix them with older Date Cat, Story, or gallery versions.
 
-Log in once as Aaru and once as Somo and test:
-- add a Story chapter as either person
-- edit each person's perspective
-- create/delete-request a Story chapter
-- add a Love Letter
-- add a Bucket List item
-- add a completed Date
-- upload a Date photo
-- create a Date Cat planned quest
-- open Our Dates from the other account and verify the same planned quest appears
+## 3. Verify the deployment
 
-## 4. What is intentionally browser-local
+Sign in as each account and verify:
 
-Only login/session state and temporary UI state are browser-local. Relationship content is backend-shared.
+- each person can edit only their own Story perspective
+- either person can add a chapter and request deletion; the other account approves it
+- both users can add Letters, Bucket List items, Dates, and planned quests where enabled
+- phone gallery uploads and profile pictures work, and gallery images remain private
+- reel memories remain private and are visible to the couple
 
-- **Teddy / Important Dates** — configured by `MASTER_SHARED_SETUP.sql`; the setup seeds 27 August 2026 as the relationship start date used by the dynamic Days Together counter.
+## 4. Browser-local data
 
+Login/session state and temporary UI state are browser-local. Relationship content is stored in Supabase.
 
-## New: Our Music + To Do / Not To Do
-Run `MUSIC_RULES_SETUP.sql` once in Supabase SQL Editor (or use the appended section in `MASTER_SHARED_SETUP.sql`).
-- `couple_music` stores the shared playlist. Each person can edit/delete only songs they added.
-- `couple_rules` stores the To Do / Not To Do reminders. Somo writes the Aaru page; Aaru writes the Somo page. Each can edit/delete only their own additions.
-- The new room image is `assets/pixel-room v2.png`.
+The Teddy / Important Dates feature is configured by `MASTER_SHARED_SETUP.sql`. It seeds 27 August 2026 as the relationship start date for the dynamic Days Together counter.
