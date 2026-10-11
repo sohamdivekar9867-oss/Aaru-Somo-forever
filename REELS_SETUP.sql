@@ -273,6 +273,7 @@ using (public.is_couple_member() and uploaded_by = auth.uid());
 -- ============================================================
 drop policy if exists "Reel memory storage read" on storage.objects;
 drop policy if exists "Reel memory storage insert" on storage.objects;
+drop policy if exists "Reel memory storage delete approved" on storage.objects;
 drop policy if exists "Reel memory storage delete own" on storage.objects;
 
 create policy "Reel memory storage read"
