@@ -163,8 +163,14 @@
       return;
     }
     photos = [];
+    // A previous upload/import can leave multiple database rows pointing at the
+    // same Storage object. Show that object only once in the grid.
+    const seenStoragePaths = new Set();
     for (const row of data || []) {
-      const { data: signed, error: signError } = await phoneClient.storage.from('chat-photos').createSignedUrl(row.storage_path, 3600);
+      const storagePath = String(row.storage_path || '');
+      if (!storagePath || seenStoragePaths.has(storagePath)) continue;
+      seenStoragePaths.add(storagePath);
+      const { data: signed, error: signError } = await phoneClient.storage.from('chat-photos').createSignedUrl(storagePath, 3600);
       if (!signError && signed?.signedUrl) photos.push({...row, url: signed.signedUrl});
     }
     if (galleryCount) galleryCount.textContent = `${photos.length} photo${photos.length === 1 ? '' : 's'}`;
@@ -207,10 +213,20 @@
     const photo = photos.find(p => String(p.id) === String(id));
     if (!photo || photo.created_by !== currentUser?.id) return;
     if (!confirm('Delete this screenshot?')) return;
-    const { error: storageError } = await phoneClient.storage.from('chat-photos').remove([photo.storage_path]);
-    if (storageError) { alert(storageError.message); return; }
-    const { error } = await phoneClient.from('chat_photos').delete().eq('id',id).eq('created_by',currentUser.id);
+    // Delete only this gallery row first. If another row references the same
+    // Storage path, keep the file so the remaining copy does not disappear too.
+    const { error } = await phoneClient.from('chat_photos')
+      .delete().eq('id', id).eq('created_by', currentUser.id);
     if (error) { alert(error.message); return; }
+
+    const { data: remaining, error: checkError } = await phoneClient.from('chat_photos')
+      .select('id').eq('storage_path', photo.storage_path).limit(1);
+    if (checkError) {
+      console.error('Could not check remaining references to photo:', checkError);
+    } else if (!remaining?.length) {
+      const { error: storageError } = await phoneClient.storage.from('chat-photos').remove([photo.storage_path]);
+      if (storageError) console.error('Could not remove unused photo file:', storageError);
+    }
     closeViewer(); await loadPhotos();
   }
 
