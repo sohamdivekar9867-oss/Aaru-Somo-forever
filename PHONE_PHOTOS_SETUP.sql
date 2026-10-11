@@ -52,14 +52,22 @@ on storage.objects for insert to authenticated
 with check (
   bucket_id = 'chat-photos'
   and public.is_couple_member()
-  and (storage.foldername(name))[2] = auth.uid()::text
   and (
-    ((storage.foldername(name))[1] = 'Aaru' and lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com')
+    ((storage.foldername(name))[1] = 'Aaru'
+      and (storage.foldername(name))[2] = auth.uid()::text
+      and lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com')
     or
-    ((storage.foldername(name))[1] = 'Somo' and lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com')
+    ((storage.foldername(name))[1] = 'Somo'
+      and (storage.foldername(name))[2] = auth.uid()::text
+      and lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com')
     or
     ((storage.foldername(name))[1] = 'profiles'
-      and (storage.foldername(name))[2] in ('Aaru','Somo'))
+      and (storage.foldername(name))[3] = auth.uid()::text
+      and (
+        ((storage.foldername(name))[2] = 'Aaru' and lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com')
+        or
+        ((storage.foldername(name))[2] = 'Somo' and lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com')
+      ))
   )
 );
 
