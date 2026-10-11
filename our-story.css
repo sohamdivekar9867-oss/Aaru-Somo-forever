@@ -1389,3 +1389,78 @@ a {
 .reader-page.diary-page .chapter-edit-button { position: absolute; top: 2px; right: 0; z-index: 4; }
 .reader-page.diary-page .diary-ruled-content { height: calc(100% - 58px); }
 .reader-page.diary-page .diary-ruled-content[contenteditable="true"] { overflow: hidden; }
+
+
+/* Mobile-first diary layout refinements: wider writing area and compact index controls. */
+@media (max-width: 700px) {
+  .reader-page.diary-index-page,
+  .reader-page.diary-page {
+    width: calc(100vw - 28px);
+    max-width: 430px;
+    height: min(690px, calc(100svh - 190px));
+    min-height: 450px;
+  }
+  .reader-page.diary-index-page .page-inner,
+  .reader-page.diary-page .page-inner {
+    padding-left: 39px;
+    padding-right: 12px;
+  }
+  .reader-page.diary-index-page .page-bottom,
+  .reader-page.diary-page .page-bottom { left: 39px; right: 12px; }
+  .reader-page.diary-page .diary-page-content {
+    width: 100%;
+    padding: 10px 0 0 !important;
+  }
+  .reader-page.diary-page .chapter-heading {
+    font-size: .78rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .reader-page.diary-page .diary-ruled-content {
+    width: 100%;
+    height: calc(100% - 48px);
+    font-size: .9rem;
+    line-height: 27px;
+    background-size: auto 27px;
+    padding-right: 0;
+  }
+  .reader-page.diary-page .diary-ruled-content p,
+  .reader-page.diary-page .diary-ruled-content p + p {
+    line-height: 27px;
+    min-height: 27px;
+  }
+  .reader-page.diary-index-page .page-bottom span:first-child { display: none !important; }
+  .reader-page.diary-index-page .index-content {
+    padding-top: 18px;
+    padding-bottom: 44px;
+  }
+  .reader-page.diary-index-page .private-controls {
+    position: absolute;
+    left: 39px;
+    right: 12px;
+    bottom: 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 7px;
+    margin: 0;
+    z-index: 5;
+  }
+  .reader-page.diary-index-page .private-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid rgba(80,55,45,.35);
+    background: rgba(247,238,228,.82);
+    font-size: 17px;
+    line-height: 1;
+  }
+  .reader-page.diary-index-page .index-entry { padding: 7px 0; gap: 7px; }
+  .reader-page.diary-index-page .index-entry-text strong { font-size: .75rem; line-height: 1.3; }
+  .reader-page.diary-index-page .index-number,
+  .reader-page.diary-index-page .index-page-number { font-size: .65rem; }
+}
