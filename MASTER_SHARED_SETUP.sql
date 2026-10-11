@@ -188,10 +188,10 @@ create table if not exists public.story_perspectives (
   unique (chapter_id, author)
 );
 
--- Upgrade databases whose earlier Story setup allowed only the Aaru author.
+-- Preserve legacy labels; NOT VALID still enforces this check on new and updated rows.
 alter table public.story_perspectives drop constraint if exists story_perspectives_author_check;
 alter table public.story_perspectives
-  add constraint story_perspectives_author_check check (author in ('Aaru','Somo'));
+  add constraint story_perspectives_author_check check (author in ('Aaru','Somo')) not valid;
 
 create unique index if not exists story_chapters_title_lower_unique
 on public.story_chapters (lower(title));
