@@ -22,13 +22,70 @@ async function getCurrentUser() {
   return user;
 }
 
+const ACTIVITY_SESSION_KEY = "somdaWebsiteActivitySession";
+
+async function markActivityLogout() {
+  const id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
+  if (!id) return;
+  try {
+    const user = await getCurrentUser();
+    if (user) {
+      await supabaseClient.from("website_activity_sessions")
+        .update({ ended_at: new Date().toISOString(), last_seen_at: new Date().toISOString() })
+        .eq("id", id).eq("user_id", user.id);
+    }
+  } catch (_) {}
+  window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
+}
+
+async function startWebsiteActivityTracking() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return;
+    let id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
+    if (id) {
+      const { data } = await supabaseClient.from("website_activity_sessions")
+        .select("id,user_id,ended_at").eq("id", id).maybeSingle();
+      if (!data || data.user_id !== user.id || data.ended_at) id = null;
+    }
+    if (!id) {
+      id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const { error } = await supabaseClient.from("website_activity_sessions").insert({
+        id, user_id: user.id, started_at: now, last_seen_at: now
+      });
+      if (error) return; // Tracking is optional until TABLET_SETUP.sql has been run.
+      window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
+    }
+    const heartbeat = async () => {
+      const currentUser = await getCurrentUser();
+      if (!currentUser) return;
+      await supabaseClient.from("website_activity_sessions")
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq("id", id).eq("user_id", currentUser.id).is("ended_at", null);
+    };
+    await heartbeat();
+    if (!window.__websiteActivityHeartbeat) {
+      window.__websiteActivityHeartbeat = setInterval(heartbeat, 30000);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") heartbeat();
+      });
+      window.addEventListener("pagehide", () => {
+        // A page close is not a confirmed logout; the dashboard uses last_seen_at as an estimate.
+      });
+    }
+  } catch (_) {}
+}
+
 async function logout() {
+  await markActivityLogout();
   await supabaseClient.auth.signOut();
   window.location.replace("login.html");
 }
 
 // Add a small logout control to every protected page.
 document.addEventListener("DOMContentLoaded", () => {
+  startWebsiteActivityTracking();
   const currentFile = window.location.pathname.split("/").pop() || "index.html";
   if (currentFile === "login.html") return;
   if (document.getElementById("siteLogoutButton")) return;

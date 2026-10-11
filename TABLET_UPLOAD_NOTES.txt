@@ -1,0 +1,20 @@
+SOMO TABLET — UPLOAD NOTES
+
+Upload/replace these files at the same paths in the repository:
+- bedroom.html
+- bedroom.css
+- auth.js
+- tablet.html (new)
+- tablet.css (new)
+- tablet.js (new)
+- TABLET_SETUP.sql (new)
+- assets/pixel-bedroom.png (new/replacement asset)
+
+IMPORTANT CONFIGURATION
+1. The account email is already configured as sohamdivekar9867@gmail.com in tablet.js and TABLET_SETUP.sql.
+3. Run TABLET_SETUP.sql in Supabase SQL Editor.
+4. To physically purge records every hour even when nobody visits, enable pg_cron in Supabase and run the optional cron.schedule command at the bottom of TABLET_SETUP.sql. The dashboard itself only displays the last 3 days regardless.
+5. The website's existing login system must be used by both users for session tracking to work. Explicit website logout records a logout time. Unexpected tab/browser closure cannot guarantee an exact logout time; the dashboard displays last-seen time for those sessions.
+
+Somo's Notes saves to the device immediately and syncs to Supabase once the email and SQL setup are configured.
+The dashboard records only sessions on this website, not activity on other apps or devices.

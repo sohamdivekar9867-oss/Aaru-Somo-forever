@@ -1,0 +1,76 @@
+*{box-sizing:border-box}
+:root{--ink:#38262c;--muted:#90757c;--rose:#d9869e;--paper:#fffdfb;--line:#eadde0;--night:#21151e}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,sans-serif;background:#170d12;color:var(--ink)}
+body{min-height:100dvh}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.tablet-shell{min-height:100dvh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at center,#69404b 0,#281722 50%,#120a10 100%)}
+.tablet-frame{position:relative;width:min(100%,760px);height:min(94dvh,1050px);min-height:550px;padding:14px;border:2px solid #65575c;border-radius:36px;background:linear-gradient(135deg,#242126,#08090b 50%,#30272a);box-shadow:0 30px 90px #0009,inset 0 0 0 2px #09090b}
+.tablet-camera{position:absolute;left:50%;top:5px;width:5px;height:5px;background:#070709;border:1px solid #393239;border-radius:50%;transform:translateX(-50%);z-index:2}
+.tablet-screen{height:100%;overflow:hidden;position:relative;border-radius:24px;background:linear-gradient(150deg,#f6e8e3,#fff5ef 50%,#f4e0e2);display:flex;flex-direction:column}
+.tablet-statusbar{height:43px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 17px;background:#fff8f4d9;border-bottom:1px solid #e9d6d7;font:11px 'DM Mono',monospace;color:#6b4a54}
+.back-room,.back-app{color:#8a4d62;text-decoration:none;border:0;background:transparent;font-size:28px;line-height:1;padding:0 7px}
+.status-icons{letter-spacing:4px}
+.home-screen,.app-view{flex:1;min-height:0;overflow:auto}
+.home-screen{padding:clamp(24px,5vw,56px) clamp(18px,5vw,58px) 25px;display:flex;flex-direction:column;background:radial-gradient(ellipse at 80% 15%,#f7c7c5a1,transparent 42%),linear-gradient(140deg,#fff3e9,#f8e7e9 60%,#efdae4)}
+.home-greeting .eyebrow,.eyebrow{margin:0 0 8px;font:10px 'DM Mono',monospace;letter-spacing:.18em;color:#b36e85}
+.home-greeting h1{font:500 clamp(27px,5vw,44px)/1.15 'Playfair Display',Georgia,serif;margin:0 0 10px;color:#54303d}
+.home-greeting h1 span{color:#d47d96}
+.home-greeting>p:last-child{max-width:390px;color:#886d75;line-height:1.6;font-size:13px;margin:0}
+.app-grid{display:grid;grid-template-columns:repeat(2,minmax(0,150px));gap:18px;margin-top:clamp(38px,9vh,88px)}
+.app-icon{display:flex;align-items:center;flex-direction:column;gap:8px;border:0;background:transparent;color:#513640;font-size:12px;font-weight:600}
+.app-symbol{width:76px;height:76px;display:grid;place-items:center;border-radius:23px;font-size:32px;box-shadow:0 8px 18px #673b4a20,inset 0 1px 0 #ffffffb8}
+.secure-app .app-symbol{background:linear-gradient(145deg,#593a54,#a36c88);color:#fff0f4}
+.notes-app .app-symbol{background:linear-gradient(145deg,#f2b36f,#d77e82);color:#fff9f2}
+.app-icon small{font-size:10px;color:#a37c87;font-weight:400;margin-top:-5px}
+.home-footer{margin-top:auto;padding-top:35px;color:#b58d97;font:10px 'DM Mono',monospace;letter-spacing:.08em}
+.app-view{background:#f8f1ee;display:flex;flex-direction:column}
+.app-header{display:flex;align-items:center;gap:10px;padding:15px 19px;background:#fffaf7;border-bottom:1px solid var(--line);flex-shrink:0}
+.app-header>div{min-width:0;flex:1}
+.app-header .eyebrow{font-size:9px;margin-bottom:4px}
+.app-header h2{font:500 22px 'Playfair Display',Georgia,serif;margin:0;color:#51323d}
+.app-header h2 span{font-size:14px}
+.app-content{padding:clamp(15px,3vw,28px);overflow:auto}
+.lock-card{max-width:420px;margin:4vh auto;padding:clamp(22px,5vw,40px);border:1px solid #ead8dc;border-radius:22px;background:#fffdfa;box-shadow:0 12px 35px #75445412;text-align:center}
+.lock-emblem{font-size:34px}
+.lock-card h3{font:500 26px 'Playfair Display',Georgia,serif;margin:12px 0 7px}
+.lock-card>p{font-size:12px;line-height:1.6;color:#947780;margin:0 auto 23px;max-width:290px}
+#unlockForm{text-align:left;display:grid;gap:9px}
+#unlockForm label{font-size:11px;color:#795b65}
+#unlockPassword{width:100%;border:1px solid #e3cfd5;border-radius:10px;padding:12px;background:#fff;font-size:15px;outline-color:#c87891}
+.primary-button,.save-note{border:0;border-radius:10px;padding:12px 15px;background:#78465b;color:#fff8f8;font-size:12px;font-weight:600}
+.form-message{font-size:11px;color:#a85d71;line-height:1.5;min-height:14px;margin:2px 0}
+.dashboard-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dashboard-heading .eyebrow{font-size:9px;margin-bottom:5px}
+.dashboard-heading h3{font:500 25px 'Playfair Display',Georgia,serif;margin:0}
+.quiet-button{border:1px solid #e2cbd3;background:#fffaf8;color:#7c5061;border-radius:9px;padding:9px 12px;font-size:11px}
+.privacy-note{font-size:11px;color:#987e85;line-height:1.55;margin:13px 0 18px}
+.activity-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.activity-summary>div{background:#fffaf8;border:1px solid #ecdcdf;border-radius:13px;padding:14px}
+.activity-summary span{display:block;color:#9b7b84;font-size:10px;margin-bottom:7px}
+.activity-summary strong{font:500 20px 'Playfair Display',Georgia,serif;color:#6b3e51;overflow-wrap:anywhere}
+.activity-table-wrap{overflow:auto;border:1px solid #e9d9dd;border-radius:12px;background:#fffdfa}
+table{width:100%;border-collapse:collapse;min-width:570px;font-size:11px}
+th,td{text-align:left;padding:12px 11px;border-bottom:1px solid #f0e5e7;vertical-align:top}
+th{background:#f8eaf0;color:#815969;font:10px 'DM Mono',monospace;white-space:nowrap}
+td{color:#654b54}
+tbody tr:last-child td{border-bottom:0}
+.empty-row{text-align:center;color:#a38b91;padding:25px}
+.tablet-dock{height:35px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:35px;background:#fff9f5;border-top:1px solid #eadbde}
+.tablet-dock button{border:0;background:transparent;color:#9d7885;font-size:15px;padding:2px 10px}
+.tablet-dock span{position:absolute;bottom:12px;left:50%;width:3px;height:3px;border-radius:50%;background:#d9b5c0}
+.notes-view{background:#e9e1df}
+.document-toolbar{display:flex;align-items:center;gap:clamp(10px,2vw,22px);padding:11px 17px;background:#fffdfa;border-bottom:1px solid #e2d4d4;color:#775c65;font-size:11px;flex-shrink:0}
+.document-toolbar span:first-child{font-weight:800;color:#b86679}
+.document-toolbar span:nth-child(3){font-weight:800}
+.document-toolbar span:last-child{margin-left:auto;font-size:9px;color:#a0848d;white-space:nowrap}
+.document-wrap{padding:clamp(12px,3vw,28px);overflow:auto;flex:1}
+.document-paper{display:flex;flex-direction:column;min-height:100%;max-width:760px;margin:0 auto;padding:clamp(22px,5vw,60px);background:#fffefa;border:1px solid #ded1ce;box-shadow:0 8px 22px #4c29300c}
+.document-title{width:100%;border:0;outline:0;font:600 clamp(25px,4vw,36px)/1.25 'Playfair Display',Georgia,serif;color:#4c3039;background:transparent;margin-bottom:22px}
+.document-title::placeholder{color:#c9b7bc}
+.document-paper textarea{width:100%;flex:1;min-height:260px;resize:vertical;border:0;outline:0;background:transparent;color:#4d4144;font:15px/1.9 Georgia,'Times New Roman',serif}
+.document-paper textarea::placeholder{color:#c5b5b9}
+.document-footer{margin-top:30px;padding-top:10px;border-top:1px solid #eee4e2;color:#c1a6ae;font:9px 'DM Mono',monospace;letter-spacing:.12em}
+.notes-message{flex-shrink:0;margin:0;padding:7px 15px;background:#fff8f5;color:#a0838c;font-size:10px;text-align:center}
+@media(max-width:600px){.tablet-shell{padding:0;background:#120a10}.tablet-frame{width:100%;height:100dvh;min-height:0;padding:7px;border-radius:0;border:0;box-shadow:none}.tablet-camera{top:2px}.tablet-screen{border-radius:16px}.tablet-statusbar{height:37px;padding:0 10px}.home-screen{padding:28px 22px 20px}.app-grid{gap:12px;margin-top:48px}.app-symbol{width:68px;height:68px;border-radius:20px}.app-header{padding:12px 10px;gap:6px}.app-header h2{font-size:19px}.app-content{padding:13px}.activity-summary strong{font-size:17px}.document-toolbar{padding:9px 10px;gap:10px;font-size:10px}.document-wrap{padding:10px}.document-paper{padding:22px 17px}.document-paper textarea{font-size:14px;min-height:240px}.tablet-dock{height:29px}.tablet-dock span{bottom:8px}}

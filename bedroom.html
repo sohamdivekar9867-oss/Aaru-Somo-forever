@@ -32,6 +32,8 @@
       <button class="locker-hotspot" id="lockerHotspot" type="button" aria-label="Open our Love Letter Locker"></button>
       <!-- Mobile phone: our shared chat-photo gallery. -->
       <button class="phone-hotspot" id="phoneHotspot" type="button" aria-label="Open our chat photo gallery"></button>
+      <!-- Tablet: Somo's private diary and notes -->
+      <button class="tablet-hotspot" id="tabletHotspot" type="button" aria-label="Open Somo's tablet" title="Somo's tablet"></button>
     </div>
 
     <a class="bedroom-back" href="index.html" aria-label="Back to our room">←</a>
@@ -96,5 +98,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="bedroom.js"></script>
+  <script>
+    document.getElementById('tabletHotspot')?.addEventListener('click', () => {
+      window.location.href = 'tablet.html';
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Somo's Tablet ♡</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tablet.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js" defer></script>
+  <script src="protect.js" defer></script>
+</head>
+<body>
+  <main class="tablet-shell">
+    <div class="tablet-frame">
+      <div class="tablet-camera"></div>
+      <div class="tablet-screen">
+        <header class="tablet-statusbar">
+          <a class="back-room" href="bedroom.html" aria-label="Back to bedroom">‹</a>
+          <span id="tabletClock">Somo's little world</span>
+          <span class="status-icons">● ▰</span>
+        </header>
+        <section class="home-screen" id="homeScreen">
+          <div class="home-greeting"><p class="eyebrow">SOMO'S TABLET</p><h1>A little space for me. <span>♡</span></h1><p>Stories, thoughts, and little things worth keeping.</p></div>
+          <div class="app-grid">
+            <button class="app-icon secure-app" id="openUserApp" type="button"><span class="app-symbol">⌁</span><span>Somo User</span><small>Private</small></button>
+            <button class="app-icon notes-app" id="openNotesApp" type="button"><span class="app-symbol">✎</span><span>Somo's Notes</span><small>My story</small></button>
+          </div>
+          <div class="home-footer">made with a little love ♡</div>
+        </section>
+
+        <section class="app-view" id="userApp" hidden>
+          <header class="app-header"><button class="back-app" data-home>‹</button><div><p class="eyebrow">PRIVATE SPACE</p><h2>Somo User <span>🔒</span></h2></div></header>
+          <div class="app-content">
+            <div class="lock-card" id="userLock">
+              <div class="lock-emblem">🔐</div><h3>Only for Somo</h3><p>Enter your website password to open your private activity dashboard.</p>
+              <form id="unlockForm"><label for="unlockPassword">Website password</label><input id="unlockPassword" type="password" autocomplete="current-password" required><button class="primary-button" type="submit">Unlock dashboard</button><p class="form-message" id="unlockMessage" role="status"></p></form>
+            </div>
+            <div id="activityDashboard" hidden>
+              <div class="dashboard-heading"><div><p class="eyebrow">WEBSITE ACTIVITY</p><h3>Aaru's sessions</h3></div><button class="quiet-button" id="refreshActivity">Refresh ↻</button></div>
+              <p class="privacy-note">Shows sign-in sessions on this website only. A session that ends unexpectedly uses its last recorded activity as an estimate.</p>
+              <div class="activity-summary"><div><span>Sessions · 3 days</span><strong id="sessionCount">—</strong></div><div><span>Last opened</span><strong id="lastOpened">—</strong></div></div>
+              <div class="activity-table-wrap"><table><thead><tr><th>Day / date</th><th>Opened</th><th>Duration</th><th>Logout / last seen</th></tr></thead><tbody id="activityRows"><tr><td colspan="4">Loading sessions…</td></tr></tbody></table></div>
+              <p class="form-message" id="activityMessage" role="status"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="app-view notes-view" id="notesApp" hidden>
+          <header class="app-header"><button class="back-app" data-home>‹</button><div><p class="eyebrow">PERSONAL WRITING</p><h2>Somo's Notes</h2></div><button class="save-note" id="saveNote">Save</button></header>
+          <div class="document-toolbar"><span>DOC</span><span>Normal text</span><span>B</span><span><i>I</i></span><span>≡</span><span id="saveState">Saved locally</span></div>
+          <div class="document-wrap"><article class="document-paper"><input id="noteTitle" class="document-title" maxlength="180" placeholder="Untitled story" aria-label="Story title"><textarea id="noteBody" placeholder="Start writing your story here…&#10;&#10;A memory, a thought, a little piece of your world." aria-label="Your story"></textarea><div class="document-footer">SOMO'S NOTES · PRIVATE JOURNAL</div></article></div>
+          <p class="notes-message" id="notesMessage" role="status">Your writing is saved to this device until cloud setup is complete.</p>
+        </section>
+        <footer class="tablet-dock" id="tabletDock"><button data-home aria-label="Home screen">●</button><span></span><button data-home aria-label="Return to apps">○</button></footer>
+      </div>
+    </div>
+  </main>
+  <script src="tablet.js"></script>
+</body>
+</html>
