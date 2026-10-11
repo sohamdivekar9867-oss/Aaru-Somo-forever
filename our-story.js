@@ -22,7 +22,7 @@ let chapters = [];
 let readerPages = [];
 let currentPage = 0;
 let currentUser = null;
-const DIARY_AUTHOR = "Aaru";
+let DIARY_AUTHOR = null;
 let flipDirection = "next";
 let deleteRequests = [];
 
@@ -74,7 +74,7 @@ function canEditChapter() {
 }
 
 function buildDiaryLabel() {
-  return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>AARU'S DIARY</span></div>`;
+  return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>${escapeHtml((DIARY_AUTHOR || "OUR").toUpperCase())}'S DIARY</span></div>`;
 }
 
 // Split diary text conservatively for mobile. The visible type is larger than a
@@ -161,7 +161,7 @@ function createStoryPage(chapter, number, segmentIndex = 0, segments = [""]) {
   const firstSegment = segmentIndex === 0;
   page.innerHTML = `
     <div class="page-inner diary-page-inner">
-      <div class="page-top"><span>${String(number + 1).padStart(2, "0")} · AARU'S DIARY</span><span></span></div>
+      <div class="page-top"><span>${String(number + 1).padStart(2, "0")} · ${escapeHtml((DIARY_AUTHOR || "OUR").toUpperCase())}'S DIARY</span><span></span></div>
       <div class="story-page-content diary-page-content">
         ${firstSegment ? `<div class="story-toolbar diary-toolbar"><div></div>${canEditChapter() ? `<button class="chapter-edit-button" data-chapter-id="${escapeHtml(chapter.id)}">Edit heading</button>` : ""}</div>
         <div class="chapter-heading-wrap"><h2 class="chapter-heading" id="${titleId}">${escapeHtml(chapter.title)}</h2></div>
@@ -172,7 +172,7 @@ function createStoryPage(chapter, number, segmentIndex = 0, segments = [""]) {
         ` : `
           <div class="perspective-empty diary-empty">
             <p>This page is waiting for a memory.</p>
-            ${editable ? `<button class="add-perspective-button" data-chapter-id="${escapeHtml(chapter.id)}">＋ Write this entry</button>` : `<span>Log in with either account to add to Aaru's diary.</span>`}
+            ${editable ? `<button class="add-perspective-button" data-chapter-id="${escapeHtml(chapter.id)}">＋ Write this entry</button>` : `<span>Log in with either account to add your perspective.</span>`}
           </div>
         `}
       </div>
@@ -299,9 +299,11 @@ async function loadCurrentUser() {
   if (error) {
     console.error("Could not read Supabase session:", error);
     currentUser = null;
+    DIARY_AUTHOR = null;
     return;
   }
   currentUser = data?.session?.user || null;
+  DIARY_AUTHOR = currentUser ? authorForEmail(currentUser.email) : null;
   console.log("Our Story auth:", currentUser?.email || "no active session");
 }
 
@@ -344,7 +346,7 @@ async function saveDiaryEntry(button) {
 
   const author = authorForEmail(currentUser.email);
   if (!author) {
-    alert("This account is not authorized for Aaru's diary.");
+    alert("This account is not authorized to edit this diary.");
     return;
   }
 
@@ -401,7 +403,7 @@ async function addDiaryEntry(chapterId) {
 
   const { data, error } = await storySupabaseClient
     .from("story_perspectives")
-    .insert({ chapter_id: chapter.id, author: DIARY_AUTHOR, content: "", created_by: currentUser.id })
+    .insert({ chapter_id: chapter.id, author: authorForEmail(currentUser.email), content: "", created_by: currentUser.id })
     .select()
     .single();
 
@@ -451,7 +453,8 @@ async function createChapter() {
 
   if (perspectiveError) {
     console.error(perspectiveError);
-    await storySupabaseClient.from("story_chapters").delete().eq("id", chapter.id);
+    const { error: cleanupError } = await storySupabaseClient.rpc("cleanup_empty_story_chapter", { p_chapter_id: chapter.id });
+    if (cleanupError) console.error("Could not clean up the empty Story chapter:", cleanupError);
     alert("The entry was created but its diary page could not be added. Run STORY_DIARY_UPDATE.sql in Supabase.");
     return;
   }
@@ -590,7 +593,7 @@ async function requestChapterDeletion(chapterId) {
 
   const approver = oppositePerson(requester);
   const approverEmail = emailForAuthor(approver);
-  if (!confirm(`Request deletion of “${chapter.title}” from Aaru's diary? ${approver} must authorize it before anything is deleted.`)) return;
+  if (!confirm(`Request deletion of “${chapter.title}” from your diary? ${approver} must authorize it before anything is deleted.`)) return;
 
   const { data, error } = await storySupabaseClient
     .from("story_chapter_delete_requests")

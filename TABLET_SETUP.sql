@@ -55,6 +55,7 @@ create policy "Somo can delete old sessions"
   on public.website_activity_sessions for delete to authenticated
   using (
     lower(coalesce(auth.jwt() ->> 'email', '')) = lower('sohamdivekar9867@gmail.com')
+    and started_at < now() - interval '3 days'
   );
 
 create table if not exists public.somo_notes (

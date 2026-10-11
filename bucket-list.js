@@ -2,7 +2,7 @@ const SUPABASE_URL="https://swqaakxywwajesuajflz.supabase.co";
 const SUPABASE_KEY="sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G";
 const API=`${SUPABASE_URL}/rest/v1/bucket_list`;
 const dataClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:window.sessionStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-const PIN="RT2026";
+
 let items=[];
 let editing=false;
 let editingId=null;
@@ -103,10 +103,8 @@ function bindNoteControls(){
   }));
 }
 editButton.addEventListener("click",()=>{
-  if(editing){editing=false;addButton.hidden=true;editButton.textContent="🔒 Edit list";render();return}
-  const entered=prompt("Enter the editing PIN:");
-  if(entered===PIN){editing=true;addButton.hidden=false;editButton.textContent="🔓 Lock editing";render()}
-  else if(entered!==null)alert("That PIN doesn't match.");
+  if(editing){editing=false;addButton.hidden=true;editButton.textContent="Edit list";render();return}
+  editing=true;addButton.hidden=false;editButton.textContent="Lock editing";render();
 });
 function openModal(){modal.classList.add("open");modal.setAttribute("aria-hidden","false");document.getElementById("itemText").focus()}
 function closeModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");form.reset()}

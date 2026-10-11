@@ -49,14 +49,17 @@ create policy "Couple can add date entries" on public.date_entries for insert to
 create policy "Couple can update date entries" on public.date_entries for update to authenticated using (public.is_couple_member()) with check (public.is_couple_member());
 create policy "Couple can delete date entries" on public.date_entries for delete to authenticated using (public.is_couple_member());
 
-insert into storage.buckets (id,name,public) values ('date-photos','date-photos',true) on conflict (id) do update set public=true;
+insert into storage.buckets (id,name,public) values ('date-photos','date-photos',false) on conflict (id) do update set public=false;
 drop policy if exists "Couple can upload date photos" on storage.objects;
 drop policy if exists "Couple can delete date photos" on storage.objects;
 drop policy if exists "Public can upload date photos" on storage.objects;
 drop policy if exists "Public can delete date photos" on storage.objects;
 create policy "Couple can upload date photos" on storage.objects for insert to authenticated with check (bucket_id='date-photos' and public.is_couple_member());
 create policy "Couple can delete date photos" on storage.objects for delete to authenticated using (bucket_id='date-photos' and public.is_couple_member());
--- The bucket remains public-read because existing date entries store public image URLs.
+drop policy if exists "Couple can read date photos" on storage.objects;
+create policy "Couple can read date photos" on storage.objects for select to authenticated
+using (bucket_id='date-photos' and public.is_couple_member());
+-- Existing public URLs are converted to signed URLs by date-detail.js.
 -- Upload/delete still require one of the two authenticated accounts.
 
 -- SHARED BUCKET LIST
@@ -222,20 +225,12 @@ begin
   join public.story_chapters c
     on lower(trim(c.title)) = lower(trim(sp.title))
   where lower(trim(coalesce(sp.title, ''))) <> 'how it began'
-  on conflict (chapter_id, author) do update
-    set content = excluded.content,
-        updated_at = greatest(public.story_perspectives.updated_at, excluded.updated_at);
+  on conflict (chapter_id, author) do nothing;
 exception when undefined_table then
   null;
 end $$;
 
--- Remove the old placeholder from the legacy table so it cannot appear in older code.
-do $$
-begin
-  delete from public.story_pages where lower(trim(coalesce(title,''))) = 'how it began';
-exception when undefined_table then
-  null;
-end $$;
+-- Keep the legacy source table unchanged; migration is non-destructive.
 
 alter table public.story_chapters enable row level security;
 alter table public.story_perspectives enable row level security;
