@@ -1,3 +1,15 @@
+function safeRedirectTarget() {
+  const requested = new URLSearchParams(location.search).get("redirect");
+  if (!requested || requested.startsWith("//") || requested.includes("\\\\")) return "index.html";
+  try {
+    const target = new URL(requested, location.origin);
+    if (target.origin !== location.origin || !/^https?:$/.test(target.protocol)) return "index.html";
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return "index.html";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("loginForm");
   const emailInput = document.getElementById("email");
@@ -8,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
-    window.location.href = new URLSearchParams(location.search).get("redirect") || "index.html";
+    window.location.href = safeRedirectTarget();
     return;
   }
 
@@ -30,6 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       submitButton.innerHTML = 'Enter Our World <span>♡</span>';
       return;
     }
-    window.location.href = new URLSearchParams(location.search).get("redirect") || "index.html";
+    window.location.href = safeRedirectTarget();
   });
 });
