@@ -1,20 +1,32 @@
 SOMO TABLET — UPLOAD NOTES
 
-Upload/replace these files at the same paths in the repository:
+This ZIP contains only the revised/new files. Upload each file to the same relative path in your GitHub repository:
+
 - bedroom.html
-- bedroom.css
 - auth.js
-- tablet.html (new)
-- tablet.css (new)
-- tablet.js (new)
-- TABLET_SETUP.sql (new)
-- assets/pixel-bedroom.png (new/replacement asset)
+- tablet.js
+- TABLET_SETUP.sql
+- TABLET_UPLOAD_NOTES.txt
+- assets/pixel-bedroom.png
 
-IMPORTANT CONFIGURATION
-1. The account email is already configured as sohamdivekar9867@gmail.com in tablet.js and TABLET_SETUP.sql.
-3. Run TABLET_SETUP.sql in Supabase SQL Editor.
-4. To physically purge records every hour even when nobody visits, enable pg_cron in Supabase and run the optional cron.schedule command at the bottom of TABLET_SETUP.sql. The dashboard itself only displays the last 3 days regardless.
-5. The website's existing login system must be used by both users for session tracking to work. Explicit website logout records a logout time. Unexpected tab/browser closure cannot guarantee an exact logout time; the dashboard displays last-seen time for those sessions.
+The tablet.html and tablet.css already exist in your project and are unchanged. The tablet remains portrait/vertical.
 
-Somo's Notes saves to the device immediately and syncs to Supabase once the email and SQL setup are configured.
-The dashboard records only sessions on this website, not activity on other apps or devices.
+SUPABASE SETUP
+1. Run TABLET_SETUP.sql in the Supabase SQL Editor. It safely adds the user_email column if the activity table already exists and backfills emails for existing sessions.
+2. Activity tracking records authenticated website sessions. The dashboard shows sessions for aarusaru090901@gmail.com only, and only Somo's account (sohamdivekar9867@gmail.com) is permitted to read the full session table.
+3. The dashboard displays the last 3 days. The SQL trigger purges older rows whenever a new session is inserted.
+4. For automatic deletion even when nobody visits the site, enable the pg_cron extension in Supabase if available, then run this once in SQL Editor:
+   select cron.schedule(
+     'delete-old-website-activity',
+     '17 * * * *',
+     $$delete from public.website_activity_sessions where started_at < now() - interval '3 days'$$
+   );
+   If pg_cron is not available on your Supabase plan/project, the trigger cleanup still runs when a new session is inserted, but deletion may not happen exactly at the three-day mark during inactivity.
+
+SESSION DETAILS
+- Both users keep using their existing website login and separate passwords; no credentials are included in this ZIP.
+- Bedroom now loads the existing authentication and protection scripts so visits there are tracked too.
+- Explicit website logout records the logout time.
+- If a browser/tab closes unexpectedly, exact logout cannot be known; the dashboard uses last-seen time as the best available estimate.
+- Only sessions after deployment are guaranteed to have the updated email field. Existing sessions are backfilled by TABLET_SETUP.sql where possible.
+- Somo's Notes uses the existing tablet implementation; its cloud saving requires the setup SQL.

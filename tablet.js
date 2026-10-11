@@ -1,5 +1,6 @@
 /* Tablet apps. Replace SOMO_EMAIL with the email used by Somo's website account. */
 const SOMO_EMAIL = "sohamdivekar9867@gmail.com";
+const AARU_EMAIL = "aarusaru090901@gmail.com";
 const tabletClient = window.supabase?.createClient(
   "https://swqaakxywwajesuajflz.supabase.co",
   "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G",
@@ -70,7 +71,7 @@ async function loadActivity() {
   message.textContent='Refreshing…';
   const since=new Date(Date.now()-3*24*60*60*1000).toISOString();
   const {data,error}=await tabletClient.from('website_activity_sessions')
-    .select('id,user_id,started_at,last_seen_at,ended_at')
+    .select('id,user_id,user_email,started_at,last_seen_at,ended_at')
     .gte('started_at',since).order('started_at',{ascending:false}).limit(250);
   if(error) {
     rows.innerHTML='<tr><td colspan="4" class="empty-row">Activity table is not ready. Run TABLET_SETUP.sql in the Supabase SQL Editor.</td></tr>';
@@ -79,11 +80,11 @@ async function loadActivity() {
     document.getElementById('lastOpened').textContent='—';
     return;
   }
-  const sessions=(data||[]).filter(row=>row.user_id!==unlockedUser.id);
+  const sessions=(data||[]).filter(row=>String(row.user_email||'').toLowerCase()===AARU_EMAIL.toLowerCase());
   document.getElementById('sessionCount').textContent=String(sessions.length);
   document.getElementById('lastOpened').textContent=sessions.length ? formatTime(sessions[0].started_at) : '—';
   if(!sessions.length) {
-    rows.innerHTML='<tr><td colspan="4" class="empty-row">No other account sessions recorded in the last 3 days.</td></tr>';
+    rows.innerHTML='<tr><td colspan="4" class="empty-row">No Aaru sessions recorded in the last 3 days. Sessions are tracked from the time the updated tracker is deployed.</td></tr>';
   } else {
     rows.innerHTML=sessions.map(row=>{
       const end=row.ended_at||row.last_seen_at;

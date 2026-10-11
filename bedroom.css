@@ -942,10 +942,10 @@ body.dialogue-open { overflow: hidden; }
 /* Tablet hotspot on the red beanbag in the updated bedroom artwork. */
 .tablet-hotspot {
   position: absolute;
-  left: 79.5%;
-  top: 77.4%;
-  width: 19.5%;
-  height: 7.8%;
+  left: 77.5%;
+  top: 74.8%;
+  width: 22%;
+  height: 9%;
   border: 0;
   padding: 0;
   border-radius: 12%;
@@ -959,9 +959,9 @@ body.dialogue-open { overflow: hidden; }
 }
 @media (max-width: 600px) {
   .tablet-hotspot {
-    left: 78.5%;
-    top: 77.4%;
-    width: 21%;
-    height: 8%;
+    left: 77.5%;
+    top: 74.8%;
+    width: 22%;
+    height: 9%;
   }
 }

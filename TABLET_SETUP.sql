@@ -5,11 +5,23 @@
 create table if not exists public.website_activity_sessions (
   id uuid primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
+  user_email text,
   started_at timestamptz not null default now(),
   last_seen_at timestamptz not null default now(),
   ended_at timestamptz,
   created_at timestamptz not null default now()
 );
+-- Safe migration for an already-created activity table.
+alter table public.website_activity_sessions
+  add column if not exists user_email text;
+
+-- Backfill email for sessions created by the earlier tracker version.
+update public.website_activity_sessions s
+set user_email = lower(u.email)
+from auth.users u
+where s.user_id = u.id
+  and (s.user_email is null or s.user_email = '');
+
 create index if not exists website_activity_started_at_idx
   on public.website_activity_sessions (started_at desc);
 create index if not exists website_activity_user_idx
@@ -19,11 +31,18 @@ alter table public.website_activity_sessions enable row level security;
 drop policy if exists "Users can record own sessions" on public.website_activity_sessions;
 create policy "Users can record own sessions"
   on public.website_activity_sessions for insert to authenticated
-  with check (user_id = auth.uid());
+  with check (
+    user_id = auth.uid()
+    and lower(coalesce(user_email, '')) = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
 drop policy if exists "Users can update own sessions" on public.website_activity_sessions;
 create policy "Users can update own sessions"
   on public.website_activity_sessions for update to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
+  using (user_id = auth.uid())
+  with check (
+    user_id = auth.uid()
+    and lower(coalesce(user_email, '')) = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
 drop policy if exists "Somo can read all sessions and users can read own" on public.website_activity_sessions;
 create policy "Somo can read all sessions and users can read own"
   on public.website_activity_sessions for select to authenticated

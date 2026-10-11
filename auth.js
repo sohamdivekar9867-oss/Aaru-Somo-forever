@@ -52,7 +52,7 @@ async function startWebsiteActivityTracking() {
       id = crypto.randomUUID();
       const now = new Date().toISOString();
       const { error } = await supabaseClient.from("website_activity_sessions").insert({
-        id, user_id: user.id, started_at: now, last_seen_at: now
+        id, user_id: user.id, user_email: (user.email || '').toLowerCase(), started_at: now, last_seen_at: now
       });
       if (error) return; // Tracking is optional until TABLET_SETUP.sql has been run.
       window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
