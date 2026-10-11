@@ -74,10 +74,44 @@ function canEditChapter() {
 }
 
 function buildDiaryLabel() {
-  return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>AARU'S DIARY</span><span class="diary-written-note">written with love</span></div>`;
+  return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>AARU'S DIARY</span></div>`;
 }
 
-function createStoryPage(chapter, number) {
+// Split text into phone-sized page chunks while keeping paragraphs and words intact.
+function paginateDiaryText(content = "") {
+  const isMobile = window.matchMedia("(max-width: 700px)").matches;
+  const charsPerLine = isMobile ? 27 : 52;
+  const linesPerPage = isMobile ? 9 : 12;
+  const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  if (!paragraphs.length) return [""];
+  const pages = [];
+  let pageParts = [], usedLines = 0;
+  const pushPage = () => { if (pageParts.length) pages.push(pageParts.join("\n\n")); pageParts = []; usedLines = 0; };
+  paragraphs.forEach(paragraph => {
+    const words = paragraph.split(/\s+/);
+    let part = "", partLines = 1;
+    words.forEach(word => {
+      const candidate = part ? `${part} ${word}` : word;
+      const nextLines = Math.max(1, Math.ceil(candidate.length / charsPerLine));
+      if (part && nextLines > partLines) {
+        if (usedLines + partLines > linesPerPage) pushPage();
+        pageParts.push(part); usedLines += partLines; part = word; partLines = Math.max(1, Math.ceil(word.length / charsPerLine));
+      } else { part = candidate; partLines = nextLines; }
+      if (partLines >= linesPerPage) {
+        if (usedLines + partLines > linesPerPage) pushPage();
+        pageParts.push(part); usedLines += partLines; part = ""; partLines = 0;
+      }
+    });
+    if (part) {
+      if (usedLines + partLines > linesPerPage) pushPage();
+      pageParts.push(part); usedLines += partLines;
+    }
+  });
+  pushPage();
+  return pages.length ? pages : [""];
+}
+
+function createStoryPage(chapter, number, segmentIndex = 0, segments = [""]) {
   const perspective = getPerspective(chapter, DIARY_AUTHOR);
   const editable = canEditPerspective(DIARY_AUTHOR);
   const hasText = !!perspective;
@@ -86,34 +120,29 @@ function createStoryPage(chapter, number) {
   page.className = `reader-page story-page diary-page diary-page--${side}`;
   page.dataset.chapterId = chapter.id;
   page.dataset.diarySide = side;
-  const editorId = `editor-${chapter.id}`;
-  const titleId = `title-${chapter.id}`;
-
+  page.dataset.segmentIndex = String(segmentIndex);
+  const editorId = `editor-${chapter.id}-${segmentIndex}`;
+  const titleId = `title-${chapter.id}-${segmentIndex}`;
+  const pageContent = segments[segmentIndex] || "";
+  const firstSegment = segmentIndex === 0;
   page.innerHTML = `
     <div class="page-inner diary-page-inner">
-      <div class="page-top"><span>${String(number - 1).padStart(2, "0")} · AARU'S DIARY</span><span>PRIVATE THOUGHTS & MEMORIES</span></div>
+      <div class="page-top"><span>${String(number + 1).padStart(2, "0")} · AARU'S DIARY</span><span></span></div>
       <div class="story-page-content diary-page-content">
-        <div class="story-toolbar diary-toolbar">
-          ${buildDiaryLabel()}
-          ${canEditChapter() ? `<button class="chapter-edit-button" data-chapter-id="${escapeHtml(chapter.id)}">Edit heading</button>` : ""}
-        </div>
-        <div class="chapter-heading-wrap">
-          <p class="page-eyebrow">Entry ${String(number - 2).padStart(2, "0")}</p>
-          <h2 class="chapter-heading" id="${titleId}">${escapeHtml(chapter.title)}</h2>
-        </div>
-        <div class="page-rule"></div>
+        ${firstSegment ? `<div class="story-toolbar diary-toolbar"><div></div>${canEditChapter() ? `<button class="chapter-edit-button" data-chapter-id="${escapeHtml(chapter.id)}">Edit heading</button>` : ""}</div>
+        <div class="chapter-heading-wrap"><h2 class="chapter-heading" id="${titleId}">${escapeHtml(chapter.title)}</h2></div>
+        <div class="page-rule"></div>` : `<div class="chapter-heading-wrap continuation-heading"><h2 class="chapter-heading">${escapeHtml(chapter.title)} <span>(continued)</span></h2></div>`}
         ${hasText ? `
-          <div class="editable-content contenteditable-area diary-ruled-content ${editable ? "editing-active" : ""}" id="${editorId}" contenteditable="${editable ? "true" : "false"}" spellcheck="true">${renderContent(perspective.content)}</div>
-          ${editable ? `<div class="story-edit-actions"><button class="story-save-button" data-chapter-id="${escapeHtml(chapter.id)}">Save diary entry</button></div>` : ""}
+          <div class="editable-content contenteditable-area diary-ruled-content ${editable ? "editing-active" : ""}" id="${editorId}" data-chapter-id="${escapeHtml(chapter.id)}" data-segment-index="${segmentIndex}" contenteditable="${editable ? "true" : "false"}" spellcheck="true">${renderContent(pageContent)}</div>
+          ${editable && firstSegment ? `<div class="story-edit-actions"><button class="story-save-button" data-chapter-id="${escapeHtml(chapter.id)}">Save diary entry</button></div>` : ""}
         ` : `
           <div class="perspective-empty diary-empty">
             <p>This page is waiting for a memory.</p>
             ${editable ? `<button class="add-perspective-button" data-chapter-id="${escapeHtml(chapter.id)}">＋ Write this entry</button>` : `<span>Log in with either account to add to Aaru's diary.</span>`}
           </div>
         `}
-        <div class="page-quote">“A little moment, kept forever.” <span>♡</span></div>
       </div>
-      <div class="page-bottom"><span>Aaru's diary</span><span>${String(number - 1).padStart(2, "0")}</span></div>
+      <div class="page-bottom"><span></span><span>${String(number + 1).padStart(2, "0")}</span></div>
     </div>`;
   return page;
 }
@@ -121,43 +150,92 @@ function createStoryPage(chapter, number) {
 function buildPages() {
   const container = $("dynamicStoryPages");
   container.innerHTML = "";
-  readerPages = [$("indexPage")];
+  readerPages = [];
+  const indexEntriesPerPage = window.matchMedia("(max-width: 700px)").matches ? 4 : 6;
+  const firstIndexCapacity = 2;
+  const indexChunks = [];
+  if (!chapters.length) indexChunks.push([]);
+  else {
+    indexChunks.push(chapters.slice(0, firstIndexCapacity));
+    for (let i = firstIndexCapacity; i < chapters.length; i += indexEntriesPerPage) indexChunks.push(chapters.slice(i, i + indexEntriesPerPage));
+  }
 
-  chapters.forEach((chapter, index) => {
-    const page = createStoryPage(chapter, index + 3);
-    container.appendChild(page);
+  const baseIndex = $("indexPage");
+  const indexHost = baseIndex.parentElement;
+  baseIndex.classList.remove("active-page");
+  baseIndex.dataset.readerIndex = "0";
+  const indexPages = [baseIndex];
+  indexChunks.slice(1).forEach((chunk, idx) => {
+    const clone = baseIndex.cloneNode(true);
+    clone.id = `indexPage-${idx + 2}`;
+    clone.dataset.readerIndex = String(idx + 1);
+    clone.classList.remove("active-page");
+    indexHost.insertBefore(clone, container);
+    indexPages.push(clone);
+  });
+
+  // Remove index clones from any prior render before rebuilding their contents.
+  document.querySelectorAll("[id^='indexPage-']").forEach((el, i) => { if (!indexPages.includes(el)) el.remove(); });
+  indexPages.forEach((page, i) => {
+    const chunk = indexChunks[i] || [];
+    const list = page.querySelector(".index-list");
+    if (list) list.innerHTML = chunk.length ? chunk.map(ch => {
+      const originalIndex = chapters.findIndex(c => c.id === ch.id);
+      return `<div class="index-entry-wrapper">${makeIndexEntry(ch, originalIndex, false)}</div>`;
+    }).join("") : `<div class="index-coming-soon"><span>♡</span> Your first diary entry is waiting to be written.</div>`;
+    const heading = page.querySelector(".index-content h2");
+    if (heading) heading.textContent = i === 0 ? "Index" : "Index · continued";
+    const intro = page.querySelector(".index-intro");
+    if (intro) intro.style.display = i === 0 ? "" : "none";
+    const controls = page.querySelector(".private-controls");
+    if (controls && i !== 0) controls.style.display = "none";
+    const top = page.querySelector(".page-top span:last-child");
+    const bottom = page.querySelector(".page-bottom span:last-child");
+    if (top) top.textContent = String(i + 2).padStart(2, "0");
+    if (bottom) bottom.textContent = String(i + 2).padStart(2, "0");
+    page.dataset.page = String(i + 2);
     readerPages.push(page);
   });
 
+  const chapterFirstPage = new Map();
+  chapters.forEach(chapter => {
+    const perspective = getPerspective(chapter, DIARY_AUTHOR);
+    const segments = paginateDiaryText(perspective?.content || "");
+    chapterFirstPage.set(chapter.id, readerPages.length);
+    segments.forEach((segment, segmentIndex) => {
+      const page = createStoryPage(chapter, readerPages.length + 1, segmentIndex, segments);
+      container.appendChild(page);
+      readerPages.push(page);
+    });
+  });
+
+  // Refresh printed index page references after the final page count is known.
+  document.querySelectorAll(".index-entry, .overlay-entry").forEach(button => {
+    const targetPage = chapterFirstPage.get(button.dataset.target);
+    const number = button.querySelector(".index-page-number, .overlay-entry-page");
+    if (number && targetPage !== undefined) number.textContent = String(targetPage + 2).padStart(2, "0");
+  });
+
   bindStoryControls();
-  buildIndex();
+  buildIndex(chapterFirstPage, indexPages.length);
   showPage(Math.min(currentPage, readerPages.length - 1), false);
 }
 
-function makeIndexEntry(chapter, index, overlay = false) {
+function makeIndexEntry(chapter, index, overlay = false, pageNumber = null) {
   const entryClass = overlay ? "overlay-entry" : "index-entry";
   const numberClass = overlay ? "overlay-entry-number" : "index-number";
   const textClass = overlay ? "overlay-entry-text" : "index-entry-text";
   const pageClass = overlay ? "overlay-entry-page" : "index-page-number";
   const number = String(index + 1).padStart(2, "0");
-  const pageNumber = String(index + 3).padStart(2, "0");
-
+  const shownPage = pageNumber == null ? index + 3 : pageNumber + 2;
   return `<button class="${entryClass}" data-target="${escapeHtml(chapter.id)}">
-    <span class="${numberClass}">${number}</span>
-    <span class="${textClass}"><strong>${escapeHtml(chapter.title)}</strong></span>
-    <span class="${pageClass}">${pageNumber}</span>
+    <span class="${numberClass}">${number}</span><span class="${textClass}"><strong>${escapeHtml(chapter.title)}</strong></span><span class="${pageClass}">${String(shownPage).padStart(2, "0")}</span>
   </button>`;
 }
 
-function buildIndex() {
-  const empty = `<div class="index-coming-soon"><span>♡</span> Your first diary entry is waiting to be written.</div>`;
-  $("indexList").innerHTML = chapters.length
-    ? chapters.map((c, i) => `<div class="index-entry-wrapper">${makeIndexEntry(c, i)}</div>`).join("")
-    : empty;
-  $("overlayIndexList").innerHTML = chapters.length
-    ? chapters.map((c, i) => `<div class="overlay-entry-wrapper">${makeIndexEntry(c, i, true)}</div>`).join("")
-    : empty;
-
+function buildIndex(chapterFirstPage = new Map(), indexPageCount = 1) {
+  const chaptersForOverlay = chapters.map((c, i) => makeIndexEntry(c, i, true, chapterFirstPage.get(c.id) ?? (indexPageCount + i)));
+  $("overlayIndexList").innerHTML = chapters.length ? chaptersForOverlay.map(entry => `<div class="overlay-entry-wrapper">${entry}</div>`).join("") : `<div class="index-coming-soon"><span>♡</span> Your first diary entry is waiting to be written.</div>`;
   document.querySelectorAll(".index-entry, .overlay-entry").forEach(button => {
     button.addEventListener("click", () => goToChapter(button.dataset.target));
   });
@@ -236,10 +314,11 @@ async function saveDiaryEntry(button) {
   }
 
   const chapter = chapters.find(c => c.id === button.dataset.chapterId);
-  const editor = document.getElementById(`editor-${button.dataset.chapterId}`);
-  if (!chapter || !editor) return;
+  const editors = Array.from(document.querySelectorAll(`.diary-ruled-content[data-chapter-id="${CSS.escape(button.dataset.chapterId)}"]`))
+    .sort((a, b) => Number(a.dataset.segmentIndex) - Number(b.dataset.segmentIndex));
+  if (!chapter || !editors.length) return;
 
-  const content = textFromEditor(editor);
+  const content = editors.map(textFromEditor).filter(Boolean).join("\n\n");
   button.disabled = true;
   button.textContent = "Saving...";
 
@@ -558,7 +637,7 @@ function showPage(index, smooth = true) {
 }
 
 function goToChapter(chapterId) {
-  const index = readerPages.findIndex(page => page.dataset.chapterId === chapterId);
+  const index = readerPages.findIndex(page => page.dataset.chapterId === chapterId && page.dataset.segmentIndex === "0");
   if (index >= 0) showPage(index);
   closeOverlay();
 }
