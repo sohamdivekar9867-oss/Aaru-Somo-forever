@@ -1,0 +1,113 @@
+:root {
+  color-scheme: light;
+  --ink: #382524;
+  --muted: #8c7067;
+  --rose: #9e5f5d;
+  --paper: #f8efe3;
+  --cream: #f1dfc9;
+  --line: rgba(74, 48, 40, .16);
+}
+* { box-sizing: border-box; }
+html { min-height: 100%; background: #211818; }
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: max(18px, env(safe-area-inset-top)) 14px max(24px, env(safe-area-inset-bottom));
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(148, 91, 75, .3), transparent 55%),
+    linear-gradient(145deg, #211818, #44302a 55%, #261b1b);
+  font-family: "DM Mono", monospace;
+}
+button, input { font: inherit; }
+.radio-page { min-height: calc(100dvh - 42px); display: flex; justify-content: center; }
+.radio-back {
+  position: fixed; top: max(16px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left));
+  z-index: 5; width: 42px; height: 42px; display: grid; place-items: center;
+  border: 1px solid rgba(255, 239, 221, .25); border-radius: 50%;
+  color: #fff3e7; background: rgba(25, 17, 17, .68); text-decoration: none; font-size: 27px;
+}
+.radio-shell {
+  width: min(100%, 490px); min-height: calc(100dvh - 42px); align-self: flex-start;
+  padding: 32px 20px 24px; border: 1px solid rgba(255, 235, 213, .16);
+  border-radius: 30px; background: linear-gradient(160deg, rgba(248,239,227,.98), rgba(235,215,194,.97));
+  box-shadow: 0 24px 80px rgba(0,0,0,.32);
+}
+.radio-heading { text-align: center; padding: 0 22px 21px; }
+.radio-kicker { margin: 0 0 8px; color: var(--rose); font-size: 9px; letter-spacing: .18em; }
+.radio-heading h1 { margin: 0; font: 500 clamp(24px, 7vw, 34px)/1.2 "Playfair Display", serif; }
+.radio-heading h1 span { color: var(--rose); }
+.radio-subtitle { margin: 9px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.cassette-deck {
+  position: relative; overflow: hidden; padding: 15px 18px 17px; margin: 0 auto 25px;
+  width: min(100%, 390px); border: 2px solid #aa8062; border-radius: 18px;
+  background: linear-gradient(145deg, #d9bd98, #c9a77e 52%, #b98f68);
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.6), inset 0 -5px 9px rgba(79,48,35,.16), 0 9px 20px rgba(72,43,32,.18);
+}
+.cassette-label {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 60px;
+  padding: 8px 12px; border: 1px solid rgba(77,50,39,.27); border-radius: 8px;
+  background: linear-gradient(180deg, #f5e8d0, #ead8bd); text-align: center;
+}
+.cassette-brand { color: #987159; font-size: 8px; letter-spacing: .2em; }
+.cassette-label strong { max-width: 100%; overflow: hidden; color: #473333; font: 500 14px/1.25 "Playfair Display", serif; text-overflow: ellipsis; white-space: nowrap; }
+.cassette-small { color: #987159; font-size: 8px; letter-spacing: .12em; }
+.cassette-window {
+  position: relative; display: flex; align-items: center; justify-content: space-between;
+  width: 72%; height: 44px; margin: 12px auto 0; padding: 0 15px;
+  border: 2px solid #986f53; border-radius: 9px; background: #493b36; box-shadow: inset 0 3px 8px #211b1a;
+}
+.reel {
+  width: 26px; height: 26px; display: grid; place-items: center; border: 4px dotted #e4c89e;
+  border-radius: 50%; background: #bb8d63;
+}
+.reel i { width: 6px; height: 6px; border-radius: 50%; background: #f2dfbd; }
+.tape-line { position: absolute; left: 28%; right: 28%; height: 2px; background: #d9bd98; }
+.cassette-screws { display: flex; justify-content: space-between; margin-top: 12px; }
+.cassette-screws i { width: 5px; height: 5px; border-radius: 50%; background: #886247; box-shadow: inset 0 1px 1px rgba(0,0,0,.4); }
+.cassette-deck.is-playing .reel { animation: reel-spin 1.2s linear infinite; }
+@keyframes reel-spin { to { transform: rotate(360deg); } }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; margin: 0 0 13px; }
+.section-heading h2 { margin: 0; font: 500 21px/1.1 "Playfair Display", serif; }
+.format-chip, .track-count { padding: 6px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 8px; white-space: nowrap; }
+.radio-upload, .radio-library { padding: 18px 0 2px; border-top: 1px solid var(--line); }
+.file-picker {
+  display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 11px 13px;
+  border: 1px dashed rgba(122,80,68,.45); border-radius: 14px; background: rgba(255,255,255,.36);
+  cursor: pointer;
+}
+.file-picker input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.file-icon { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; border-radius: 11px; color: #fff3e7; background: var(--rose); font-size: 21px; }
+.file-picker strong, .file-picker small { display: block; }
+.file-picker strong { overflow: hidden; max-width: 300px; font-size: 10px; text-overflow: ellipsis; }
+.file-picker small { margin-top: 5px; color: var(--muted); font-size: 8px; }
+.title-field { display: block; margin: 13px 0 10px; color: var(--muted); font-size: 9px; }
+.title-field span { opacity: .7; }
+.title-field input {
+  display: block; width: 100%; margin-top: 6px; padding: 11px 12px; border: 1px solid var(--line);
+  border-radius: 11px; color: var(--ink); background: rgba(255,255,255,.48); outline: none; font-size: 10px;
+}
+.title-field input:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(158,95,93,.12); }
+.upload-button {
+  width: 100%; padding: 12px; border: 0; border-radius: 12px; color: #fff7ef; background: #80504e;
+  cursor: pointer; font-size: 10px; transition: background .2s, transform .2s;
+}
+.upload-button:hover { background: #6c4140; transform: translateY(-1px); }
+.upload-button:disabled { opacity: .55; cursor: wait; transform: none; }
+.radio-message { min-height: 17px; margin: 9px 2px 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.track-list { display: grid; gap: 10px; }
+.track-card { padding: 12px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.37); }
+.track-card-head { display: flex; align-items: start; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.track-card h3 { margin: 0; overflow-wrap: anywhere; font: 500 15px/1.3 "Playfair Display", serif; }
+.track-meta { margin: 4px 0 0; color: var(--muted); font-size: 8px; }
+.track-delete { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: var(--muted); background: transparent; cursor: pointer; font-size: 8px; }
+.track-player { display: block; width: 100%; max-height: 96px; }
+.track-player video { max-height: 96px; }
+.empty-library { margin: 0; padding: 14px 4px; color: var(--muted); font-size: 10px; text-align: center; }
+.radio-footer { padding-top: 17px; color: var(--muted); font-size: 8px; line-height: 1.5; text-align: center; }
+@media (max-width: 420px) {
+  body { padding: max(10px, env(safe-area-inset-top)) 8px max(16px, env(safe-area-inset-bottom)); }
+  .radio-shell { padding: 27px 15px 19px; border-radius: 24px; }
+  .radio-back { left: max(10px, env(safe-area-inset-left)); }
+}
