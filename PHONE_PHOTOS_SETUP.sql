@@ -86,8 +86,7 @@ using (
   )
 );
 
--- Existing chat photo setup remains intact.
--- This adds one profile picture per person without touching existing chat_photos rows.
+-- Profile pictures are stored in the same private bucket under profiles/{profile}/{user_id}/.
 
 create table if not exists public.phone_profile_pictures (
   id uuid primary key default gen_random_uuid(),
@@ -114,9 +113,9 @@ with check (
   public.is_couple_member()
   and updated_by = auth.uid()
   and (
-    (profile_name = 'Aaru' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('aaru.saru090901@gmail.com'))
+    (profile_name = 'Aaru' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('aaru.saru090901@gmail.com'))
     or
-    (profile_name = 'Somo' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('sohamdivekar9867@gmail.com'))
+    (profile_name = 'Somo' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('sohamdivekar9867@gmail.com'))
   )
 );
 
@@ -132,9 +131,9 @@ with check (
   public.is_couple_member()
   and updated_by = auth.uid()
   and (
-    (profile_name = 'Aaru' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('aaru.saru090901@gmail.com'))
+    (profile_name = 'Aaru' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('aaru.saru090901@gmail.com'))
     or
-    (profile_name = 'Somo' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('sohamdivekar9867@gmail.com'))
+    (profile_name = 'Somo' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('sohamdivekar9867@gmail.com'))
   )
 );
 
@@ -146,9 +145,9 @@ for insert to authenticated
 with check (
   bucket_id = 'chat-photos'
   and (
-    (name like 'profiles/Aaru/' || auth.uid()::text || '/%' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('aaru.saru090901@gmail.com'))
+    (name like 'profiles/Aaru/' || auth.uid()::text || '/%' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('aaru.saru090901@gmail.com'))
     or
-    (name like 'profiles/Somo/' || auth.uid()::text || '/%' and lower(coalesce((select email from auth.users where id = auth.uid()), '')) = lower('sohamdivekar9867@gmail.com'))
+    (name like 'profiles/Somo/' || auth.uid()::text || '/%' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('sohamdivekar9867@gmail.com'))
   )
 );
 
