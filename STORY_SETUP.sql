@@ -74,20 +74,12 @@ begin
   join public.story_chapters c
     on lower(trim(c.title)) = lower(trim(sp.title))
   where lower(trim(coalesce(sp.title, ''))) <> 'how it began'
-  on conflict (chapter_id, author) do update
-    set content = excluded.content,
-        updated_at = greatest(public.story_perspectives.updated_at, excluded.updated_at);
+  on conflict (chapter_id, author) do nothing;
 exception when undefined_table then
   null;
 end $$;
 
--- Remove the old placeholder from the legacy table so it cannot appear in older code.
-do $$
-begin
-  delete from public.story_pages where lower(trim(coalesce(title,''))) = 'how it began';
-exception when undefined_table then
-  null;
-end $$;
+-- Keep the legacy source table unchanged; migration is non-destructive.
 
 alter table public.story_chapters enable row level security;
 alter table public.story_perspectives enable row level security;
