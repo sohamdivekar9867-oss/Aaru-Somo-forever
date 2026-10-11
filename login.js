@@ -2,7 +2,7 @@ function safeRedirectTarget() {
   const requested = new URLSearchParams(location.search).get("redirect");
   if (!requested || requested.startsWith("//") || requested.includes("\\")) return "index.html";
   try {
-    const target = new URL(requested, location.origin);
+    const target = new URL(requested, location.href);
     if (target.origin !== location.origin || !/^https?:$/.test(target.protocol)) return "index.html";
     return `${target.pathname}${target.search}${target.hash}`;
   } catch {
