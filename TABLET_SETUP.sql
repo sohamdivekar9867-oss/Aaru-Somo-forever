@@ -175,7 +175,7 @@ $track$;
 
 -- Install or replace the logging trigger on every existing app table.
 -- Re-run this setup after adding future tables to include them.
-do $
+do $track_install$
 declare
   v_table record;
 begin
@@ -192,7 +192,7 @@ begin
     );
   end loop;
 end;
-$;
+$track_install$;
 
 -- Clean older activity records whenever a new session starts.
 create or replace function public.trim_old_website_activity()
