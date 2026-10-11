@@ -1264,63 +1264,77 @@ a {
 
 .reader-page.flip-in-next {
   transform-origin: left center;
-  animation: diaryFlipNext .78s cubic-bezier(.2,.72,.22,1) both;
+  will-change: transform, opacity, filter;
+  animation: diaryFlipNext 1.05s cubic-bezier(.45, 0, .55, 1) both;
 }
 
 .reader-page.flip-in-previous {
   transform-origin: right center;
-  animation: diaryFlipPrevious .78s cubic-bezier(.2,.72,.22,1) both;
+  will-change: transform, opacity, filter;
+  animation: diaryFlipPrevious 1.05s cubic-bezier(.45, 0, .55, 1) both;
 }
 
 @keyframes diaryFlipNext {
   0% {
-    opacity: .2;
-    transform: perspective(1400px) rotateY(-68deg) translateX(38px) scale(.98);
-    filter: brightness(.72);
-    box-shadow: -18px 18px 36px rgba(45, 25, 31, .3);
-  }
-  42% {
-    opacity: .9;
-    transform: perspective(1400px) rotateY(-28deg) translateX(14px);
+    opacity: .82;
+    transform: perspective(1800px) rotateY(54deg) translateX(-24px) scale(.995);
     filter: brightness(.88);
-    box-shadow: -8px 12px 28px rgba(45, 25, 31, .22);
+    box-shadow: -12px 12px 28px rgba(45, 25, 31, .2);
   }
-  76% {
+  34% {
+    opacity: .96;
+    transform: perspective(1800px) rotateY(32deg) translateX(-13px);
+    filter: brightness(.93);
+    box-shadow: -8px 10px 22px rgba(45, 25, 31, .16);
+  }
+  72% {
     opacity: 1;
-    transform: perspective(1400px) rotateY(4deg) translateX(-2px);
-    filter: brightness(1.02);
+    transform: perspective(1800px) rotateY(7deg) translateX(-3px);
+    filter: brightness(.99);
+    box-shadow: -3px 7px 14px rgba(45, 25, 31, .1);
+  }
+  90% {
+    transform: perspective(1800px) rotateY(-1deg) translateX(1px);
+    filter: brightness(1.01);
   }
   100% {
     opacity: 1;
-    transform: perspective(1400px) rotateY(0) translateX(0) scale(1);
+    transform: perspective(1800px) rotateY(0) translateX(0) scale(1);
     filter: brightness(1);
     box-shadow: 0 24px 65px rgba(0, 0, 0, .24), 0 3px 8px rgba(0, 0, 0, .12);
+    will-change: auto;
   }
 }
 
 @keyframes diaryFlipPrevious {
   0% {
-    opacity: .2;
-    transform: perspective(1400px) rotateY(68deg) translateX(-38px) scale(.98);
-    filter: brightness(.72);
-    box-shadow: 18px 18px 36px rgba(45, 25, 31, .3);
-  }
-  42% {
-    opacity: .9;
-    transform: perspective(1400px) rotateY(28deg) translateX(-14px);
+    opacity: .82;
+    transform: perspective(1800px) rotateY(-54deg) translateX(24px) scale(.995);
     filter: brightness(.88);
-    box-shadow: 8px 12px 28px rgba(45, 25, 31, .22);
+    box-shadow: 12px 12px 28px rgba(45, 25, 31, .2);
   }
-  76% {
+  34% {
+    opacity: .96;
+    transform: perspective(1800px) rotateY(-32deg) translateX(13px);
+    filter: brightness(.93);
+    box-shadow: 8px 10px 22px rgba(45, 25, 31, .16);
+  }
+  72% {
     opacity: 1;
-    transform: perspective(1400px) rotateY(-4deg) translateX(2px);
-    filter: brightness(1.02);
+    transform: perspective(1800px) rotateY(-7deg) translateX(3px);
+    filter: brightness(.99);
+    box-shadow: 3px 7px 14px rgba(45, 25, 31, .1);
+  }
+  90% {
+    transform: perspective(1800px) rotateY(1deg) translateX(-1px);
+    filter: brightness(1.01);
   }
   100% {
     opacity: 1;
-    transform: perspective(1400px) rotateY(0) translateX(0) scale(1);
+    transform: perspective(1800px) rotateY(0) translateX(0) scale(1);
     filter: brightness(1);
     box-shadow: 0 24px 65px rgba(0, 0, 0, .24), 0 3px 8px rgba(0, 0, 0, .12);
+    will-change: auto;
   }
 }
 
