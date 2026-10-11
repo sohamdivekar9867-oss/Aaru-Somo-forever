@@ -22,7 +22,7 @@ let chapters = [];
 let readerPages = [];
 let currentPage = 0;
 let currentUser = null;
-let DIARY_AUTHOR = null;
+const DIARY_AUTHOR = "Aaru";
 let flipDirection = "next";
 let deleteRequests = [];
 
@@ -299,11 +299,9 @@ async function loadCurrentUser() {
   if (error) {
     console.error("Could not read Supabase session:", error);
     currentUser = null;
-    DIARY_AUTHOR = null;
     return;
   }
   currentUser = data?.session?.user || null;
-  DIARY_AUTHOR = currentUser ? authorForEmail(currentUser.email) : null;
   console.log("Our Story auth:", currentUser?.email || "no active session");
 }
 
@@ -403,7 +401,7 @@ async function addDiaryEntry(chapterId) {
 
   const { data, error } = await storySupabaseClient
     .from("story_perspectives")
-    .insert({ chapter_id: chapter.id, author: authorForEmail(currentUser.email), content: "", created_by: currentUser.id })
+    .insert({ chapter_id: chapter.id, author: DIARY_AUTHOR, content: "", created_by: currentUser.id })
     .select()
     .single();
 
