@@ -5,7 +5,7 @@
   <script src="auth.js" defer></script>
   <script src="protect.js" defer></script>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Story · Aaru Somo</title>
+  <title>Aaru's Diary · Aaru Somo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="our-story.css">
@@ -16,33 +16,33 @@
 
   <section class="book-page-screen cover-screen" id="coverPage">
     <div class="cover-decoration cover-decoration-left">✦</div><div class="cover-decoration cover-decoration-right">✦</div>
-    <p class="eyebrow">A little book about us</p><h1>Our <em>Story</em></h1><div class="cover-line"></div>
-    <p class="cover-introduction">Somewhere between ordinary days and unexpected moments, we found something extraordinary in each other. This is our little story — of laughter, love, silly moments, deep conversations, and all the memories we’re yet to make. A story that began with two people, and slowly became <em>us.</em> ❤️</p>
-    <p class="cover-names">SOMO &amp; AARU</p><p class="cover-date">EST. 27 AUGUST 2026</p>
-    <button class="book-button" id="startBookBtn"><span>Open our story</span><span>→</span></button>
+    <p class="eyebrow">A little diary of her days</p><h1>Aaru's <em>Diary</em></h1><div class="cover-line"></div>
+    <p class="cover-introduction">Little moments, thoughts, memories, and feelings — kept here like pages in a real diary. Some entries may be written by Aaru, some by Somda, but every page belongs to <em>Aaru's diary.</em> ❤️</p>
+    <p class="cover-names">AARU'S LITTLE WORLD</p><p class="cover-date">EST. 27 AUGUST 2026</p>
+    <button class="book-button" id="startBookBtn"><span>Open the diary</span><span>→</span></button>
   </section>
 
   <section class="reader" id="reader" style="display:none">
     <header class="reader-header">
       <a href="index.html" class="reader-back">← Our little world</a>
-      <div class="reader-title"><span>OUR STORY</span></div>
+      <div class="reader-title"><span>AARU'S DIARY</span></div>
       <button class="index-toggle" id="indexToggle">☰ <span>Index</span></button>
     </header>
     <div class="page-counter" id="pageCounter">Page 2 of 2</div>
 
-    <section class="reader-page index-page active-page" data-page="2" id="indexPage">
+    <section class="reader-page index-page diary-index-page active-page" data-page="2" id="indexPage">
       <div class="page-inner">
-        <div class="page-top"><span>CONTENTS</span><span>02</span></div>
+        <div class="page-top"><span>DIARY INDEX</span><span>02</span></div>
         <div class="index-content">
-          <p class="eyebrow page-eyebrow">Our little chapters</p><h2>Contents</h2><div class="index-rule"></div>
-          <p class="index-intro">A collection of memories, two perspectives, and all the pages still waiting to be written.</p>
+          <p class="eyebrow page-eyebrow">Aaru's little chapters</p><h2>Index</h2><div class="index-rule"></div>
+          <p class="index-intro">A collection of moments and memories in Aaru's diary — with plenty of pages still waiting to be written.</p>
           <nav class="index-list" id="indexList"></nav>
           <div class="private-controls">
-            <button class="add-page-button" id="addPageBtn">＋ Add New Chapter</button>
-            <button class="delete-page-button" id="deletePageBtn">⌫ Delete Chapter</button>
+            <button class="add-page-button" id="addPageBtn">＋ Add Diary Entry</button>
+            <button class="delete-page-button" id="deletePageBtn">⌫ Delete Entry</button>
           </div>
         </div>
-        <div class="page-bottom"><span>Our Story</span><span>02</span></div>
+        <div class="page-bottom"><span>Aaru's Diary</span><span>02</span></div>
       </div>
     </section>
 
@@ -53,8 +53,8 @@
     <div class="delete-modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
       <button class="delete-modal-close" id="deleteModalClose" aria-label="Close">×</button>
       <p class="eyebrow">Two-person confirmation</p>
-      <h3 id="deleteModalTitle">Delete a chapter</h3>
-      <p class="delete-modal-intro">Deleting a chapter requires both of you. You can request deletion, but the other person must authorize it before the chapter is removed.</p>
+      <h3 id="deleteModalTitle">Delete a diary entry</h3>
+      <p class="delete-modal-intro">Deleting a diary entry requires both of you. You can request deletion, but the other person must authorize it before the entry is removed.</p>
       <div class="delete-request-list" id="deleteRequestList"></div>
     </div>
   </div>
@@ -67,8 +67,8 @@
   </section>
 
   <aside class="index-overlay" id="indexOverlay">
-    <div class="overlay-header"><span>OUR STORY</span><button id="closeIndexBtn">×</button></div>
-    <div class="overlay-content"><p class="eyebrow">Navigate our pages</p><h2>Contents</h2><div class="overlay-index-list" id="overlayIndexList"></div></div>
+    <div class="overlay-header"><span>AARU'S DIARY</span><button id="closeIndexBtn">×</button></div>
+    <div class="overlay-content"><p class="eyebrow">Navigate her pages</p><h2>Index</h2><div class="overlay-index-list" id="overlayIndexList"></div></div>
   </aside>
 </main>
 <script src="our-story.js"></script>

@@ -22,7 +22,8 @@ let chapters = [];
 let readerPages = [];
 let currentPage = 0;
 let currentUser = null;
-let currentPerspective = "Aaru";
+const DIARY_AUTHOR = "Aaru";
+let flipDirection = "next";
 let deleteRequests = [];
 
 const $ = id => document.getElementById(id);
@@ -42,7 +43,7 @@ function authorForEmail(email) {
 
 function renderContent(content = "") {
   const clean = String(content || "").trim();
-  if (!clean) return `<p class="empty-story">This perspective is waiting to be written.</p>`;
+  if (!clean) return `<p class="empty-story">This diary page is waiting to be written.</p>`;
   return clean.split(/\n\s*\n/).map(part =>
     `<p>${escapeHtml(part.trim()).replace(/\n/g, "<br>")}</p>`
   ).join("");
@@ -65,76 +66,55 @@ function getPerspective(chapter, author) {
 }
 
 function canEditPerspective(author) {
-  return !!currentUser && authorForEmail(currentUser.email) === author;
+  return !!currentUser && !!authorForEmail(currentUser.email) && author === DIARY_AUTHOR;
 }
 
 function canEditChapter() {
   return !!currentUser && !!authorForEmail(currentUser.email);
 }
 
-function buildPerspectiveSelect(chapter) {
-  const aaru = getPerspective(chapter, "Aaru");
-  const somda = getPerspective(chapter, "Somo");
-  return `
-    <div class="perspective-control">
-      <label for="perspective-${escapeHtml(chapter.id)}">View</label>
-      <select class="perspective-select" id="perspective-${escapeHtml(chapter.id)}" data-chapter-id="${escapeHtml(chapter.id)}">
-        <option value="Aaru" ${currentPerspective === "Aaru" ? "selected" : ""}>Aaru's Perspective${aaru ? "" : " · not written yet"}</option>
-        <option value="Somo" ${currentPerspective === "Somo" ? "selected" : ""}>Somo's Perspective${somda ? "" : " · not written yet"}</option>
-      </select>
-    </div>`;
+function buildDiaryLabel() {
+  return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>AARU'S DIARY</span><span class="diary-written-note">written with love</span></div>`;
 }
 
 function createStoryPage(chapter, number) {
-  const perspective = getPerspective(chapter, currentPerspective);
-  const editable = canEditPerspective(currentPerspective);
+  const perspective = getPerspective(chapter, DIARY_AUTHOR);
+  const editable = canEditPerspective(DIARY_AUTHOR);
   const hasText = !!perspective;
   const page = document.createElement("section");
-  page.className = "reader-page story-page";
+  const side = number % 2 === 0 ? "left" : "right";
+  page.className = `reader-page story-page diary-page diary-page--${side}`;
   page.dataset.chapterId = chapter.id;
-
+  page.dataset.diarySide = side;
   const editorId = `editor-${chapter.id}`;
   const titleId = `title-${chapter.id}`;
 
   page.innerHTML = `
-    <div class="page-inner">
-      <div class="page-top">
-        <span>${String(number).padStart(2, "0")} · ${escapeHtml(currentPerspective.toUpperCase())}'S SIDE</span>
-        <span>OUR STORY</span>
-      </div>
-
-      <div class="story-page-content">
-        <div class="story-toolbar">
-          ${buildPerspectiveSelect(chapter)}
+    <div class="page-inner diary-page-inner">
+      <div class="page-top"><span>${String(number - 1).padStart(2, "0")} · AARU'S DIARY</span><span>PRIVATE THOUGHTS & MEMORIES</span></div>
+      <div class="story-page-content diary-page-content">
+        <div class="story-toolbar diary-toolbar">
+          ${buildDiaryLabel()}
           ${canEditChapter() ? `<button class="chapter-edit-button" data-chapter-id="${escapeHtml(chapter.id)}">Edit heading</button>` : ""}
         </div>
-
         <div class="chapter-heading-wrap">
-          <p class="page-eyebrow">Chapter ${String(number - 2).padStart(2, "0")}</p>
+          <p class="page-eyebrow">Entry ${String(number - 2).padStart(2, "0")}</p>
           <h2 class="chapter-heading" id="${titleId}">${escapeHtml(chapter.title)}</h2>
         </div>
         <div class="page-rule"></div>
-
         ${hasText ? `
-          <div class="editable-content contenteditable-area ${editable ? "editing-active" : ""}"
-               id="${editorId}" contenteditable="${editable ? "true" : "false"}" spellcheck="true">${renderContent(perspective.content)}</div>
-          ${editable ? `
-            <div class="story-edit-actions">
-              <button class="story-save-button" data-chapter-id="${escapeHtml(chapter.id)}" data-perspective="${currentPerspective}">Save this perspective</button>
-            </div>` : ""}
+          <div class="editable-content contenteditable-area diary-ruled-content ${editable ? "editing-active" : ""}" id="${editorId}" contenteditable="${editable ? "true" : "false"}" spellcheck="true">${renderContent(perspective.content)}</div>
+          ${editable ? `<div class="story-edit-actions"><button class="story-save-button" data-chapter-id="${escapeHtml(chapter.id)}">Save diary entry</button></div>` : ""}
         ` : `
-          <div class="perspective-empty">
-            <p>This perspective hasn't been written yet.</p>
-            ${editable ? `<button class="add-perspective-button" data-chapter-id="${escapeHtml(chapter.id)}">＋ Add my perspective</button>` : `<span>Waiting for ${escapeHtml(currentPerspective)} to write this part of the story.</span>`}
+          <div class="perspective-empty diary-empty">
+            <p>This page is waiting for a memory.</p>
+            ${editable ? `<button class="add-perspective-button" data-chapter-id="${escapeHtml(chapter.id)}">＋ Write this entry</button>` : `<span>Log in with either account to add to Aaru's diary.</span>`}
           </div>
         `}
-
-        <div class="page-quote">“Some people enter your life quietly, but stay forever.” <span>♡</span></div>
+        <div class="page-quote">“A little moment, kept forever.” <span>♡</span></div>
       </div>
-
-      <div class="page-bottom"><span>${escapeHtml(currentPerspective)}'s perspective</span><span>${String(number).padStart(2, "0")}</span></div>
+      <div class="page-bottom"><span>Aaru's diary</span><span>${String(number - 1).padStart(2, "0")}</span></div>
     </div>`;
-
   return page;
 }
 
@@ -170,7 +150,7 @@ function makeIndexEntry(chapter, index, overlay = false) {
 }
 
 function buildIndex() {
-  const empty = `<div class="index-coming-soon"><span>♡</span> Your first chapter is waiting to be written.</div>`;
+  const empty = `<div class="index-coming-soon"><span>♡</span> Your first diary entry is waiting to be written.</div>`;
   $("indexList").innerHTML = chapters.length
     ? chapters.map((c, i) => `<div class="index-entry-wrapper">${makeIndexEntry(c, i)}</div>`).join("")
     : empty;
@@ -184,22 +164,13 @@ function buildIndex() {
 }
 
 function bindStoryControls() {
-  document.querySelectorAll(".perspective-select").forEach(select => {
-    select.addEventListener("change", () => {
-      currentPerspective = select.value;
-      const chapterId = select.dataset.chapterId;
-      const pageIndex = readerPages.findIndex(page => page.dataset.chapterId === chapterId);
-      if (pageIndex >= 0) buildPagesAndReturn(pageIndex);
-    });
-  });
-
   document.querySelectorAll(".story-save-button").forEach(button => {
-    button.addEventListener("click", () => savePerspective(button));
+    button.addEventListener("click", () => saveDiaryEntry(button));
   });
 
 
   document.querySelectorAll(".add-perspective-button").forEach(button => {
-    button.addEventListener("click", () => addPerspective(button.dataset.chapterId));
+    button.addEventListener("click", () => addDiaryEntry(button.dataset.chapterId));
   });
 
   document.querySelectorAll(".chapter-edit-button").forEach(button => {
@@ -247,20 +218,20 @@ async function loadStories() {
   const perspectives = perspectiveData || [];
   chapters = (chapterData || []).map(chapter => ({
     ...chapter,
-    perspectives: perspectives.filter(p => p.chapter_id === chapter.id)
+    perspectives: perspectives.filter(p => p.chapter_id === chapter.id && p.author === DIARY_AUTHOR)
   }));
 
   await loadDeleteRequests();
   buildPages();
 }
 
-async function savePerspective(button) {
+async function saveDiaryEntry(button) {
   await loadCurrentUser();
   if (!currentUser) return alert("Please log in first ♡");
 
   const author = authorForEmail(currentUser.email);
-  if (author !== button.dataset.perspective) {
-    alert("You can only edit your own perspective ♡");
+  if (!author) {
+    alert("This account is not authorized for Aaru's diary.");
     return;
   }
 
@@ -272,7 +243,7 @@ async function savePerspective(button) {
   button.disabled = true;
   button.textContent = "Saving...";
 
-  const existing = getPerspective(chapter, author);
+  const existing = getPerspective(chapter, DIARY_AUTHOR);
   let result;
 
   if (existing) {
@@ -283,7 +254,7 @@ async function savePerspective(button) {
   } else {
     result = await storySupabaseClient
       .from("story_perspectives")
-      .insert({ chapter_id: chapter.id, author, content, created_by: currentUser.id })
+      .insert({ chapter_id: chapter.id, author: DIARY_AUTHOR, content, created_by: currentUser.id })
       .select()
       .single();
   }
@@ -292,7 +263,7 @@ async function savePerspective(button) {
     console.error(result.error);
     button.disabled = false;
     button.textContent = "Save failed";
-    alert("Could not save this perspective. Check STORY_SETUP.sql / Supabase RLS.");
+    alert("Could not save this diary entry. Run STORY_DIARY_UPDATE.sql in Supabase, then try again.");
     return;
   }
 
@@ -300,29 +271,29 @@ async function savePerspective(button) {
   else chapter.perspectives.push(result.data);
 
   button.textContent = "Saved ✓";
-  setTimeout(() => { button.textContent = "Save this perspective"; button.disabled = false; }, 1600);
+  setTimeout(() => { button.textContent = "Save diary entry"; button.disabled = false; }, 1600);
 }
 
 
-async function addPerspective(chapterId) {
+async function addDiaryEntry(chapterId) {
   await loadCurrentUser();
   if (!currentUser) return alert("Please log in first ♡");
   const author = authorForEmail(currentUser.email);
-  if (!author) return alert("This account is not authorized for Our Story.");
+  if (!author) return alert("This account is not authorized for Aaru's diary.");
 
   const chapter = chapters.find(c => c.id === chapterId);
   if (!chapter) return;
-  if (getPerspective(chapter, author)) return buildPages();
+  if (getPerspective(chapter, DIARY_AUTHOR)) return buildPages();
 
   const { data, error } = await storySupabaseClient
     .from("story_perspectives")
-    .insert({ chapter_id: chapter.id, author, content: "", created_by: currentUser.id })
+    .insert({ chapter_id: chapter.id, author: DIARY_AUTHOR, content: "", created_by: currentUser.id })
     .select()
     .single();
 
   if (error) {
     console.error(error);
-    alert("Could not add your perspective. Check STORY_SETUP.sql / Supabase RLS.");
+    alert("Could not add this diary entry. Run STORY_DIARY_UPDATE.sql in Supabase, then try again.");
     return;
   }
 
@@ -334,7 +305,7 @@ async function createChapter() {
   // Refresh the local auth reference immediately before an insert so a
   // freshly restored/renewed Supabase session is never treated as logged out.
   await loadCurrentUser();
-  if (!canEditChapter()) return alert("Please log in first ♡");
+  if (!currentUser || !authorForEmail(currentUser.email)) return alert("Please log in first ♡");
 
   const title = prompt("Enter the heading for this new chapter:");
   if (!title || !title.trim()) return;
@@ -354,27 +325,25 @@ async function createChapter() {
 
   if (error) {
     console.error(error);
-    alert("Could not create the chapter. Check STORY_SETUP.sql / Supabase RLS.");
+    alert("Could not create the diary entry. Check Supabase RLS and run STORY_DIARY_UPDATE.sql.");
     return;
   }
 
-  const author = authorForEmail(currentUser.email);
   const { data: perspective, error: perspectiveError } = await storySupabaseClient
     .from("story_perspectives")
-    .insert({ chapter_id: chapter.id, author, content: "", created_by: currentUser.id })
+    .insert({ chapter_id: chapter.id, author: DIARY_AUTHOR, content: "", created_by: currentUser.id })
     .select()
     .single();
 
   if (perspectiveError) {
     console.error(perspectiveError);
     await storySupabaseClient.from("story_chapters").delete().eq("id", chapter.id);
-    alert("The chapter was created but your perspective could not be added. Please run STORY_SETUP.sql again.");
+    alert("The entry was created but its diary page could not be added. Run STORY_DIARY_UPDATE.sql in Supabase.");
     return;
   }
 
   chapter.perspectives = [perspective];
   chapters.push(chapter);
-  currentPerspective = author;
   buildPages();
   goToChapter(chapter.id);
 }
@@ -507,7 +476,7 @@ async function requestChapterDeletion(chapterId) {
 
   const approver = oppositePerson(requester);
   const approverEmail = emailForAuthor(approver);
-  if (!confirm(`Request deletion of “${chapter.title}”? ${approver} must authorize it before anything is deleted.`)) return;
+  if (!confirm(`Request deletion of “${chapter.title}” from Aaru's diary? ${approver} must authorize it before anything is deleted.`)) return;
 
   const { data, error } = await storySupabaseClient
     .from("story_chapter_delete_requests")
@@ -545,7 +514,7 @@ async function authorizeChapterDeletion(requestId) {
     return;
   }
 
-  if (!confirm(`Authorize deletion of “${chapter.title}”? This will permanently remove the chapter and both perspectives.`)) return;
+  if (!confirm(`Authorize deletion of “${chapter.title}”? This will permanently remove this diary entry.`)) return;
 
   const { data, error } = await storySupabaseClient.rpc("authorize_story_chapter_deletion", {
     p_request_id: requestId
@@ -570,8 +539,18 @@ function buildPagesAndReturn(pageIndex) {
 
 function showPage(index, smooth = true) {
   if (!readerPages.length) return;
-  currentPage = Math.max(0, Math.min(index, readerPages.length - 1));
-  readerPages.forEach((page, i) => page.classList.toggle("active-page", i === currentPage));
+  const nextIndex = Math.max(0, Math.min(index, readerPages.length - 1));
+  const changedPage = nextIndex !== currentPage;
+  flipDirection = nextIndex >= currentPage ? "next" : "previous";
+  readerPages.forEach((page, i) => {
+    page.classList.remove("flip-in-next", "flip-in-previous");
+    page.classList.toggle("active-page", i === nextIndex);
+    if (i === nextIndex && smooth && changedPage) {
+      page.classList.add(flipDirection === "next" ? "flip-in-next" : "flip-in-previous");
+      window.setTimeout(() => page.classList.remove("flip-in-next", "flip-in-previous"), 720);
+    }
+  });
+  currentPage = nextIndex;
   $("pageCounter").textContent = `Page ${currentPage + 2} of ${readerPages.length + 1}`;
   $("prevBtn").disabled = false;
   $("nextBtn").disabled = currentPage === readerPages.length - 1;
