@@ -1263,23 +1263,65 @@ a {
 }
 
 .reader-page.flip-in-next {
-  animation: diaryFlipNext .68s cubic-bezier(.2,.72,.22,1) both;
+  transform-origin: left center;
+  animation: diaryFlipNext .78s cubic-bezier(.2,.72,.22,1) both;
 }
 
 .reader-page.flip-in-previous {
-  animation: diaryFlipPrevious .68s cubic-bezier(.2,.72,.22,1) both;
+  transform-origin: right center;
+  animation: diaryFlipPrevious .78s cubic-bezier(.2,.72,.22,1) both;
 }
 
 @keyframes diaryFlipNext {
-  0% { opacity: .35; transform: perspective(1500px) rotateY(-13deg) translateX(18px); }
-  55% { opacity: 1; }
-  100% { opacity: 1; transform: perspective(1500px) rotateY(0) translateX(0); }
+  0% {
+    opacity: .2;
+    transform: perspective(1400px) rotateY(-68deg) translateX(38px) scale(.98);
+    filter: brightness(.72);
+    box-shadow: -18px 18px 36px rgba(45, 25, 31, .3);
+  }
+  42% {
+    opacity: .9;
+    transform: perspective(1400px) rotateY(-28deg) translateX(14px);
+    filter: brightness(.88);
+    box-shadow: -8px 12px 28px rgba(45, 25, 31, .22);
+  }
+  76% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(4deg) translateX(-2px);
+    filter: brightness(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0) translateX(0) scale(1);
+    filter: brightness(1);
+    box-shadow: 0 24px 65px rgba(0, 0, 0, .24), 0 3px 8px rgba(0, 0, 0, .12);
+  }
 }
 
 @keyframes diaryFlipPrevious {
-  0% { opacity: .35; transform: perspective(1500px) rotateY(13deg) translateX(-18px); }
-  55% { opacity: 1; }
-  100% { opacity: 1; transform: perspective(1500px) rotateY(0) translateX(0); }
+  0% {
+    opacity: .2;
+    transform: perspective(1400px) rotateY(68deg) translateX(-38px) scale(.98);
+    filter: brightness(.72);
+    box-shadow: 18px 18px 36px rgba(45, 25, 31, .3);
+  }
+  42% {
+    opacity: .9;
+    transform: perspective(1400px) rotateY(28deg) translateX(-14px);
+    filter: brightness(.88);
+    box-shadow: 8px 12px 28px rgba(45, 25, 31, .22);
+  }
+  76% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(-4deg) translateX(2px);
+    filter: brightness(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0) translateX(0) scale(1);
+    filter: brightness(1);
+    box-shadow: 0 24px 65px rgba(0, 0, 0, .24), 0 3px 8px rgba(0, 0, 0, .12);
+  }
 }
 
 @media (max-width: 700px) {
