@@ -161,7 +161,7 @@ function createStoryPage(chapter, number, segmentIndex = 0, segments = [""]) {
   const firstSegment = segmentIndex === 0;
   page.innerHTML = `
     <div class="page-inner diary-page-inner">
-      <div class="page-top"><span>${String(number + 1).padStart(2, "0")} · AARU'S DIARY</span><span></span></div>
+      <div class="page-top"><span>${String(number + 1).padStart(2, "0")} · ${escapeHtml((DIARY_AUTHOR || "OUR").toUpperCase())}'S DIARY</span><span></span></div>
       <div class="story-page-content diary-page-content">
         ${firstSegment ? `<div class="story-toolbar diary-toolbar"><div></div>${canEditChapter() ? `<button class="chapter-edit-button" data-chapter-id="${escapeHtml(chapter.id)}">Edit heading</button>` : ""}</div>
         <div class="chapter-heading-wrap"><h2 class="chapter-heading" id="${titleId}">${escapeHtml(chapter.title)}</h2></div>
