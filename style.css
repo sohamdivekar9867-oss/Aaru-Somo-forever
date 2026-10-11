@@ -213,7 +213,7 @@ button {
   left: 29%;
   top: 10%;
   width: 43%;
-  height: 43%;
+  height: 34%;
 }
 
 /* Book / diary — vertical book on the left side of the desk */
@@ -248,20 +248,10 @@ button {
   height: 28%;
 }
 .radio-hotspot {
-  left: 84%;
-  top: 39%;
-  width: 16%;
-  height: 14%;
-}
-.radio-hotspot::after {
-  left: auto;
-  right: 0;
-  transform: translateY(5px);
-}
-.radio-hotspot:hover::after,
-.radio-hotspot:focus-visible::after,
-.radio-hotspot.active::after {
-  transform: translateY(0);
+  left: 47%;
+  top: 45.5%;
+  width: 12%;
+  height: 11.5%;
 }
 
 .music-hotspot::after {
@@ -663,10 +653,10 @@ button {
     height: 29%;
   }
   .radio-hotspot {
-    left: 82%;
-    top: 40%;
-    width: 18%;
-    height: 15%;
+    left: 47%;
+    top: 45.5%;
+    width: 12%;
+    height: 11.5%;
   }
 
   .reels-hotspot {
