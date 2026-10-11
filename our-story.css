@@ -1608,3 +1608,74 @@ a {
   .reader-page.diary-index-page .index-entry-text strong { font-size: .73rem !important; line-height: 1.18 !important; }
   .reader-page.diary-index-page .private-controls { bottom: 7px !important; }
 }
+
+
+/* Mobile-first final layout: use the index's full writing width throughout the diary. */
+@media (max-width: 700px) {
+  .reader-page.diary-page, .reader-page.diary-index-page {
+    width: calc(100vw - 28px) !important; max-width: none !important;
+    height: min(690px, calc(100svh - 190px)) !important; min-height: 450px !important;
+    overflow: hidden !important;
+  }
+  .reader-page.diary-page .page-inner, .reader-page.diary-index-page .page-inner {
+    padding-left: 39px !important; padding-right: 12px !important;
+    min-height: 0 !important; height: 100% !important; box-sizing: border-box !important;
+  }
+  .reader-page.diary-page .diary-page-content {
+    width: 100% !important; max-width: none !important; margin: 0 !important;
+    padding: 8px 0 0 !important; height: calc(100% - 72px) !important;
+    box-sizing: border-box !important; overflow: hidden !important;
+  }
+  .reader-page.diary-page .chapter-heading-wrap,
+  .reader-page.diary-page .chapter-heading,
+  .reader-page.diary-page .page-rule,
+  .reader-page.diary-page .diary-ruled-content {
+    width: 100% !important; max-width: none !important;
+    margin-left: 0 !important; margin-right: 0 !important; box-sizing: border-box !important;
+  }
+  .reader-page.diary-page .diary-page-content { padding-right: 0 !important; }
+  .reader-page.diary-page .diary-ruled-content {
+    height: calc(100% - 50px) !important; max-height: calc(100% - 50px) !important;
+    overflow: hidden !important; padding: 0 !important; margin: 0 !important;
+    font-size: .84rem !important; line-height: 27px !important;
+    background-size: 100% 27px !important; overflow-wrap: anywhere !important;
+  }
+  .reader-page.diary-page .diary-ruled-content p,
+  .reader-page.diary-page .diary-ruled-content p + p {
+    width: 100% !important; max-width: none !important; margin: 0 !important;
+    line-height: 27px !important; min-height: 27px !important;
+  }
+  .reader-page.diary-page .page-bottom {
+    left: 39px !important; right: 12px !important; bottom: 12px !important;
+    height: 16px !important; display: flex !important; align-items: center !important;
+    justify-content: flex-start !important; z-index: 8 !important;
+  }
+  .reader-page.diary-page .page-bottom span:first-child { display: none !important; }
+  .reader-page.diary-page .page-bottom span:last-child {
+    display: inline-block !important; background: #f7eee4 !important;
+    padding: 0 5px !important; line-height: 16px !important;
+  }
+  /* Index entries flow naturally and use the whole page instead of being clipped by a narrow column. */
+  .reader-page.diary-index-page .index-content {
+    width: 100% !important; max-width: none !important; margin: 0 !important;
+    padding: 12px 0 52px !important; box-sizing: border-box !important;
+    text-align: left !important; overflow: visible !important;
+  }
+  .reader-page.diary-index-page .index-content h2 {
+    font-size: 2rem !important; line-height: 1.05 !important; margin: 8px 0 !important;
+  }
+  .reader-page.diary-index-page .index-rule { margin: 10px 0 12px !important; }
+  .reader-page.diary-index-page .index-intro {
+    max-width: none !important; margin: 0 0 12px !important;
+    font-size: .82rem !important; line-height: 1.35 !important;
+  }
+  .reader-page.diary-index-page .index-list { width: 100% !important; max-width: none !important; overflow: visible !important; }
+  .reader-page.diary-index-page .index-entry-wrapper { width: 100% !important; max-width: none !important; }
+  .reader-page.diary-index-page .index-entry {
+    width: 100% !important; box-sizing: border-box !important;
+    padding: 7px 0 !important; gap: 8px !important;
+  }
+  .reader-page.diary-index-page .index-entry-text { min-width: 0 !important; }
+  .reader-page.diary-index-page .index-entry-text strong { font-size: .78rem !important; line-height: 1.25 !important; }
+  .reader-page.diary-index-page .private-controls { bottom: 7px !important; left: 39px !important; right: 12px !important; }
+}

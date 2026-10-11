@@ -80,9 +80,9 @@ function buildDiaryLabel() {
 // Split text into phone-sized page chunks while keeping paragraphs and words intact.
 function paginateDiaryText(content = "") {
   const isMobile = window.matchMedia("(max-width: 700px)").matches;
-  const charsPerLine = isMobile ? 38 : 52;
+  const charsPerLine = isMobile ? 30 : 52;
   // Keep a generous safety margin: actual browser font wrapping varies by device.
-  const linesPerPage = isMobile ? 10 : 12;
+  const linesPerPage = isMobile ? 9 : 12;
   const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   if (!paragraphs.length) return [""];
   const pages = [];
