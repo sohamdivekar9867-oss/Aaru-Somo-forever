@@ -66,7 +66,7 @@
     }
     trackList.innerHTML = tracks.map(track => {
       const sourceType = escapeHtml(track.mime_type);
-      const player = track.mime_type === 'video/mp4'
+      const player = ['video/mp4', 'application/mp4'].includes(track.mime_type)
         ? '<video class="track-player" controls preload="none" playsinline data-radio-player aria-label="Play ' + escapeHtml(track.title) + '"><source src="' + escapeHtml(track.url) + '" type="' + sourceType + '"></video>'
         : '<audio class="track-player" controls preload="none" data-radio-player aria-label="Play ' + escapeHtml(track.title) + '"><source src="' + escapeHtml(track.url) + '" type="' + sourceType + '"></audio>';
       return '<article class="track-card" data-track-title="' + escapeHtml(track.title) + '">' +
