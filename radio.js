@@ -88,7 +88,7 @@
   }
 
   function updatePlaybackState() {
-    const playing = trackList.querySelector('[data-radio-player]:not(:paused)');
+    const playing = Array.from(trackList.querySelectorAll('[data-radio-player]')).some(player => !player.paused && !player.ended);
     if (!playing) {
       cassette.classList.remove('is-playing');
       activeStatus.textContent = 'READY TO PLAY';
