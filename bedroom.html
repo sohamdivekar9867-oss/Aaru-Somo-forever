@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="auth.js" defer></script>
   <script src="protect.js" defer></script>
+  <script src="bedroom.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Come here, Aaru… ♡</title>
@@ -24,19 +25,19 @@
         <div class="live-clock-time" id="liveClockTime">--:--</div>
         <div class="live-clock-date" id="liveClockDate">---</div>
       </div>
-      <button class="bed-hotspot" id="bedHotspot" aria-label="Sit together on the bed"></button>
+      <button class="bed-hotspot" id="bedHotspot" data-title="Our Bed" aria-label="Sit together on the bed"></button>
 
       <!-- Permanent owl messenger. It glows only when unread letters exist. -->
-      <button class="owl-hotspot" id="owlHotspot" type="button" aria-label="Open unread love letters">
+      <button class="owl-hotspot" id="owlHotspot" type="button" data-title="Love Letters" aria-label="Open unread love letters">
         <span class="owl-unread-dot" id="owlUnreadDot" aria-hidden="true"></span>
       </button>
 
       <!-- The right bedside drawer acts as our Love Letter Locker. -->
-      <button class="locker-hotspot" id="lockerHotspot" type="button" aria-label="Open our Love Letter Locker"></button>
+      <button class="locker-hotspot" id="lockerHotspot" type="button" data-title="Love Letter Locker" aria-label="Open our Love Letter Locker"></button>
       <!-- Mobile phone: our shared chat-photo gallery. -->
-      <button class="phone-hotspot" id="phoneHotspot" type="button" aria-label="Open our chat photo gallery"></button>
+      <button class="phone-hotspot" id="phoneHotspot" type="button" data-title="Phone Photos" aria-label="Open our chat photo gallery"></button>
       <!-- Tablet: Somo's private diary and notes -->
-      <button class="tablet-hotspot" id="tabletHotspot" type="button" aria-label="Open Somo's tablet" title="Somo's tablet"></button>
+      <button class="tablet-hotspot" id="tabletHotspot" type="button" data-title="Somo's Tablet" aria-label="Open Somo's tablet"></button>
     </div>
 
     <a class="bedroom-back" href="index.html" aria-label="Back to our room">←</a>
@@ -99,9 +100,6 @@
     </div>
   </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth.js"></script>
-  <script src="bedroom.js"></script>
   <script>
     document.getElementById('tabletHotspot')?.addEventListener('click', () => {
       window.location.href = 'tablet.html';
