@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#291b1b">
+  <title>Background Radio · Aaru & Somo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="radio.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="protect.js" defer></script>
+  <script src="radio.js" defer></script>
+</head>
+<body>
+  <main class="radio-page">
+    <a class="radio-back" href="index.html" aria-label="Back to our room">‹</a>
+    <div class="radio-shell">
+      <header class="radio-heading">
+        <p class="radio-kicker">A LITTLE SOUNDTRACK FOR US</p>
+        <h1>Background Radio <span>♡</span></h1>
+        <p class="radio-subtitle">Songs we can keep close, wherever we are.</p>
+      </header>
+
+      <section class="cassette-deck" id="cassetteDeck" aria-label="Retro cassette display">
+        <div class="cassette-label">
+          <span class="cassette-brand">AARU + SOMO</span>
+          <strong id="activeTrackTitle">SIDE A · OUR SONGS</strong>
+          <span class="cassette-small" id="activeTrackStatus">READY TO PLAY</span>
+        </div>
+        <div class="cassette-window" aria-hidden="true">
+          <div class="reel reel-left"><i></i></div>
+          <div class="tape-line"></div>
+          <div class="reel reel-right"><i></i></div>
+        </div>
+        <div class="cassette-screws" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </section>
+
+      <section class="radio-upload">
+        <div class="section-heading">
+          <div><p class="radio-kicker">ADD TO THE MIX</p><h2>Save a song</h2></div>
+          <span class="format-chip">MP4 · M4A</span>
+        </div>
+        <form id="radioUploadForm">
+          <label class="file-picker" for="radioFile">
+            <span class="file-icon">＋</span>
+            <span><strong id="fileName">Choose an MP4 or M4A file</strong><small>Up to 50 MB · shared privately between us</small></span>
+            <input id="radioFile" type="file" accept=".mp4,.m4a,video/mp4,audio/mp4,audio/x-m4a" required>
+          </label>
+          <label class="title-field" for="radioTitle">Song title <span>optional</span>
+            <input id="radioTitle" type="text" maxlength="120" placeholder="Use the file name if left blank">
+          </label>
+          <button class="upload-button" id="uploadButton" type="submit">Add to Background Radio ♡</button>
+        </form>
+        <p class="radio-message" id="radioMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="radio-library">
+        <div class="section-heading">
+          <div><p class="radio-kicker">ON OUR TAPE</p><h2>Our songs</h2></div>
+          <span class="track-count" id="trackCount">— tracks</span>
+        </div>
+        <div class="track-list" id="trackList">
+          <p class="empty-library">Tuning in…</p>
+        </div>
+      </section>
+      <footer class="radio-footer">Only our two signed-in accounts can listen or add songs. ♡</footer>
+    </div>
+  </main>
+</body>
+</html>
