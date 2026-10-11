@@ -204,23 +204,26 @@
   }
 
   async function deletePhoto(id) {
-    // Delete only the selected gallery record. Do not delete the Storage file:
-    // another gallery record may reference the same file, and removing it would
-    // make every copy that references it disappear/break.
+    // Delete only the selected gallery row. Multiple rows can reference the same
+    // storage_path, so deleting the Storage object here makes every such card vanish.
     const photo = photos.find(p => String(p.id) === String(id));
     if (!photo || photo.created_by !== currentUser?.id) return;
     if (!confirm('Delete this screenshot?')) return;
 
-    const { error } = await phoneClient.from('chat_photos')
+    const { error, data } = await phoneClient.from('chat_photos')
       .delete()
       .eq('id', photo.id)
-      .eq('created_by', currentUser.id);
+      .eq('created_by', currentUser.id)
+      .select('id');
 
-    if (error) {
-      alert(`Could not delete this screenshot: ${error.message}`);
+    if (error) { alert(error.message); return; }
+    if (!data || data.length === 0) {
+      alert('The photo was not deleted. Please refresh and try again.');
       return;
     }
 
+    // Intentionally do NOT remove photo.storage_path from Supabase Storage.
+    // The same object may be referenced by another gallery row.
     closeViewer();
     await loadPhotos();
   }
