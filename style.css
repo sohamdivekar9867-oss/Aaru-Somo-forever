@@ -216,12 +216,12 @@ button {
   height: 43%;
 }
 
-/* Book — on the left side of desk */
+/* Book / diary — vertical book on the left side of the desk */
 .book-hotspot {
-  left: 27%;
-  top: 53%;
-  width: 25%;
-  height: 9%;
+  left: 34.5%;
+  top: 45.5%;
+  width: 12%;
+  height: 11.5%;
 }
 
 /* Letter — center-right on desk */
@@ -672,11 +672,11 @@ button {
 ========================= */
 
 .mirror-hotspot {
-  /* Position of the oval mirror in the approved room image. */
-  left: 15%;
+  /* Position of the mirror at the far-left edge in the updated room image. */
+  left: 1.5%;
   top: 37%;
-  width: 18%;
-  height: 23%;
+  width: 15.5%;
+  height: 20%;
 }
 
 .mirror-hotspot::after {
@@ -791,10 +791,10 @@ button {
 
 @media (max-width: 600px) {
   .mirror-hotspot {
-    left: 14%;
+    left: 1.5%;
     top: 37%;
-    width: 20%;
-    height: 23%;
+    width: 15.5%;
+    height: 20%;
   }
 
   .mirror-card {
