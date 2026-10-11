@@ -49,13 +49,15 @@ create policy "Couple can add date entries" on public.date_entries for insert to
 create policy "Couple can update date entries" on public.date_entries for update to authenticated using (public.is_couple_member()) with check (public.is_couple_member());
 create policy "Couple can delete date entries" on public.date_entries for delete to authenticated using (public.is_couple_member());
 
-insert into storage.buckets (id,name,public) values ('date-photos','date-photos',true) on conflict (id) do update set public=true;
+insert into storage.buckets (id,name,public) values ('date-photos','date-photos',false) on conflict (id) do update set public=false;
 drop policy if exists "Couple can upload date photos" on storage.objects;
 drop policy if exists "Couple can delete date photos" on storage.objects;
 drop policy if exists "Public can upload date photos" on storage.objects;
 drop policy if exists "Public can delete date photos" on storage.objects;
 create policy "Couple can upload date photos" on storage.objects for insert to authenticated with check (bucket_id='date-photos' and public.is_couple_member());
 create policy "Couple can delete date photos" on storage.objects for delete to authenticated using (bucket_id='date-photos' and public.is_couple_member());
--- The bucket remains public-read because existing date entries store public image URLs.
--- Upload/delete still require one of the two authenticated accounts.
+drop policy if exists "Couple can read date photos" on storage.objects;
+create policy "Couple can read date photos" on storage.objects for select to authenticated
+using (bucket_id='date-photos' and public.is_couple_member());
+-- Existing public URLs are converted to signed URLs by date-detail.js.
 
