@@ -1,6 +1,6 @@
 const SUPABASE_URL = 'https://swqaakxywwajesuajflz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G';
-const EDIT_PIN = 'RT2026';
+
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
 let currentUser = null;
@@ -22,54 +22,6 @@ async function loadCurrentUser() {
   if (recipientPerson) document.getElementById('recipientInput').value = recipientPerson;
 }
 
-const staticLetter = {
-  recipient: 'Aaru',
-  content: `I don't think I will ever find words big enough to explain
-what you mean to me, but I want to spend a lifetime trying.
-
-I love you because of the way you make me feel, not just
-when we're laughing together or having a beautiful day, but even in the quiet
-moments, when I simply know that you are mine and I am yours. You have brought
-a kind of warmth into my life that I didn't know I was missing. Somehow,
-ordinary days feel more special because you are a part of them.
-
-I love your sweetness, your little quirks, your thoughts,
-your smile, and the person you are when you let your guard down with me. I love
-the way you care, the way you make me feel seen, and the way you pout when mad.
-But more than all of that, I love you.
-
-You mean so much more to me than a girlfriend, more than
-someone I get to call when I miss her. You are someone whose happiness
-genuinely matters to me. I want to know how your day went, what made you smile,
-what bothered you, what you're dreaming about, and what you don't always say
-out loud. I want to be someone you can turn to, someone who makes life feel a
-little softer and love feel a little safer.
-
-And God, I love you passionately. I love the thought of
-holding you close, kissing you, looking at you and knowing that this beautiful
-person is the one I get to love. I love missing you when we're apart and
-looking forward to the next moment I get to be beside you. I love that you can
-make my heart feel so full just by being yourself.
-
-You have become such a precious part of my life, Aaru. My
-happiness has your smile in it. My plans have a place for you. And when I think
-about the future, I find myself wishing for more ordinary moments with you: more
-conversations, more dates, more laughter, more holding your hand, more days
-where I get to remind you how loved you are.
-
-I don't love you because you're perfect. I love you because
-you're you, and somehow, that is more than enough to make my heart choose you
-again and again.
-
-Thank you for letting me love you. Thank you for being you.
-And thank you for making me feel that love can be something so beautiful, so
-exciting, and so deeply comforting at the same time.
-
-I love you, Aaru. More than this letter can hold, and in
-more ways than I will ever stop discovering.`,
-  signature: 'Yours, always. Somo ❤️'
-};
-
 let editingUnlocked = false;
 let letters = [];
 const collection = document.getElementById('lettersCollection');
@@ -83,7 +35,10 @@ function escapeHtml(value = '') {
 
 function renderLetters() {
   collection.innerHTML = '';
-  collection.appendChild(makeCard(staticLetter, true));
+  if (!letters.length) {
+    collection.innerHTML = '<p class="empty-letters">No letters yet. Add one when you are ready. ♡</p>';
+    return;
+  }
   letters.forEach(letter => collection.appendChild(makeCard(letter, false)));
 }
 
@@ -128,13 +83,8 @@ function unlockOrLock() {
     renderLetters();
     return;
   }
-  const pin = prompt('Enter the private PIN to edit letters:');
-  if (pin !== EDIT_PIN) {
-    if (pin !== null) alert('Incorrect PIN.');
-    return;
-  }
   editingUnlocked = true;
-  editToggle.textContent = 'Lock editing 🔒';
+  editToggle.textContent = 'Lock editing';
   addButton.classList.remove('hidden');
   renderLetters();
 }
