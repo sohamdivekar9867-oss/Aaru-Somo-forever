@@ -77,37 +77,70 @@ function buildDiaryLabel() {
   return `<div class="diary-author-label"><span class="diary-heart">♡</span><span>AARU'S DIARY</span></div>`;
 }
 
-// Split text into phone-sized page chunks while keeping paragraphs and words intact.
+// Split diary text conservatively for mobile. The visible type is larger than a
+// character-count estimate suggests, so reserve an extra ruled line at the bottom.
 function paginateDiaryText(content = "") {
   const isMobile = window.matchMedia("(max-width: 700px)").matches;
-  const charsPerLine = isMobile ? 39 : 52;
-  // Match the mobile page height more closely while reserving space for the title and footer.
-  // The previous 9-line cap left most of each phone page empty.
-  const linesPerPage = isMobile ? 16 : 12;
+  const charsPerLine = isMobile ? 27 : 52;
+  // Mobile uses one extra line of safety margin to prevent clipped lines and
+  // keep page numbers completely separate from the final line of writing.
+  const linesPerPage = isMobile ? 9 : 12;
   const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   if (!paragraphs.length) return [""];
+
   const pages = [];
-  let pageParts = [], usedLines = 0;
-  const pushPage = () => { if (pageParts.length) pages.push(pageParts.join("\n\n")); pageParts = []; usedLines = 0; };
+  let pageParts = [];
+  let usedLines = 0;
+  const pushPage = () => {
+    if (pageParts.length) pages.push(pageParts.join("\n\n"));
+    pageParts = [];
+    usedLines = 0;
+  };
+  const estimateLines = text => Math.max(1, Math.ceil(text.length / charsPerLine));
+
+  // Prefer keeping complete sentences together. Only split a sentence by words
+  // when the sentence itself is longer than a physical page can safely hold.
   paragraphs.forEach(paragraph => {
-    const words = paragraph.split(/\s+/);
-    let part = "", partLines = 1;
-    words.forEach(word => {
-      const candidate = part ? `${part} ${word}` : word;
-      const nextLines = Math.max(1, Math.ceil(candidate.length / charsPerLine));
-      if (part && nextLines > partLines) {
-        if (usedLines + partLines > linesPerPage) pushPage();
-        pageParts.push(part); usedLines += partLines; part = word; partLines = Math.max(1, Math.ceil(word.length / charsPerLine));
-      } else { part = candidate; partLines = nextLines; }
-      if (partLines >= linesPerPage) {
-        if (usedLines + partLines > linesPerPage) pushPage();
-        pageParts.push(part); usedLines += partLines; part = ""; partLines = 0;
+    const sentences = paragraph.match(/[^.!?]+[.!?]+[”’"']*|[^.!?]+$/g) || [paragraph];
+    let paragraphParts = [];
+    let currentPart = "";
+
+    const flushCurrentPart = () => {
+      if (currentPart.trim()) paragraphParts.push(currentPart.trim());
+      currentPart = "";
+    };
+
+    sentences.forEach(rawSentence => {
+      const sentence = rawSentence.trim();
+      if (!sentence) return;
+      if (estimateLines(sentence) > linesPerPage) {
+        flushCurrentPart();
+        const words = sentence.split(/\s+/);
+        let chunk = "";
+        words.forEach(word => {
+          const candidate = chunk ? `${chunk} ${word}` : word;
+          if (chunk && estimateLines(candidate) > linesPerPage) {
+            paragraphParts.push(chunk);
+            chunk = word;
+          } else {
+            chunk = candidate;
+          }
+        });
+        if (chunk) paragraphParts.push(chunk);
+        return;
       }
+      const candidate = currentPart ? `${currentPart} ${sentence}` : sentence;
+      if (currentPart && estimateLines(candidate) > linesPerPage) flushCurrentPart();
+      currentPart = currentPart ? `${currentPart} ${sentence}` : sentence;
     });
-    if (part) {
-      if (usedLines + partLines > linesPerPage) pushPage();
-      pageParts.push(part); usedLines += partLines;
-    }
+    flushCurrentPart();
+
+    paragraphParts.forEach(part => {
+      const partLines = estimateLines(part);
+      if (usedLines && usedLines + partLines > linesPerPage) pushPage();
+      pageParts.push(part);
+      usedLines += partLines;
+    });
   });
   pushPage();
   return pages.length ? pages : [""];

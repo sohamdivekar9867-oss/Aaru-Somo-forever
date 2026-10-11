@@ -1703,7 +1703,7 @@ a {
   .reader-page.diary-page .diary-page-content {
     width: 100% !important;
     max-width: none !important;
-    height: calc(100% - 42px) !important;
+    height: calc(100% - 69px) !important;
     margin: 0 !important;
     padding: 4px 0 0 !important;
     box-sizing: border-box !important;
@@ -1726,8 +1726,8 @@ a {
   .reader-page.diary-page .chapter-heading-wrap { margin-bottom: 4px !important; }
   .reader-page.diary-page .page-rule { margin: 5px 0 8px !important; }
   .reader-page.diary-page .diary-ruled-content {
-    height: calc(100% - 42px) !important;
-    max-height: calc(100% - 42px) !important;
+    height: calc(100% - 27px) !important;
+    max-height: calc(100% - 27px) !important;
     padding: 0 0 1px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
