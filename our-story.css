@@ -1464,3 +1464,53 @@ a {
   .reader-page.diary-index-page .index-number,
   .reader-page.diary-index-page .index-page-number { font-size: .65rem; }
 }
+
+
+/* Corrective mobile pass: use the full writing width and remove index labels. */
+.reader-page.diary-index-page .page-bottom { display: none !important; }
+@media (max-width: 700px) {
+  .reader-page.diary-page .page-inner,
+  .reader-page.diary-index-page .page-inner {
+    box-sizing: border-box;
+    width: 100%;
+    padding-left: 38px !important;
+    padding-right: 10px !important;
+  }
+  .reader-page.diary-page .diary-page-content {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8px 0 0 !important;
+  }
+  .reader-page.diary-page .chapter-heading-wrap,
+  .reader-page.diary-page .chapter-heading,
+  .reader-page.diary-page .page-rule,
+  .reader-page.diary-page .diary-ruled-content {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .reader-page.diary-page .diary-ruled-content {
+    padding: 0 !important;
+    font-size: .88rem;
+    line-height: 27px;
+    background-size: 100% 27px;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+  .reader-page.diary-page .diary-ruled-content p,
+  .reader-page.diary-page .diary-ruled-content p + p {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    line-height: 27px;
+    min-height: 27px;
+  }
+  .reader-page.diary-index-page .page-bottom span,
+  .reader-page.diary-index-page .diary-author-label { display: none !important; }
+}
