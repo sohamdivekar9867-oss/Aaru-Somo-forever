@@ -204,31 +204,21 @@
   }
 
   async function deletePhoto(id) {
+    // Delete only the selected gallery record. Do not delete the Storage file:
+    // another gallery record may reference the same file, and removing it would
+    // make every copy that references it disappear/break.
     const photo = photos.find(p => String(p.id) === String(id));
     if (!photo || photo.created_by !== currentUser?.id) return;
     if (!confirm('Delete this screenshot?')) return;
 
-    // Remove only the selected gallery record first. Multiple records may
-    // point to the same Storage object, so never delete the file before
-    // checking whether another gallery record still uses it.
     const { error } = await phoneClient.from('chat_photos')
       .delete()
-      .eq('id', id)
+      .eq('id', photo.id)
       .eq('created_by', currentUser.id);
-    if (error) { alert(error.message); return; }
 
-    const { data: remaining, error: checkError } = await phoneClient.from('chat_photos')
-      .select('id')
-      .eq('storage_path', photo.storage_path)
-      .limit(1);
-
-    if (checkError) {
-      // Keep the Storage object if the reference check fails; avoiding data
-      // loss is more important than cleaning up an orphaned file.
-      console.error('Could not check remaining references to photo:', checkError);
-    } else if (!remaining?.length) {
-      const { error: storageError } = await phoneClient.storage.from('chat-photos').remove([photo.storage_path]);
-      if (storageError) console.error('Could not remove unused photo file:', storageError);
+    if (error) {
+      alert(`Could not delete this screenshot: ${error.message}`);
+      return;
     }
 
     closeViewer();
