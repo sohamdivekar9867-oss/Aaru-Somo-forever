@@ -18,13 +18,11 @@ input:focus{border-color:#d9789b;box-shadow:0 0 0 3px #d9789b24}
 .login-button span{margin-left:5px;font-size:20px}
 .login-message{min-height:20px;margin:15px 0 0;text-align:center;color:#b95078;font-size:13px}
 .login-footer{margin:30px 0 0;color:#b995a4;font-size:12px}
-.login-chibi{position:absolute;z-index:2;top:-43px;width:118px;height:116px;pointer-events:none}
-.login-chibi img{position:absolute;bottom:0;width:100%;height:100%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 5px 5px #3b21301c)}
-.login-chibi-somo{left:-34px;transform:rotate(-7deg)}
-.login-chibi-aaru{right:-34px;transform:rotate(7deg)}
-.chibi-heart{position:absolute;color:#e83e59;font-family:Arial,sans-serif;font-size:30px;line-height:1;text-shadow:0 2px 0 #fff5f6,0 3px 7px #a51c3c55;top:43px}
-.login-chibi-somo .chibi-heart{left:69px;transform:rotate(12deg)}
-.login-chibi-aaru .chibi-heart{right:69px;transform:rotate(-12deg)}
+.couple-calligraphy{position:absolute;top:8px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none;line-height:1}
+.couple-calligraphy-somo{left:7%;transform:rotate(-10deg)}
+.couple-calligraphy-aaru{right:7%;transform:rotate(10deg)}
+.calligraphy-heart{color:#e83e62;font-family:Georgia,serif;font-size:30px;line-height:1;text-shadow:0 2px 5px #be305733}
+.calligraphy-name{color:#c14e7a;font-family:"Brush Script MT","Segoe Script","URW Chancery L",cursive;font-size:clamp(27px,5vw,40px);font-weight:500;line-height:1.15;white-space:nowrap;text-shadow:0 1px 2px #963c5f1f}
 @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-35px)}}
-@media(max-width:480px){.login-page{padding:54px 16px 20px}.login-card{padding:38px 24px 26px}.login-chibi{width:96px;height:98px;top:-39px}.login-chibi-somo{left:-23px}.login-chibi-aaru{right:-23px}.chibi-heart{font-size:25px;top:39px}.login-chibi-somo .chibi-heart{left:56px}.login-chibi-aaru .chibi-heart{right:56px}h1{font-size:34px}}
-@media(max-width:360px){.login-card{padding-left:18px;padding-right:18px}.login-chibi{width:82px;height:88px}.login-chibi-somo{left:-18px}.login-chibi-aaru{right:-18px}.chibi-heart{font-size:22px}.login-chibi-somo .chibi-heart{left:48px}.login-chibi-aaru .chibi-heart{right:48px}}
+@media(max-width:480px){.login-page{padding:54px 16px 20px}.login-card{padding:38px 24px 26px}h1{font-size:34px}}
+@media(max-width:360px){.login-card{padding-left:18px;padding-right:18px}.couple-calligraphy-somo{left:5%}.couple-calligraphy-aaru{right:5%}.calligraphy-name{font-size:27px}}
