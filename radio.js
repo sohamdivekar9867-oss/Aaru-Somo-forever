@@ -14,8 +14,11 @@
   const trackList = $('trackList');
   const trackCount = $('trackCount');
   const cassette = $('cassetteDeck');
-  const activeTitle = $('activeTrackTitle');
-  const activeStatus = $('activeTrackStatus');
+  const addSongToggle = $('addSongToggle');
+  const deleteModeToggle = $('deleteModeToggle');
+  const addPanel = $('radioAddPanel');
+  const deleteModeHint = $('deleteModeHint');
+  let deleteMode = false;
   let currentUser = null;
 
   function escapeHtml(value = '') {
@@ -61,7 +64,7 @@
     const tracks = entries.filter(Boolean);
     trackCount.textContent = tracks.length + (tracks.length === 1 ? ' track' : ' tracks');
     if (!tracks.length) {
-      trackList.innerHTML = '<p class="empty-library">No songs saved yet. Add our first one above. ♡</p>';
+      trackList.innerHTML = '<p class="empty-library">No songs on the tape yet. Use + on the cassette to add one. ♡</p>';
       return;
     }
     trackList.innerHTML = tracks.map(track => {
@@ -71,7 +74,7 @@
         : '<audio class="track-player" controls preload="none" data-radio-player aria-label="Play ' + escapeHtml(track.title) + '"><source src="' + escapeHtml(track.url) + '" type="' + sourceType + '"></audio>';
       return '<article class="track-card" data-track-title="' + escapeHtml(track.title) + '">' +
         '<div class="track-card-head"><div><h3>' + escapeHtml(track.title) + '</h3><p class="track-meta">' + formatSize(Number(track.file_size)) + ' · added ' + escapeHtml(formatDate(track.created_at)) + '</p></div>' +
-        (track.uploaded_by === currentUser?.id ? '<button class="track-delete" type="button" data-delete-track="' + escapeHtml(track.id) + '">Remove</button>' : '') +
+        (track.uploaded_by === currentUser?.id ? '<button class="track-delete" type="button" data-delete-track="' + escapeHtml(track.id) + '"' + (deleteMode ? '' : ' hidden') + '>Delete</button>' : '') +
         '</div>' + player + '</article>';
     }).join('');
 
@@ -79,8 +82,6 @@
       player.addEventListener('play', () => {
         trackList.querySelectorAll('[data-radio-player]').forEach(other => { if (other !== player) other.pause(); });
         cassette.classList.add('is-playing');
-        activeTitle.textContent = player.closest('.track-card')?.dataset.trackTitle || 'OUR SONG';
-        activeStatus.textContent = 'NOW PLAYING';
       });
       player.addEventListener('pause', updatePlaybackState);
       player.addEventListener('ended', updatePlaybackState);
@@ -91,9 +92,28 @@
     const playing = Array.from(trackList.querySelectorAll('[data-radio-player]')).some(player => !player.paused && !player.ended);
     if (!playing) {
       cassette.classList.remove('is-playing');
-      activeStatus.textContent = 'READY TO PLAY';
     }
   }
+
+  function setRadioMode(mode) {
+    deleteMode = mode === 'delete';
+    addPanel.hidden = mode !== 'add';
+    deleteModeHint.hidden = mode !== 'delete';
+    addSongToggle.setAttribute('aria-expanded', String(mode === 'add'));
+    deleteModeToggle.setAttribute('aria-pressed', String(deleteMode));
+    trackList.querySelectorAll('[data-delete-track]').forEach(button => { button.hidden = !deleteMode; });
+  }
+
+  addSongToggle.addEventListener('click', () => {
+    setRadioMode(addPanel.hidden ? 'add' : 'idle');
+    showMessage('');
+  });
+
+  deleteModeToggle.addEventListener('click', () => {
+    const nextMode = deleteMode ? 'idle' : 'delete';
+    setRadioMode(nextMode);
+    showMessage('');
+  });
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -133,23 +153,26 @@
     }
 
     form.reset();
-    fileName.textContent = 'Choose an MP4 or M4A file';
+    fileName.textContent = 'Upload MP4 or M4A';
     titleInput.value = '';
-    showMessage('Added to our radio. ♡');
+    uploadButton.hidden = true;
+    setRadioMode('idle');
+    showMessage('Added to the tape. ♡');
     uploadButton.disabled = false;
     await loadTracks();
   });
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files?.[0];
-    fileName.textContent = file ? file.name : 'Choose an MP4 or M4A file';
+    fileName.textContent = file ? file.name : 'Upload MP4 or M4A';
+    uploadButton.hidden = !file;
     if (!titleInput.value.trim() && file) titleInput.value = cleanFileTitle(file.name);
   });
 
   trackList.addEventListener('click', async event => {
     const button = event.target.closest('[data-delete-track]');
     if (!button || !currentUser) return;
-    if (!window.confirm('Remove this song from Background Radio?')) return;
+    if (!window.confirm('Delete this song from Background Radio?')) return;
     button.disabled = true;
     const id = button.dataset.deleteTrack;
     const { data: row, error: lookupError } = await client.from('background_radio_tracks')
@@ -169,7 +192,7 @@
     }
     const { error: storageError } = await client.storage.from(bucket).remove([row.storage_path]);
     if (storageError) console.error('[Background Radio] Removed library row but could not remove its file:', storageError);
-    showMessage('Song removed from the radio.');
+    showMessage('Song deleted from the radio.');
     await loadTracks();
   });
 
