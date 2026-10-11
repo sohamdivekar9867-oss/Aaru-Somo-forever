@@ -251,24 +251,24 @@ drop policy if exists "story perspectives delete" on public.story_perspectives;
 create policy "story chapters read"
 on public.story_chapters for select
 to authenticated
-using (true);
+using (public.is_couple_member());
 
 create policy "story chapters insert"
 on public.story_chapters for insert
 to authenticated
-with check (auth.uid() is not null);
+with check (public.is_couple_member());
 
 -- Either Aaru or Somo may edit the shared chapter heading.
 create policy "story chapters update"
 on public.story_chapters for update
 to authenticated
-using (auth.uid() is not null)
-with check (auth.uid() is not null);
+using (public.is_couple_member())
+with check (public.is_couple_member());
 
 create policy "story perspectives read"
 on public.story_perspectives for select
 to authenticated
-using (true);
+using (public.is_couple_member());
 
 -- Aaru can create only Aaru rows; Somo can create only Somo rows.
 create policy "story perspectives insert"
