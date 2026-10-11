@@ -7,6 +7,7 @@ Run these scripts in the Supabase SQL Editor, in this order:
 1. `MASTER_SHARED_SETUP.sql` — shared tables, couple account helper, RLS, Story, Dates, Music, and To Do / Not To Do.
 2. `REELS_SETUP.sql` — reels and private reel memories.
 3. `PHONE_PHOTOS_SETUP.sql` — private phone gallery and profile pictures.
+4. `BACKGROUND_RADIO_SETUP.sql` — shared MP4/M4A background radio uploads.
 
 The feature-specific files can be used for targeted repairs. These scripts include the current phone gallery and reels schema. Do not run `STORY_DIARY_UPDATE.sql` after the master script unless repairing Story policies on an existing project; it now lets both couple accounts edit Aaru’s shared Story perspective.
 

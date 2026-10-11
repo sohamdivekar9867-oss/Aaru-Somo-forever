@@ -245,7 +245,23 @@ button {
   left: 84%;
   top: 10%;
   width: 16%;
-  height: 43%;
+  height: 28%;
+}
+.radio-hotspot {
+  left: 84%;
+  top: 39%;
+  width: 16%;
+  height: 14%;
+}
+.radio-hotspot::after {
+  left: auto;
+  right: 0;
+  transform: translateY(5px);
+}
+.radio-hotspot:hover::after,
+.radio-hotspot:focus-visible::after,
+.radio-hotspot.active::after {
+  transform: translateY(0);
 }
 
 .music-hotspot::after {
@@ -644,7 +660,13 @@ button {
     left: 82%;
     top: 10%;
     width: 18%;
-    height: 45%;
+    height: 29%;
+  }
+  .radio-hotspot {
+    left: 82%;
+    top: 40%;
+    width: 18%;
+    height: 15%;
   }
 
   .reels-hotspot {

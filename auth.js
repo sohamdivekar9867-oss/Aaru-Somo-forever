@@ -27,7 +27,7 @@ async function getCurrentUser() {
 
 const ACTIVITY_SESSION_KEY = "somdaWebsiteActivitySession";
 let activityHeartbeatTimer = null;
-let activityStartInProgress = false;
+let activityStartPromise = null;
 
 async function markActivityLogout() {
   const id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
@@ -43,69 +43,69 @@ async function markActivityLogout() {
   window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
 }
 
-async function startWebsiteActivityTracking() {
-  if (activityStartInProgress) return;
-  activityStartInProgress = true;
-  try {
-    const user = await getCurrentUser();
-    if (!user) {
-      console.info("[activity tracker] No signed-in user yet; waiting for successful login.");
-      return;
-    }
-
-    let id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
-    if (id) {
-      const { data, error } = await supabaseClient.from("website_activity_sessions")
-        .select("id,user_id,ended_at").eq("id", id).maybeSingle();
-      if (error) console.error("[activity tracker] Could not check existing session:", error.message);
-      if (!data || data.user_id !== user.id || data.ended_at) id = null;
-    }
-
-    if (!id) {
-      id = crypto.randomUUID();
-      const now = new Date().toISOString();
-      const { error } = await supabaseClient.from("website_activity_sessions").insert({
-        id,
-        user_id: user.id,
-        user_email: (user.email || "").toLowerCase(),
-        started_at: now,
-        last_seen_at: now
-      });
-      if (error) {
-        console.error("[activity tracker] SESSION INSERT FAILED:", error.message, error.details || "", error.hint || "");
+asynfunction startWebsiteActivityTracking() {
+  if (activityStartPromise) return activityStartPromise;
+  activityStartPromise = (async () => {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        console.info("[activity tracker] No signed-in user yet; waiting for successful login.");
         return;
       }
-      window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
-      console.info("[activity tracker] Session created:", { email: user.email, started_at: now });
-    } else {
-      console.info("[activity tracker] Continuing existing session:", { email: user.email, id });
-    }
 
-    const activeId = id;
-    const heartbeat = async () => {
-      const currentUser = await getCurrentUser();
-      if (!currentUser) return;
-      const now = new Date().toISOString();
-      const { error } = await supabaseClient.from("website_activity_sessions")
-        .update({ last_seen_at: now })
-        .eq("id", activeId).eq("user_id", currentUser.id).is("ended_at", null);
-      if (error) console.error("[activity tracker] HEARTBEAT FAILED:", error.message);
-    };
-    await heartbeat();
-    if (!activityHeartbeatTimer) {
-      activityHeartbeatTimer = setInterval(heartbeat, 30000);
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") heartbeat();
-      });
-    }
-  } catch (error) {
-    console.error("[activity tracker] Unexpected error:", error);
-  } finally {
-    activityStartInProgress = false;
-  }
-}
+      let id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
+      if (id) {
+        const { data, error } = await supabaseClient.from("website_activity_sessions")
+          .select("id,user_id,ended_at").eq("id", id).maybeSingle();
+        if (error) console.error("[activity tracker] Could not check existing session:", error.message);
+        if (!data || data.user_id !== user.id || data.ended_at) id = null;
+      }
 
-async function logout() {
+      if (!id) {
+        id = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const { error } = await supabaseClient.from("website_activity_sessions").insert({
+          id,
+          user_id: user.id,
+          user_email: (user.email || "").toLowerCase(),
+          started_at: now,
+          last_seen_at: now
+        });
+        if (error) {
+          console.error("[activity tracker] SESSION INSERT FAILED:", error.message, error.details || "", error.hint || "");
+          return;
+        }
+        window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
+        console.info("[activity tracker] Session created:", { email: user.email, started_at: now });
+      } else {
+        console.info("[activity tracker] Continuing existing session:", { email: user.email, id });
+      }
+
+      const activeId = id;
+      const heartbeat = async () => {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) return;
+        const now = new Date().toISOString();
+        const { error } = await supabaseClient.from("website_activity_sessions")
+          .update({ last_seen_at: now })
+          .eq("id", activeId).eq("user_id", currentUser.id).is("ended_at", null);
+        if (error) console.error("[activity tracker] HEARTBEAT FAILED:", error.message);
+      };
+      await heartbeat();
+      if (!activityHeartbeatTimer) {
+        activityHeartbeatTimer = setInterval(heartbeat, 30000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") heartbeat();
+        });
+      }
+    } catch (error) {
+      console.error("[activity tracker] Unexpected error:", error);
+    } finally {
+      activityStartPromise = null;
+    }
+  })();
+  return activityStartPromise;
+}nc function logout() {
   await markActivityLogout();
   await supabaseClient.auth.signOut();
   window.location.replace("login.html");

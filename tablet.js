@@ -1,6 +1,6 @@
 /* Tablet apps. Replace SOMO_EMAIL with the email used by Somo's website account. */
 const SOMO_EMAIL = "sohamdivekar9867@gmail.com";
-const AARU_EMAIL = "aarusaru090901@gmail.com";
+const AARU_EMAIL = "aaru.saru090901@gmail.com";
 const tabletClient = window.supabase?.createClient(
   "https://swqaakxywwajesuajflz.supabase.co",
   "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G",

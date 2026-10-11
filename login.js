@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       submitButton.innerHTML = 'Enter Our World <span>♡</span>';
       return;
     }
+    await startWebsiteActivityTracking();
     window.location.href = safeRedirectTarget();
   });
 });

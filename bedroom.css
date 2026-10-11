@@ -965,3 +965,35 @@ body.dialogue-open { overflow: hidden; }
     height: 9%;
   }
 }
+
+/* Match the first room's hover labels for bedroom hotspots. */
+.bedroom-stage > button[data-title]::after {
+  content: attr(data-title);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  z-index: 30;
+  transform: translate(-50%, 5px);
+  width: max-content;
+  max-width: min(220px, 65vw);
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 193, 180, .28);
+  border-radius: 15px;
+  background: rgba(42, 20, 31, .96);
+  color: #ffe8df;
+  font: 11px/1.4 "DM Mono", monospace;
+  letter-spacing: .2px;
+  text-align: center;
+  white-space: normal;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, .25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+}
+.bedroom-stage > button[data-title]:hover::after,
+.bedroom-stage > button[data-title]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
