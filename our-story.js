@@ -80,9 +80,10 @@ function buildDiaryLabel() {
 // Split text into phone-sized page chunks while keeping paragraphs and words intact.
 function paginateDiaryText(content = "") {
   const isMobile = window.matchMedia("(max-width: 700px)").matches;
-  const charsPerLine = isMobile ? 30 : 52;
-  // Keep a generous safety margin: actual browser font wrapping varies by device.
-  const linesPerPage = isMobile ? 9 : 12;
+  const charsPerLine = isMobile ? 39 : 52;
+  // Match the mobile page height more closely while reserving space for the title and footer.
+  // The previous 9-line cap left most of each phone page empty.
+  const linesPerPage = isMobile ? 16 : 12;
   const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   if (!paragraphs.length) return [""];
   const pages = [];
@@ -153,8 +154,8 @@ function buildPages() {
   container.innerHTML = "";
   readerPages = [];
   const isMobileLayout = window.matchMedia("(max-width: 700px)").matches;
-  const indexEntriesPerPage = isMobileLayout ? 8 : 6;
-  const firstIndexCapacity = isMobileLayout ? 5 : 4;
+  const indexEntriesPerPage = isMobileLayout ? 9 : 6;
+  const firstIndexCapacity = isMobileLayout ? 6 : 4;
   const indexChunks = [];
   if (!chapters.length) indexChunks.push([]);
   else {
