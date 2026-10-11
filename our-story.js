@@ -81,10 +81,9 @@ function buildDiaryLabel() {
 // character-count estimate suggests, so reserve an extra ruled line at the bottom.
 function paginateDiaryText(content = "") {
   const isMobile = window.matchMedia("(max-width: 700px)").matches;
-  const charsPerLine = isMobile ? 27 : 52;
-  // Mobile uses one extra line of safety margin to prevent clipped lines and
-  // keep page numbers completely separate from the final line of writing.
-  const linesPerPage = isMobile ? 9 : 12;
+  const charsPerLine = isMobile ? 42 : 52;
+  // Mobile reserves a bottom safety margin while using substantially more of the available page height.
+  const linesPerPage = isMobile ? 20 : 12;
   const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   if (!paragraphs.length) return [""];
 
