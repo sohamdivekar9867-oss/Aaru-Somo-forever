@@ -674,8 +674,8 @@ refreshOwlUnread();
 setInterval(refreshOwlUnread, 5000);
 
 /* Date Cat -> bedroom clock state + next-date countdown. */
-const SUPABASE_URL = 'https://swqaakxywwajesuajflz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G';
+const CLOCK_SUPABASE_URL = 'https://swqaakxywwajesuajflz.supabase.co';
+const CLOCK_SUPABASE_ANON_KEY = 'sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G';
 const DATE_COUNTDOWN_TIME = '20:00:00'; // Used for the countdown; the whole calendar day becomes "Today is our day".
 
 (function initClockCountdown() {
@@ -699,7 +699,7 @@ const DATE_COUNTDOWN_TIME = '20:00:00'; // Used for the countdown; the whole cal
   let lastFetchedAt = 0;
   let fetchInFlight = false;
 
-  const supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const supabase = window.supabase?.createClient(CLOCK_SUPABASE_URL, CLOCK_SUPABASE_ANON_KEY, {
     auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
 
