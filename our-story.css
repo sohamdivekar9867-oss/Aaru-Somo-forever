@@ -1831,3 +1831,35 @@ a {
     font-size: .78rem !important;
   }
 }
+
+
+/* Mobile fix: remove the artificial footer reservation and prevent ruled text
+   from being clipped by a fixed-height inner content box. */
+@media (max-width: 700px) {
+  .reader-page.diary-page .page-bottom {
+    display: none !important;
+  }
+  .reader-page.diary-page .diary-page-content {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+  .reader-page.diary-page .diary-ruled-content {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+    text-align: justify !important;
+    font-size: .84rem !important;
+    line-height: 27px !important;
+    background-size: 100% 27px !important;
+  }
+  .reader-page.diary-page .diary-ruled-content p,
+  .reader-page.diary-page .diary-ruled-content p + p {
+    text-align: justify !important;
+    line-height: 27px !important;
+    min-height: 27px !important;
+  }
+}

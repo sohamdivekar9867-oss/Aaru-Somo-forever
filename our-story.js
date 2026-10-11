@@ -82,7 +82,7 @@ function buildDiaryLabel() {
 function paginateDiaryText(content = "") {
   const isMobile = window.matchMedia("(max-width: 700px)").matches;
   const charsPerLine = isMobile ? 42 : 52;
-  // Mobile reserves a bottom safety margin while using substantially more of the available page height.
+  // Mobile uses a conservative line estimate; CSS no longer clips content at the footer.
   const linesPerPage = isMobile ? 20 : 12;
   const paragraphs = String(content || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   if (!paragraphs.length) return [""];
