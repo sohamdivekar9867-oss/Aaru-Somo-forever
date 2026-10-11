@@ -19,16 +19,31 @@
     <a class="radio-back" href="index.html" aria-label="Back to our room">‹</a>
     <div class="radio-shell">
       <header class="radio-heading">
-        <p class="radio-kicker">A LITTLE SOUNDTRACK FOR US</p>
-        <h1>Background Radio <span>♡</span></h1>
-        <p class="radio-subtitle">Songs we can keep close, wherever we are.</p>
+        <h1>My Background Radio <span>♡</span></h1>
+        <p class="radio-subtitle">The voice I want to wake up to listening to every single morning</p>
       </header>
 
-      <section class="cassette-deck" id="cassetteDeck" aria-label="Retro cassette display">
+      <section class="cassette-deck" id="cassetteDeck" aria-label="Background Radio cassette controls">
         <div class="cassette-label">
-          <span class="cassette-brand">AARU + SOMO</span>
-          <strong id="activeTrackTitle">SIDE A · OUR SONGS</strong>
-          <span class="cassette-small" id="activeTrackStatus">READY TO PLAY</span>
+          <div class="cassette-controls">
+            <button class="cassette-action" id="addSongToggle" type="button" aria-label="Add a song" aria-expanded="false">+</button>
+            <div class="cassette-add-panel" id="radioAddPanel" hidden>
+              <form id="radioUploadForm">
+                <label class="title-field" for="radioTitle">Song title
+                  <input id="radioTitle" type="text" maxlength="120" placeholder="Optional">
+                </label>
+                <label class="file-picker" for="radioFile">
+                  <span class="file-icon">↑</span>
+                  <span><strong id="fileName">Upload MP4 or M4A</strong><small>Up to 50 MB</small></span>
+                  <input id="radioFile" type="file" accept=".mp4,.m4a,video/mp4,audio/mp4,audio/x-m4a" required>
+                </label>
+                <button class="upload-button cassette-add-confirm" id="uploadButton" type="submit" hidden>Add</button>
+              </form>
+            </div>
+            <button class="cassette-action" id="deleteModeToggle" type="button" aria-label="Choose a song to delete" aria-pressed="false">−</button>
+          </div>
+          <p class="cassette-hint" id="deleteModeHint" hidden>Choose one of your songs below to remove.</p>
+          <p class="radio-message" id="radioMessage" role="status" aria-live="polite"></p>
         </div>
         <div class="cassette-window" aria-hidden="true">
           <div class="reel reel-left"><i></i></div>
@@ -38,35 +53,15 @@
         <div class="cassette-screws" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </section>
 
-      <section class="radio-upload">
-        <div class="section-heading">
-          <div><p class="radio-kicker">ADD TO THE MIX</p><h2>Save a song</h2></div>
-          <span class="format-chip">MP4 · M4A</span>
-        </div>
-        <form id="radioUploadForm">
-          <label class="file-picker" for="radioFile">
-            <span class="file-icon">＋</span>
-            <span><strong id="fileName">Choose an MP4 or M4A file</strong><small>Up to 50 MB · shared privately between us</small></span>
-            <input id="radioFile" type="file" accept=".mp4,.m4a,video/mp4,audio/mp4,audio/x-m4a" required>
-          </label>
-          <label class="title-field" for="radioTitle">Song title <span>optional</span>
-            <input id="radioTitle" type="text" maxlength="120" placeholder="Use the file name if left blank">
-          </label>
-          <button class="upload-button" id="uploadButton" type="submit">Add to Background Radio ♡</button>
-        </form>
-        <p class="radio-message" id="radioMessage" role="status" aria-live="polite"></p>
-      </section>
-
       <section class="radio-library">
         <div class="section-heading">
-          <div><p class="radio-kicker">ON OUR TAPE</p><h2>Our songs</h2></div>
+          <div><p class="radio-kicker">ON OUR TAPE</p></div>
           <span class="track-count" id="trackCount">— tracks</span>
         </div>
         <div class="track-list" id="trackList">
           <p class="empty-library">Tuning in…</p>
         </div>
       </section>
-      <footer class="radio-footer">Only our two signed-in accounts can listen or add songs. ♡</footer>
     </div>
   </main>
 </body>
