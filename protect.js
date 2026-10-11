@@ -1,26 +1,17 @@
 /* Shared login guard for every private page. */
 (function () {
-  const AUTH_SUPABASE_URL = "https://swqaakxywwajesuajflz.supabase.co";
-  const AUTH_SUPABASE_KEY = "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G";
-
   if (!window.supabase) {
     console.error("Supabase library did not load.");
     return;
   }
 
-  // Must use the same sessionStorage-backed configuration as auth.js.
-  const authClient = window.supabase.createClient(
-    AUTH_SUPABASE_URL,
-    AUTH_SUPABASE_KEY,
-    {
-      auth: {
-        storage: window.sessionStorage,
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    }
-  );
+  // Reuse auth.js's client to avoid multiple GoTrueClient instances
+  // competing over the same sessionStorage key.
+  const authClient = window.appSupabaseClient;
+  if (!authClient) {
+    console.error("Shared Supabase client is unavailable. Ensure auth.js loads before protect.js.");
+    return;
+  }
 
   authClient.auth.getSession().then(({ data, error }) => {
     if (error || !data.session) {

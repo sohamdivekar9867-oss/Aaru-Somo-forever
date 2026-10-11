@@ -1,8 +1,7 @@
 const SUPABASE_URL = "https://swqaakxywwajesuajflz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G";
 
-// Use sessionStorage instead of localStorage so the login is temporary.
-// The session normally disappears when the browser tab/session is closed.
+// One shared Supabase client for this page. Other scripts should reuse it.
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
@@ -15,83 +14,95 @@ const supabaseClient = window.supabase.createClient(
     }
   }
 );
+window.appSupabaseClient = supabaseClient;
 
 async function getCurrentUser() {
   const { data: { user }, error } = await supabaseClient.auth.getUser();
-  if (error) return null;
+  if (error) {
+    console.error("[activity tracker] Could not read current user:", error.message);
+    return null;
+  }
   return user;
 }
 
 const ACTIVITY_SESSION_KEY = "somdaWebsiteActivitySession";
+let activityHeartbeatTimer = null;
+let activityStartInProgress = false;
 
 async function markActivityLogout() {
   const id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
   if (!id) return;
-  try {
-    const user = await getCurrentUser();
-    if (user) {
-      await supabaseClient.from("website_activity_sessions")
-        .update({ ended_at: new Date().toISOString(), last_seen_at: new Date().toISOString() })
-        .eq("id", id).eq("user_id", user.id);
-    }
-  } catch (_) {}
+  const user = await getCurrentUser();
+  if (user) {
+    const now = new Date().toISOString();
+    const { error } = await supabaseClient.from("website_activity_sessions")
+      .update({ ended_at: now, last_seen_at: now })
+      .eq("id", id).eq("user_id", user.id);
+    if (error) console.error("[activity tracker] Could not mark logout:", error.message);
+  }
   window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
 }
 
 async function startWebsiteActivityTracking() {
+  if (activityStartInProgress) return;
+  activityStartInProgress = true;
   try {
     const user = await getCurrentUser();
-    if (!user) return;
+    if (!user) {
+      console.info("[activity tracker] No signed-in user yet; waiting for successful login.");
+      return;
+    }
+
     let id = window.sessionStorage.getItem(ACTIVITY_SESSION_KEY);
     if (id) {
-      const { data } = await supabaseClient.from("website_activity_sessions")
+      const { data, error } = await supabaseClient.from("website_activity_sessions")
         .select("id,user_id,ended_at").eq("id", id).maybeSingle();
+      if (error) console.error("[activity tracker] Could not check existing session:", error.message);
       if (!data || data.user_id !== user.id || data.ended_at) id = null;
     }
+
     if (!id) {
       id = crypto.randomUUID();
       const now = new Date().toISOString();
       const { error } = await supabaseClient.from("website_activity_sessions").insert({
-        id, user_id: user.id, user_email: (user.email || '').toLowerCase(), started_at: now, last_seen_at: now
+        id,
+        user_id: user.id,
+        user_email: (user.email || "").toLowerCase(),
+        started_at: now,
+        last_seen_at: now
       });
-      if (error) { console.error("[Activity tracking] Could not create session:", error.message); return; } // Requires TABLET_SETUP.sql and valid RLS policies.
+      if (error) {
+        console.error("[activity tracker] SESSION INSERT FAILED:", error.message, error.details || "", error.hint || "");
+        return;
+      }
       window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
+      console.info("[activity tracker] Session created:", { email: user.email, started_at: now });
+    } else {
+      console.info("[activity tracker] Continuing existing session:", { email: user.email, id });
     }
+
+    const activeId = id;
     const heartbeat = async () => {
       const currentUser = await getCurrentUser();
       if (!currentUser) return;
+      const now = new Date().toISOString();
       const { error } = await supabaseClient.from("website_activity_sessions")
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", id).eq("user_id", currentUser.id).is("ended_at", null);
-      if (error) console.error("[Activity tracking] Could not update heartbeat:", error.message);
+        .update({ last_seen_at: now })
+        .eq("id", activeId).eq("user_id", currentUser.id).is("ended_at", null);
+      if (error) console.error("[activity tracker] HEARTBEAT FAILED:", error.message);
     };
     await heartbeat();
-    if (!window.__websiteActivityHeartbeat) {
-      window.__websiteActivityHeartbeat = setInterval(heartbeat, 30000);
+    if (!activityHeartbeatTimer) {
+      activityHeartbeatTimer = setInterval(heartbeat, 30000);
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") heartbeat();
       });
-      window.addEventListener("pagehide", () => {
-        // A page close is not a confirmed logout; the dashboard uses last_seen_at as an estimate.
-      });
     }
-  } catch (_) {}
-}
-
-
-// Start tracking immediately when Supabase confirms a successful sign-in.
-// This is intentionally tied to authentication, not to entering a particular page.
-if (!window.__somdaActivityAuthListenerRegistered) {
-  window.__somdaActivityAuthListenerRegistered = true;
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session?.user) {
-      // Defer Supabase queries until after the auth callback completes.
-      setTimeout(() => { startWebsiteActivityTracking(); }, 0);
-    }
-    if (event === "SIGNED_OUT") {
-      window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
-    }
-  });
+  } catch (error) {
+    console.error("[activity tracker] Unexpected error:", error);
+  } finally {
+    activityStartInProgress = false;
+  }
 }
 
 async function logout() {
@@ -100,9 +111,20 @@ async function logout() {
   window.location.replace("login.html");
 }
 
-// Add a small logout control to every protected page.
+// Start on existing sessions AND immediately after the login event.
+// Scheduling work outside the auth callback avoids Supabase auth-lock deadlocks.
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+    if (session?.user) setTimeout(() => startWebsiteActivityTracking(), 0);
+  }
+  if (event === "SIGNED_OUT") {
+    window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   startWebsiteActivityTracking();
+
   const currentFile = window.location.pathname.split("/").pop() || "index.html";
   if (currentFile === "login.html") return;
   if (document.getElementById("siteLogoutButton")) return;
