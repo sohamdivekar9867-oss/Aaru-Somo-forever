@@ -40,9 +40,13 @@
             </div>
             <div id="activityDashboard" hidden>
               <div class="dashboard-heading"><div><p class="eyebrow">WEBSITE ACTIVITY</p><h3>Aaru's sessions</h3></div><button class="quiet-button" id="refreshActivity">Refresh ↻</button></div>
-              <p class="privacy-note">Shows sign-in sessions on this website only. A session that ends unexpectedly uses its last recorded activity as an estimate.</p>
+              <p class="privacy-note">Shows Aaru’s section visits and database changes from the last 3 days. Only section names and actions are recorded; edited content is never shown here. A session that ends unexpectedly uses its last recorded activity as an estimate.</p>
               <div class="activity-summary"><div><span>Sessions · 3 days</span><strong id="sessionCount">—</strong></div><div><span>Last opened</span><strong id="lastOpened">—</strong></div></div>
               <div class="activity-table-wrap"><table><thead><tr><th>Day / date</th><th>Opened</th><th>Duration</th><th>Logout / last seen</th></tr></thead><tbody id="activityRows"><tr><td colspan="4">Loading sessions…</td></tr></tbody></table></div>
+              <section class="section-activity">
+                <div class="dashboard-heading"><div><p class="eyebrow">SECTION HISTORY</p><h3>Where Aaru went</h3></div><span class="activity-count" id="sectionEventCount">—</span></div>
+                <div class="activity-table-wrap"><table><thead><tr><th>When</th><th>Section</th><th>Activity</th></tr></thead><tbody id="sectionEventRows"><tr><td colspan="3">Loading section activity…</td></tr></tbody></table></div>
+              </section>
               <p class="form-message" id="activityMessage" role="status"></p>
             </div>
           </div>
