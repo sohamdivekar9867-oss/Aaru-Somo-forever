@@ -18,6 +18,7 @@
   let myProfile = '';
   let selectedProfile = '';
   let photos = [];
+  let photoLoadRequestId = 0;
   let viewerIndex = -1;
 
   const $ = id => document.getElementById(id);
@@ -56,6 +57,7 @@
     if (galleryView) { galleryView.hidden = true; galleryView.style.display = 'none'; }
     if (chooser) { chooser.hidden = false; chooser.style.display = ''; }
     selectedProfile = '';
+    photoLoadRequestId += 1;
     setStatus('');
   }
 
@@ -149,6 +151,8 @@
 
   async function loadPhotos() {
     if (!grid) return;
+    const requestId = ++photoLoadRequestId;
+    const requestedProfile = selectedProfile;
     grid.innerHTML = '<div class="photo-empty">Opening memories…</div>';
     if (!phoneClient) {
       grid.innerHTML = '<div class="photo-empty">The photo service is unavailable.<small>Please refresh the page.</small></div>';
@@ -156,17 +160,21 @@
     }
     const { data, error } = await phoneClient.from('chat_photos')
       .select('id,profile_name,storage_path,original_name,mime_type,created_by,created_at')
-      .eq('profile_name', selectedProfile).order('created_at', { ascending: false });
+      .eq('profile_name', requestedProfile).order('created_at', { ascending: false });
+    if (requestId !== photoLoadRequestId || requestedProfile !== selectedProfile) return;
     if (error) {
       console.error('chat_photos load error:', error);
       grid.innerHTML = `<div class="photo-empty">Could not open this gallery. ❤️<small>${escapeHtml(error.message || 'Check PHONE_PHOTOS_SETUP.sql')}</small></div>`;
       return;
     }
-    photos = [];
+    const loadedPhotos = [];
     for (const row of data || []) {
       const { data: signed, error: signError } = await phoneClient.storage.from('chat-photos').createSignedUrl(row.storage_path, 3600);
-      if (!signError && signed?.signedUrl) photos.push({...row, url: signed.signedUrl});
+      if (requestId !== photoLoadRequestId || requestedProfile !== selectedProfile) return;
+      if (!signError && signed?.signedUrl) loadedPhotos.push({...row, url: signed.signedUrl});
     }
+    if (requestId !== photoLoadRequestId || requestedProfile !== selectedProfile) return;
+    photos = loadedPhotos;
     if (galleryCount) galleryCount.textContent = `${photos.length} photo${photos.length === 1 ? '' : 's'}`;
     renderPhotos();
   }

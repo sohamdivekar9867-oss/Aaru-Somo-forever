@@ -4,7 +4,7 @@ This build treats the website as one shared world for two authenticated accounts
 
 ## Audited sections
 
-- **Our Story** — Supabase `story_chapters`, `story_perspectives`, and deletion-request tables. Shared between Aaru and Somo. Each person edits only their own perspective. Chapter deletion requires the other person to authorize it.
+- **Our Story** — Supabase `story_chapters`, `story_perspectives`, and deletion-request tables. Shared between Aaru and Somo. Both accounts can edit Aaru’s perspective; Tablet notes have separate permissions. Chapter deletion requires the other person to authorize it.
 - **Our Dates** — Supabase `date_entries`. Add/edit/delete/read are authenticated shared operations. Date photos use Supabase Storage; uploads/deletes require one of the two accounts.
 - **Planned Date Cat quests** — Supabase `planned_date_quests`. Saving from Date Cat and viewing/removing planned quests in Our Dates are shared backend operations.
 - **Bucket List** — Supabase `bucket_list`. All changes are shared backend operations.

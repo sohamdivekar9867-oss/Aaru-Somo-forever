@@ -270,30 +270,17 @@ on public.story_perspectives for select
 to authenticated
 using (public.is_couple_member());
 
--- Aaru can create only Aaru rows; Somo can create only Somo rows.
+-- Both couple accounts can create and edit Aaru's shared Story perspective.
 create policy "story perspectives insert"
 on public.story_perspectives for insert
 to authenticated
-with check (
-  (lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com' and author = 'Aaru')
-  or
-  (lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com' and author = 'Somo')
-);
+with check (public.is_couple_member() and author = 'Aaru');
 
--- Each person can update only their own perspective.
 create policy "story perspectives update"
 on public.story_perspectives for update
 to authenticated
-using (
-  (lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com' and author = 'Aaru')
-  or
-  (lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com' and author = 'Somo')
-)
-with check (
-  (lower(auth.jwt() ->> 'email') = 'aaru.saru090901@gmail.com' and author = 'Aaru')
-  or
-  (lower(auth.jwt() ->> 'email') = 'sohamdivekar9867@gmail.com' and author = 'Somo')
-);
+using (public.is_couple_member() and author = 'Aaru')
+with check (public.is_couple_member() and author = 'Aaru');
 
 -- IMPORTANT: a chapter is shared metadata. There is intentionally NO direct
 -- DELETE policy for story_chapters. A user can delete only their own
