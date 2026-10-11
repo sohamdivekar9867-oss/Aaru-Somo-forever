@@ -54,15 +54,16 @@ async function startWebsiteActivityTracking() {
       const { error } = await supabaseClient.from("website_activity_sessions").insert({
         id, user_id: user.id, user_email: (user.email || '').toLowerCase(), started_at: now, last_seen_at: now
       });
-      if (error) return; // Tracking is optional until TABLET_SETUP.sql has been run.
+      if (error) { console.error("[Activity tracking] Could not create session:", error.message); return; } // Requires TABLET_SETUP.sql and valid RLS policies.
       window.sessionStorage.setItem(ACTIVITY_SESSION_KEY, id);
     }
     const heartbeat = async () => {
       const currentUser = await getCurrentUser();
       if (!currentUser) return;
-      await supabaseClient.from("website_activity_sessions")
+      const { error } = await supabaseClient.from("website_activity_sessions")
         .update({ last_seen_at: new Date().toISOString() })
         .eq("id", id).eq("user_id", currentUser.id).is("ended_at", null);
+      if (error) console.error("[Activity tracking] Could not update heartbeat:", error.message);
     };
     await heartbeat();
     if (!window.__websiteActivityHeartbeat) {
@@ -75,6 +76,22 @@ async function startWebsiteActivityTracking() {
       });
     }
   } catch (_) {}
+}
+
+
+// Start tracking immediately when Supabase confirms a successful sign-in.
+// This is intentionally tied to authentication, not to entering a particular page.
+if (!window.__somdaActivityAuthListenerRegistered) {
+  window.__somdaActivityAuthListenerRegistered = true;
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" && session?.user) {
+      // Defer Supabase queries until after the auth callback completes.
+      setTimeout(() => { startWebsiteActivityTracking(); }, 0);
+    }
+    if (event === "SIGNED_OUT") {
+      window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
+    }
+  });
 }
 
 async function logout() {
