@@ -1,6 +1,6 @@
 const SUPABASE_URL = 'https://swqaakxywwajesuajflz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G';
-const EDIT_PIN = 'RT2026';
+
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
 let currentUser = null;
@@ -128,13 +128,8 @@ function unlockOrLock() {
     renderLetters();
     return;
   }
-  const pin = prompt('Enter the private PIN to edit letters:');
-  if (pin !== EDIT_PIN) {
-    if (pin !== null) alert('Incorrect PIN.');
-    return;
-  }
   editingUnlocked = true;
-  editToggle.textContent = 'Lock editing 🔒';
+  editToggle.textContent = 'Lock editing';
   addButton.classList.remove('hidden');
   renderLetters();
 }
