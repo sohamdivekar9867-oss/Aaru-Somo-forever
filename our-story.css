@@ -1820,3 +1820,14 @@ a {
   .reader-page.diary-index-page .page-bottom,
   .reader-page.diary-index-page .diary-author-label { display: none !important; }
 }
+
+/* Mobile reading refinement: justified body copy and one-step-smaller type. */
+@media (max-width: 600px) {
+  .reader-page.diary-page .diary-ruled-content,
+  .reader-page.diary-page .diary-ruled-content p,
+  .reader-page.diary-page .diary-ruled-content p + p {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+    font-size: .78rem !important;
+  }
+}
