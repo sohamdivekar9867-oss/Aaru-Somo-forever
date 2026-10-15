@@ -61,13 +61,12 @@
         <label>Favourite moment
           <textarea id="favouriteInput" maxlength="700" placeholder="The moment that stayed with me…"></textarea>
         </label>
-        <p class="photo-help">You can add up to 5 photos. They will appear below the note.</p>
+        <p class="photo-help" id="photoHelp" role="status">Add up to 10 photos. Saved photos stay in place when you add more.</p>
         <div class="photo-inputs">
-          <label>Photo 1 <input class="photo-input" type="file" accept="image/*"></label>
-          <label>Photo 2 <input class="photo-input" type="file" accept="image/*"></label>
-          <label>Photo 3 <input class="photo-input" type="file" accept="image/*"></label>
-          <label>Photo 4 <input class="photo-input" type="file" accept="image/*"></label>
-          <label>Photo 5 <input class="photo-input" type="file" accept="image/*"></label>
+          <label for="photosInput">Add photos
+            <input id="photosInput" type="file" accept="image/*" multiple>
+          </label>
+          <span class="photo-selection-status" id="photoSelectionStatus" aria-live="polite"></span>
         </div>
         <div class="modal-actions">
           <button type="button" class="outline-button" data-close-modal>Cancel</button>
