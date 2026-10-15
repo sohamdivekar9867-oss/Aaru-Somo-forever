@@ -92,12 +92,6 @@
     return "Added " + dateFormatter.format(date);
   }
 
-  function previewText(content) {
-    const normalized = String(content || "").trim();
-    if (normalized.length <= 240) return normalized;
-    return normalized.slice(0, 237).trimEnd() + "…";
-  }
-
   function appendMetaRow(meta, label, value) {
     const row = makeElement("div", "letter-meta-row");
     const caption = makeElement("span", "", label);
@@ -108,7 +102,7 @@
 
   function makeCard(letter, index) {
     const original = String(letter.id) === ORIGINAL_RECOVERED_LETTER_ID;
-    const card = makeElement("article", original ? "letter-card original-letter" : "letter-card");
+    const card = makeElement("article", "letter-card envelope-card envelope-color-" + (index % 4) + (original ? " original-letter" : ""));
     card.style.animationDelay = Math.min(index * 35, 140) + "ms";
 
     const top = makeElement("div", "card-topline");
@@ -116,15 +110,13 @@
     if (original) top.appendChild(makeElement("span", "original-badge", "Original keepsake"));
     card.appendChild(top);
 
-    card.appendChild(makeElement("h2", "letter-title", letter.title || "A little letter"));
-
     const meta = makeElement("div", "letter-meta");
+    appendMetaRow(meta, "Subject", letter.title || "A little letter");
     appendMetaRow(meta, "From", senderFor(letter));
     appendMetaRow(meta, "To", letter.recipient || "Recipient unavailable");
     appendMetaRow(meta, "Date", dateAddedLabel(letter));
     card.appendChild(meta);
 
-    card.appendChild(makeElement("p", "letter-preview", previewText(letter.content)));
     const actions = makeElement("div", "card-actions");
     actions.appendChild(makeButton("Open letter  →", "open-letter-button", "open", letter.id));
     if (editingUnlocked) {
