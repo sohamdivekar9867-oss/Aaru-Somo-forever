@@ -4,3 +4,8 @@
 /* Date Cat planned quests */
 .planned-quests{margin:18px 0 34px;padding:18px;border:1px solid rgba(161,91,105,.16);border-radius:22px;background:rgba(255,250,248,.75)}
 .planned-quests[hidden]{display:none}.planned-quests h2{font-family:"Playfair Display",serif;font-size:25px;font-weight:600;margin:0 0 5px;color:#4b3035}.planned-quests .planned-sub{font:10px/1.7 "DM Mono",monospace;color:#98646d;margin:0 0 15px}.planned-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}.planned-card{background:#fff;border:1px solid rgba(161,91,105,.15);border-radius:15px;padding:14px}.planned-card .planned-label{font:500 8px "DM Mono",monospace;letter-spacing:1.3px;color:#aa6872}.planned-card h3{font-family:"Playfair Display",serif;font-size:20px;margin:5px 0 8px;color:#4b3035}.planned-card p{font:10px/1.7 "DM Mono",monospace;color:#654149;margin:3px 0}.planned-card button{margin-top:10px;border:1px solid rgba(161,91,105,.2);background:#fff5f3;border-radius:9px;padding:8px 10px;font:500 9px "DM Mono",monospace;color:#774852;cursor:pointer}
+
+/* Keep the existing photo list intact as new photos are added. */
+.photo-inputs{grid-template-columns:1fr}.photo-inputs label{font-size:10px}.photo-selection-status{font:10px/1.5 'DM Mono',monospace;color:#a26b83}
+/* Date Cat completion controls */
+.planned-card.is-completed{background:#f1f8ef;border-color:rgba(88,139,87,.28)}.planned-status{display:inline-block;margin:2px 0 5px;padding:4px 7px;border-radius:999px;background:#fff4d6;color:#8b7132;font:500 8px 'DM Mono',monospace;letter-spacing:.7px}.planned-card.is-completed .planned-status{background:#e2f1df;color:#547b50}.planned-actions{display:flex;flex-wrap:wrap;gap:7px}.planned-card button:disabled{opacity:.55;cursor:wait}
