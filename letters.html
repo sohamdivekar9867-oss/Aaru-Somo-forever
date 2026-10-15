@@ -7,7 +7,8 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Things I Love About You — Aaru & Somo</title>
+  <meta name="theme-color" content="#f4e9dc" />
+  <title>Letters We Keep — Aaru &amp; Somo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Parisienne&display=swap" rel="stylesheet">
@@ -15,36 +16,83 @@
 </head>
 <body>
   <main class="letters-page">
-    <a class="back-link" href="bedroom.html">← Back to our bedroom</a>
+    <a class="back-link" href="bedroom.html"><span aria-hidden="true">←</span> Back to our bedroom</a>
+
     <header class="letters-header">
-      <div class="eyebrow">OUR LOVE LETTER LOCKER</div>
-      <h1>Our Love<br><em>Letters</em></h1>
-      <p>Letters we write, feelings we keep, and little pieces of our hearts.</p>
+      <span class="pixel-heart" aria-hidden="true"></span>
+      <p class="eyebrow">THE LOVE LETTER LOCKER</p>
+      <h1><span>Letters</span><em>We Keep</em></h1>
+      <p class="intro-copy">Little pieces of us, kept safe on paper and close to the heart.</p>
+      <span class="header-rule" aria-hidden="true"><i></i></span>
     </header>
 
-    <section class="letters-toolbar">
-      <button id="editToggle" class="outline-button">Edit Letters</button>
-      <button id="addLetterButton" class="outline-button hidden">＋ Add New Letter</button>
+    <section class="letters-toolbar" aria-label="Letter collection actions">
+      <p id="collectionCount" class="collection-count">Our letters</p>
+      <div class="toolbar-actions">
+        <button id="editToggle" class="quiet-button" type="button">Edit letters</button>
+        <button id="addLetterButton" class="write-button" type="button" hidden>＋ Write a letter</button>
+      </div>
     </section>
 
-    <section id="lettersCollection" class="letters-collection"></section>
+    <p id="pageNotice" class="page-notice" role="status" aria-live="polite" hidden></p>
+    <section id="lettersCollection" class="letters-collection" aria-label="Saved letters"></section>
 
-    <div id="letterFormPanel" class="letter-form-panel hidden">
-      <div class="form-heading">A new little letter</div>
-      <label>Dear <input id="recipientInput" type="text" placeholder="Aaru" /></label>
-      <label>Letter content
-        <textarea id="contentInput" rows="12" placeholder="Write your letter here..."></textarea>
-      </label>
-      <label>Signed, <input id="signatureInput" type="text" placeholder="Somo" /></label>
-      <div class="form-actions">
-        <button id="createLetterButton" class="solid-button">Create Letter</button>
-        <button id="cancelLetterButton" class="text-button">Cancel</button>
+    <section id="letterFormPanel" class="letter-form-panel hidden" aria-labelledby="formHeading">
+      <div class="form-topline">
+        <span class="pixel-envelope" aria-hidden="true">✉</span>
+        <div>
+          <p class="eyebrow">A NOTE FROM THE HEART</p>
+          <h2 id="formHeading">Write a letter</h2>
+        </div>
       </div>
-    </div>
+      <form id="letterForm">
+        <label for="titleInput">Letter title</label>
+        <input id="titleInput" name="title" type="text" maxlength="120" placeholder="A little letter" required />
 
-    <footer class="letters-footer">Made with love, for Aaru. ♥</footer>
+        <div class="form-two-column">
+          <div>
+            <label for="recipientInput">To</label>
+            <input id="recipientInput" name="recipient" type="text" maxlength="120" placeholder="Aaru" required />
+          </div>
+          <div>
+            <label for="signatureInput">Signed</label>
+            <input id="signatureInput" name="signature" type="text" maxlength="160" placeholder="Yours, Somo" required />
+          </div>
+        </div>
+
+        <label for="contentInput">Your letter</label>
+        <textarea id="contentInput" name="content" rows="12" placeholder="Write your letter here..." required></textarea>
+
+        <div class="form-actions">
+          <button id="saveLetterButton" class="write-button" type="submit">Save letter</button>
+          <button id="cancelLetterButton" class="text-button" type="button">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <footer class="letters-footer"><span aria-hidden="true">♥</span> Made with love, for Aaru and Somo.</footer>
   </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="letters.js"></script>
+
+  <dialog id="letterReader" class="letter-reader" aria-labelledby="readerTitle">
+    <div class="reader-shell">
+      <button id="closeReader" class="reader-back" type="button"><span aria-hidden="true">←</span> Back to letters</button>
+      <article class="reader-paper">
+        <div class="reader-ornament" aria-hidden="true"><span class="pixel-heart"></span><span class="reader-ornament-line"></span><span class="pixel-heart"></span></div>
+        <p id="readerKeepsake" class="keepsake-label hidden">The original keepsake</p>
+        <h2 id="readerTitle" class="reader-title"></h2>
+        <div class="reader-details">
+          <span id="readerFrom"></span>
+          <span id="readerTo"></span>
+          <span id="readerDate"></span>
+        </div>
+        <div id="readerContent" class="reader-content"></div>
+        <p id="readerSignature" class="reader-signature"></p>
+        <p id="readerReadStatus" class="reader-read-status"></p>
+      </article>
+    </div>
+  </dialog>
+
+  <script src="letters.js" defer></script>
 </body>
 </html>
+
