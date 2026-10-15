@@ -1,149 +1,383 @@
-const SUPABASE_URL = 'https://swqaakxywwajesuajflz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G';
+(function () {
+  "use strict";
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-
-let currentUser = null;
-let currentPerson = '';
-let recipientPerson = '';
-
-function personFromEmail(email = '') {
-  const e = email.toLowerCase();
-  if (e.includes('aaru')) return 'Aaru';
-  if (e.includes('soham')) return 'Somo';
-  return '';
-}
-
-async function loadCurrentUser() {
-  const { data } = await supabaseClient.auth.getUser();
-  currentUser = data?.user || null;
-  currentPerson = personFromEmail(currentUser?.email || '');
-  recipientPerson = currentPerson === 'Aaru' ? 'Somo' : currentPerson === 'Somo' ? 'Aaru' : '';
-  if (recipientPerson) document.getElementById('recipientInput').value = recipientPerson;
-}
-
-let editingUnlocked = false;
-let letters = [];
-const collection = document.getElementById('lettersCollection');
-const editToggle = document.getElementById('editToggle');
-const addButton = document.getElementById('addLetterButton');
-const formPanel = document.getElementById('letterFormPanel');
-
-function escapeHtml(value = '') {
-  return value.replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;' }[char]));
-}
-
-function renderLetters() {
-  collection.innerHTML = '';
-  if (!letters.length) {
-    collection.innerHTML = '<p class="empty-letters">No letters yet. Add one when you are ready. ♡</p>';
-    return;
-  }
-  letters.forEach(letter => collection.appendChild(makeCard(letter, false)));
-}
-
-function makeCard(letter, isStatic) {
-  const card = document.createElement('article');
-  card.className = `letter-card${isStatic ? ' static-letter' : ''}`;
-  card.innerHTML = `
-    <div class="letter-recipient">Dear ${escapeHtml(letter.recipient || '')},</div>
-    <div class="letter-content">${escapeHtml(letter.content || '')}</div>
-    <div class="letter-signature">${escapeHtml(letter.signature || '')}</div>
-    ${!isStatic && letter.sender ? `<div class="letter-meta">From ${escapeHtml(letter.sender)}${letter.read_at ? ' · Read' : ' · Waiting to be read'}</div>` : ''}
-    ${!isStatic && editingUnlocked ? `
-      <div class="letter-actions">
-        <button class="small-button" data-action="edit" data-id="${letter.id}">Edit</button>
-        <button class="small-button delete" data-action="delete" data-id="${letter.id}">Delete</button>
-      </div>` : ''}
-  `;
-  return card;
-}
-
-async function loadLetters() {
-  const { data, error } = await supabaseClient
-    .from('love_letters')
-    .select('*')
-    .order('display_order', { ascending: true })
-    .order('created_at', { ascending: true });
-  if (error) {
-    console.error(error);
-    alert('The letters could not be loaded. Please check the Supabase table setup.');
-    return;
-  }
-  letters = data || [];
-  renderLetters();
-}
-
-function unlockOrLock() {
-  if (editingUnlocked) {
-    editingUnlocked = false;
-    formPanel.classList.add('hidden');
-    addButton.classList.add('hidden');
-    editToggle.textContent = 'Edit Letters';
-    renderLetters();
-    return;
-  }
-  editingUnlocked = true;
-  editToggle.textContent = 'Lock editing';
-  addButton.classList.remove('hidden');
-  renderLetters();
-}
-
-function openForm() {
-  formPanel.classList.remove('hidden');
-  document.getElementById('recipientInput').focus();
-}
-function closeForm() {
-  formPanel.classList.add('hidden');
-  document.getElementById('recipientInput').value = '';
-  document.getElementById('contentInput').value = '';
-  document.getElementById('signatureInput').value = '';
-}
-
-async function createLetter() {
-  const recipient = document.getElementById('recipientInput').value.trim();
-  const content = document.getElementById('contentInput').value.trim();
-  const signature = document.getElementById('signatureInput').value.trim();
-  if (!recipient || !content || !signature) return alert('Please fill in all three fields.');
-  const { error } = await supabaseClient.from('love_letters').insert({
-    recipient, content, signature, display_order: letters.length + 1,
-    sender: currentPerson || signature,
-    read_at: null
+  const supabaseClient = window.appSupabaseClient;
+  const ORIGINAL_RECOVERED_LETTER_ID = "6";
+  const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Kolkata"
   });
-  if (error) return alert(`Could not create the letter: ${error.message}`);
-  closeForm();
-  await loadCurrentUser().then(loadLetters);
-}
 
-async function editLetter(id) {
-  const letter = letters.find(item => String(item.id) === String(id));
-  if (!letter) return;
-  const recipient = prompt('Dear...', letter.recipient || '');
-  if (recipient === null) return;
-  const content = prompt('Letter content:', letter.content || '');
-  if (content === null) return;
-  const signature = prompt('Signed by:', letter.signature || '');
-  if (signature === null) return;
-  const { error } = await supabaseClient.from('love_letters').update({ recipient, content, signature, updated_at: new Date().toISOString() }).eq('id', id);
-  if (error) return alert(`Could not save the letter: ${error.message}`);
-  await loadCurrentUser().then(loadLetters);
-}
+  let currentUser = null;
+  let currentPerson = "";
+  let recipientPerson = "";
+  let editingUnlocked = false;
+  let editingLetterId = null;
+  let saving = false;
+  let letters = [];
 
-async function deleteLetter(id) {
-  if (!confirm('Delete this entire letter?')) return;
-  const { error } = await supabaseClient.from('love_letters').delete().eq('id', id);
-  if (error) return alert(`Could not delete the letter: ${error.message}`);
-  await loadCurrentUser().then(loadLetters);
-}
+  const collection = document.getElementById("lettersCollection");
+  const collectionCount = document.getElementById("collectionCount");
+  const editToggle = document.getElementById("editToggle");
+  const addButton = document.getElementById("addLetterButton");
+  const formPanel = document.getElementById("letterFormPanel");
+  const form = document.getElementById("letterForm");
+  const formHeading = document.getElementById("formHeading");
+  const saveButton = document.getElementById("saveLetterButton");
+  const pageNotice = document.getElementById("pageNotice");
+  const reader = document.getElementById("letterReader");
 
-editToggle.addEventListener('click', unlockOrLock);
-addButton.addEventListener('click', openForm);
-document.getElementById('cancelLetterButton').addEventListener('click', closeForm);
-document.getElementById('createLetterButton').addEventListener('click', createLetter);
-collection.addEventListener('click', event => {
-  const button = event.target.closest('button[data-action]');
-  if (!button) return;
-  if (button.dataset.action === 'edit') editLetter(button.dataset.id);
-  if (button.dataset.action === 'delete') deleteLetter(button.dataset.id);
-});
-loadCurrentUser().then(loadLetters);
+  const titleInput = document.getElementById("titleInput");
+  const recipientInput = document.getElementById("recipientInput");
+  const contentInput = document.getElementById("contentInput");
+  const signatureInput = document.getElementById("signatureInput");
+
+  function setNotice(message, kind) {
+    pageNotice.textContent = message || "";
+    pageNotice.classList.toggle("is-error", kind === "error");
+    pageNotice.classList.toggle("is-success", kind === "success");
+    pageNotice.hidden = !message;
+  }
+
+  function personFromEmail(email) {
+    const normalized = String(email || "").toLowerCase();
+    if (normalized.includes("aaru")) return "Aaru";
+    if (normalized.includes("soham")) return "Somo";
+    return "";
+  }
+
+  async function loadCurrentUser() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error) {
+      console.warn("[letters] Could not read current user:", error.message);
+      return;
+    }
+    currentUser = data && data.user ? data.user : null;
+    currentPerson = personFromEmail(currentUser && currentUser.email);
+    recipientPerson = currentPerson === "Aaru" ? "Somo" : currentPerson === "Somo" ? "Aaru" : "";
+  }
+
+  function makeElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function makeButton(text, className, action, id) {
+    const button = makeElement("button", className, text);
+    button.type = "button";
+    button.dataset.action = action;
+    button.dataset.id = String(id);
+    return button;
+  }
+
+  function senderFor(letter) {
+    if (letter.sender) return letter.sender;
+    if (letter.recipient === "Aaru") return "Somo";
+    if (letter.recipient === "Somo") return "Aaru";
+    return "Sender unavailable";
+  }
+
+  function dateAddedLabel(letter) {
+    // This is the original static keepsake restored to Supabase on 15 October 2026.
+    // Its database timestamp is the recovery time, not the date it first entered the collection.
+    if (String(letter.id) === ORIGINAL_RECOVERED_LETTER_ID) return "Date unavailable";
+    if (!letter.created_at) return "Date unavailable";
+    const date = new Date(letter.created_at);
+    if (Number.isNaN(date.getTime())) return "Date unavailable";
+    return "Added " + dateFormatter.format(date);
+  }
+
+  function previewText(content) {
+    const normalized = String(content || "").trim();
+    if (normalized.length <= 240) return normalized;
+    return normalized.slice(0, 237).trimEnd() + "…";
+  }
+
+  function appendMetaRow(meta, label, value) {
+    const row = makeElement("div", "letter-meta-row");
+    const caption = makeElement("span", "", label);
+    const text = makeElement("strong", "", value || "—");
+    row.append(caption, text);
+    meta.appendChild(row);
+  }
+
+  function makeCard(letter, index) {
+    const original = String(letter.id) === ORIGINAL_RECOVERED_LETTER_ID;
+    const card = makeElement("article", original ? "letter-card original-letter" : "letter-card");
+    card.style.animationDelay = Math.min(index * 35, 140) + "ms";
+
+    const top = makeElement("div", "card-topline");
+    top.appendChild(makeElement("span", "envelope-mark", "✉"));
+    if (original) top.appendChild(makeElement("span", "original-badge", "Original keepsake"));
+    card.appendChild(top);
+
+    card.appendChild(makeElement("h2", "letter-title", letter.title || "A little letter"));
+
+    const meta = makeElement("div", "letter-meta");
+    appendMetaRow(meta, "From", senderFor(letter));
+    appendMetaRow(meta, "To", letter.recipient || "Recipient unavailable");
+    appendMetaRow(meta, "Date", dateAddedLabel(letter));
+    card.appendChild(meta);
+
+    card.appendChild(makeElement("p", "letter-preview", previewText(letter.content)));
+    const actions = makeElement("div", "card-actions");
+    actions.appendChild(makeButton("Open letter  →", "open-letter-button", "open", letter.id));
+    if (editingUnlocked) {
+      actions.appendChild(makeButton("Edit", "small-button", "edit", letter.id));
+      actions.appendChild(makeButton("Delete", "small-button delete", "delete", letter.id));
+    }
+    card.appendChild(actions);
+    return card;
+  }
+
+  function renderLetters() {
+    collection.replaceChildren();
+    collectionCount.textContent = letters.length + (letters.length === 1 ? " saved letter" : " saved letters");
+
+    if (!letters.length) {
+      collection.appendChild(makeElement("p", "empty-letters", "No letters yet. Write the first one when you’re ready. ♡"));
+      return;
+    }
+
+    letters.forEach(function (letter, index) {
+      collection.appendChild(makeCard(letter, index));
+    });
+  }
+
+  async function loadLetters() {
+    if (!supabaseClient) {
+      setNotice("The shared letters service is unavailable on this page.", "error");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("love_letters")
+        .select("*")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("[letters] Could not load the collection:", error);
+        setNotice("We couldn’t load the letters. Please try again in a moment.", "error");
+        return;
+      }
+
+      letters = data || [];
+      setNotice("", "");
+      renderLetters();
+    } catch (error) {
+      console.error("[letters] Could not load the collection:", error);
+      setNotice("We couldn’t load the letters. Please try again in a moment.", "error");
+    }
+  }
+
+  function resetForm() {
+    form.reset();
+    titleInput.value = "";
+    recipientInput.value = recipientPerson;
+    contentInput.value = "";
+    signatureInput.value = "";
+    editingLetterId = null;
+    formHeading.textContent = "Write a letter";
+    saveButton.textContent = "Save letter";
+  }
+
+  function closeForm() {
+    formPanel.classList.add("hidden");
+    resetForm();
+  }
+
+  function openNewLetterForm() {
+    resetForm();
+    formHeading.textContent = "Write a letter";
+    formPanel.classList.remove("hidden");
+    formPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    titleInput.focus({ preventScroll: true });
+  }
+
+  function openEditForm(letter) {
+    editingLetterId = String(letter.id);
+    formHeading.textContent = "Edit this letter";
+    titleInput.value = letter.title || "A little letter";
+    recipientInput.value = letter.recipient || "";
+    contentInput.value = letter.content || "";
+    signatureInput.value = letter.signature || "";
+    saveButton.textContent = "Save changes";
+    formPanel.classList.remove("hidden");
+    formPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    titleInput.focus({ preventScroll: true });
+  }
+
+  function openLetter(letter) {
+    document.getElementById("readerKeepsake").classList.toggle(
+      "hidden",
+      String(letter.id) !== ORIGINAL_RECOVERED_LETTER_ID
+    );
+    document.getElementById("readerTitle").textContent = letter.title || "A little letter";
+    document.getElementById("readerFrom").textContent = "From " + senderFor(letter);
+    document.getElementById("readerTo").textContent = "To " + (letter.recipient || "Recipient unavailable");
+    document.getElementById("readerDate").textContent = dateAddedLabel(letter);
+    document.getElementById("readerContent").textContent = letter.content || "";
+    document.getElementById("readerSignature").textContent = letter.signature || "";
+    document.getElementById("readerReadStatus").textContent = letter.read_at ? "Read" : "Waiting to be read";
+    document.body.classList.add("reader-open");
+    reader.showModal();
+
+    if (currentPerson && letter.recipient === currentPerson && !letter.read_at) {
+      markAsRead(letter);
+    }
+  }
+
+  async function markAsRead(letter) {
+    if (!supabaseClient || !currentUser) return;
+    const timestamp = new Date().toISOString();
+    try {
+      const { error } = await supabaseClient
+        .from("love_letters")
+        .update({ read_at: timestamp })
+        .eq("id", letter.id);
+      if (error) {
+        console.warn("[letters] Could not mark the letter as read:", error.message);
+        return;
+      }
+      letter.read_at = timestamp;
+      document.getElementById("readerReadStatus").textContent = "Read";
+      renderLetters();
+    } catch (error) {
+      console.warn("[letters] Could not mark the letter as read:", error);
+    }
+  }
+
+  async function saveLetter(event) {
+    event.preventDefault();
+    if (saving) return;
+
+    const title = titleInput.value;
+    const recipient = recipientInput.value;
+    const content = contentInput.value;
+    const signature = signatureInput.value;
+    if (!title.trim() || !recipient.trim() || !content.trim() || !signature.trim()) {
+      setNotice("Please complete the title, recipient, letter, and signature.", "error");
+      return;
+    }
+    if (!supabaseClient) {
+      setNotice("The shared letters service is unavailable on this page.", "error");
+      return;
+    }
+
+    saving = true;
+    saveButton.disabled = true;
+    const wasEditing = editingLetterId !== null;
+    saveButton.textContent = wasEditing ? "Saving…" : "Saving…";
+    setNotice("", "");
+
+    let result;
+    try {
+      if (wasEditing) {
+        result = await supabaseClient
+          .from("love_letters")
+          .update({
+            title: title.trim(),
+            recipient: recipient.trim(),
+            content: content,
+            signature: signature.trim(),
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", editingLetterId);
+      } else {
+        result = await supabaseClient
+          .from("love_letters")
+          .insert({
+            title: title.trim(),
+            recipient: recipient.trim(),
+            content: content,
+            signature: signature.trim(),
+            display_order: letters.length + 1,
+            sender: currentPerson || signature.trim(),
+            read_at: null
+          });
+      }
+    } catch (error) {
+      result = { error: error };
+    }
+
+    saving = false;
+    saveButton.disabled = false;
+    if (result.error) {
+      saveButton.textContent = wasEditing ? "Save changes" : "Save letter";
+      console.error("[letters] Could not save the letter:", result.error);
+      setNotice("We couldn’t save that letter. Your text is still here; please try again.", "error");
+      return;
+    }
+
+    closeForm();
+    await loadLetters();
+    setNotice(wasEditing ? "Your changes are saved." : "Your letter is safely tucked away.", "success");
+  }
+
+  async function deleteLetter(id) {
+    const letter = letters.find(function (item) { return String(item.id) === String(id); });
+    if (!letter) return;
+    if (!window.confirm("Delete “" + (letter.title || "this letter") + "”? This cannot be undone.")) return;
+
+    let error;
+    try {
+      ({ error } = await supabaseClient
+        .from("love_letters")
+        .delete()
+        .eq("id", id));
+    } catch (requestError) {
+      error = requestError;
+    }
+    if (error) {
+      console.error("[letters] Could not delete the letter:", error);
+      setNotice("We couldn’t delete that letter. Please try again.", "error");
+      return;
+    }
+
+    await loadLetters();
+    setNotice("The letter was deleted.", "success");
+  }
+
+  editToggle.addEventListener("click", function () {
+    editingUnlocked = !editingUnlocked;
+    editToggle.textContent = editingUnlocked ? "Lock editing" : "Edit letters";
+    addButton.hidden = !editingUnlocked;
+    if (!editingUnlocked) closeForm();
+    renderLetters();
+  });
+
+  addButton.addEventListener("click", openNewLetterForm);
+  document.getElementById("cancelLetterButton").addEventListener("click", closeForm);
+  document.getElementById("closeReader").addEventListener("click", function () { reader.close(); });
+  reader.addEventListener("close", function () { document.body.classList.remove("reader-open"); });
+  form.addEventListener("submit", saveLetter);
+
+  collection.addEventListener("click", function (event) {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const letter = letters.find(function (item) { return String(item.id) === button.dataset.id; });
+    if (!letter) return;
+
+    if (button.dataset.action === "open") openLetter(letter);
+    if (button.dataset.action === "edit") openEditForm(letter);
+    if (button.dataset.action === "delete") deleteLetter(letter.id);
+  });
+
+  if (!supabaseClient) {
+    setNotice("The shared letters service is unavailable on this page.", "error");
+    return;
+  }
+
+  loadCurrentUser().then(loadLetters).catch(function (error) {
+    console.error("[letters] Initialization failed:", error);
+    setNotice("The letters couldn’t be opened. Please refresh the page and try again.", "error");
+  });
+})();
+
