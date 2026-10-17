@@ -540,6 +540,19 @@ create table if not exists public.couple_rules (
   updated_at timestamptz not null default now()
 );
 
+-- Repair the legacy author label used by older deployed versions.
+-- The app and current policies use "Somo"; older rows may contain "Somda".
+alter table public.couple_rules
+  drop constraint if exists couple_rules_added_by_check;
+
+update public.couple_rules
+set added_by = 'Somo'
+where added_by = 'Somda';
+
+alter table public.couple_rules
+  add constraint couple_rules_added_by_check
+  check (added_by in ('Aaru', 'Somo'));
+
 alter table public.couple_rules enable row level security;
 
 drop policy if exists "Couple rules read" on public.couple_rules;
