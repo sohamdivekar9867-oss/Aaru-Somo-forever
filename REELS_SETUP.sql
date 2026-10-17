@@ -19,6 +19,14 @@ create table if not exists public.couple_reels (
   delete_approved_by uuid references auth.users(id) on delete set null
 );
 
+-- Normalize author labels from the older "Somda" display name.
+alter table public.couple_reels
+  drop constraint if exists couple_reels_added_by_check;
+update public.couple_reels set added_by = 'Somo' where added_by = 'Somda';
+alter table public.couple_reels
+  add constraint couple_reels_added_by_check
+  check (added_by in ('Aaru', 'Somo'));
+
 create table if not exists public.reel_memories (
   id uuid primary key default gen_random_uuid(),
   reel_id uuid not null references public.couple_reels(id) on delete cascade,
