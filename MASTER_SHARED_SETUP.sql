@@ -490,6 +490,14 @@ create table if not exists public.couple_music (
   updated_at timestamptz not null default now()
 );
 
+-- Normalize author labels from the older "Somda" display name.
+alter table public.couple_music
+  drop constraint if exists couple_music_added_by_check;
+update public.couple_music set added_by = 'Somo' where added_by = 'Somda';
+alter table public.couple_music
+  add constraint couple_music_added_by_check
+  check (added_by in ('Aaru', 'Somo'));
+
 alter table public.couple_music enable row level security;
 
 drop policy if exists "Couple music read" on public.couple_music;
