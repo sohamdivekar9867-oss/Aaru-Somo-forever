@@ -9,7 +9,6 @@
   const $ = id => document.getElementById(id);
   const library = $('notesLibrary'), editor = $('notesEditor'), list = $('documentLibrary');
   const title = $('noteTitle'), body = $('noteBody'), status = $('saveState');
-  const types = ['Chapter', 'Personal Journal', 'Random Thoughts', 'Letter'];
   let user = null, owner = false, documents = [], active = null, timer = 0, revision = 0, savedRevision = 0, saving = Promise.resolve();
   let savedRange = null;
   const draftKey = id => `somo-notes-document-${id}`;
@@ -70,7 +69,7 @@
     body.contentEditable = owner ? 'true' : 'false'; title.readOnly = !owner;
     $('documentTypeBadge').textContent = active.type || 'Personal Journal'; $('documentTypeLabel').textContent = (active.type || 'Personal Journal').toUpperCase();
     $('documentEdited').textContent = `Edited ${dateLabel(active.updated_at)}`;
-    ['renameDocument','duplicateDocument','deleteDocument','newDocument'].forEach(id => $(id).hidden = !owner);
+    ['renameDocument','duplicateDocument','deleteDocument','newDocument','manualSave'].forEach(id => $(id).hidden = !owner);
     $('formatToolbar').hidden = !owner;
     if (!(owner && revision !== savedRevision)) setStatus(owner ? 'Saved' : 'Read only');
     if (owner) body.focus({ preventScroll:true });
@@ -101,10 +100,8 @@
   }
   async function createDocument(copy = null) {
     if (!owner) return;
-    const chosen = copy ? copy.type : $('newDocumentType').value;
-    const type = types.find(item => item.toLowerCase() === chosen.trim().toLowerCase()) || 'Personal Journal';
     const initial = copy ? `${copy.title || 'Untitled'} copy` : '';
-    const row = { title:initial, type, content:copy ? safeHtml(copy.content) : '', plain_text:copy?.plain_text || '' };
+    const row = { title:initial, type:'Personal Journal', content:copy ? safeHtml(copy.content) : '', plain_text:copy?.plain_text || '' };
     setStatus('Creating…');
     const { data, error } = await client.from('somo_documents').insert(row).select('id,title,type,content,plain_text,updated_at').single();
     if (error) { setStatus('Create failed'); $('notesMessage').textContent = 'Could not create that document. Please try again.'; return; }
@@ -133,7 +130,6 @@
     const { data:{ user: current }, error } = await client.auth.getUser(); user = error ? null : current;
     owner = !!user && user.email?.toLowerCase() === 'sohamdivekar9867@gmail.com';
     $('newDocument').hidden = !owner;
-    $('newDocumentType').hidden = !owner;
     $('notesMessage').textContent = owner ? 'Saved documents sync securely through your account.' : 'You can read and copy documents here.';
     await refreshDocuments();
   }
@@ -142,6 +138,11 @@
   $('documentSearch').addEventListener('input', renderLibrary); $('documentSort').addEventListener('change', renderLibrary);
   $('newDocument').addEventListener('click', async () => { if (revision !== savedRevision && !(await flushSave())) return; await createDocument(); }); $('backToLibrary').addEventListener('click', async () => { if (revision !== savedRevision && !(await flushSave())) return; showLibrary(); });
   $('renameDocument').addEventListener('click', rename); $('deleteDocument').addEventListener('click', removeDocument); $('duplicateDocument').addEventListener('click', async () => { if (!active) return; if (revision !== savedRevision && !(await flushSave())) return; await createDocument(active); });
+  $('manualSave').addEventListener('click', async () => {
+    if (!owner || !active) return;
+    if (revision === savedRevision) { setStatus('Saved'); return; }
+    $('manualSave').disabled = true; await flushSave(); $('manualSave').disabled = false;
+  });
   title.addEventListener('input', changed); body.addEventListener('input', changed);
   document.addEventListener('selectionchange', () => {
     const selection = getSelection();
@@ -154,3 +155,4 @@
   $('editorMessage').addEventListener('click', () => { if (status.textContent.startsWith('Save failed')) flushSave(); });
   window.addEventListener('beforeunload', e => { if (owner && revision !== savedRevision) { e.preventDefault(); e.returnValue = ''; } });
 })();
+

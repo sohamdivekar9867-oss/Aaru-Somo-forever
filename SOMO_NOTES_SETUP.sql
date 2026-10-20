@@ -7,7 +7,7 @@ create table if not exists public.somo_documents (
   owner_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   title text not null default '',
   type text not null default 'Personal Journal'
-    check (type in ('Chapter', 'Personal Journal', 'Random Thoughts', 'Letter')),
+    check (type = 'Personal Journal'),
   content text not null default '',
   plain_text text not null default '',
   created_at timestamptz not null default now(),
@@ -100,3 +100,4 @@ where lower(owner.email) = 'sohamdivekar9867@gmail.com'
 
 comment on table public.somo_documents is
   'Independent Somo''s Notes documents. Authenticated Somda may write; authenticated Somda and Aaru may read.';
+
