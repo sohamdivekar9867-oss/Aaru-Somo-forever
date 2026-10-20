@@ -9,6 +9,16 @@
   const $ = id => document.getElementById(id);
   const library = $('notesLibrary'), editor = $('notesEditor'), list = $('documentLibrary');
   const title = $('noteTitle'), body = $('noteBody'), status = $('saveState');
+  function applyTheme(theme) {
+    const dark = theme === 'dark';
+    $('notesApp').dataset.theme = dark ? 'dark' : 'light';
+    $('themeToggle').textContent = dark ? '☀' : '☾';
+    $('themeToggle').setAttribute('aria-pressed', String(dark));
+    const label = `Switch to ${dark ? 'light' : 'dark'} mode`;
+    $('themeToggle').setAttribute('aria-label', label);
+    $('themeToggle').title = label;
+  }
+  try { applyTheme(localStorage.getItem('somoNotesTheme') || 'light'); } catch (_) { applyTheme('light'); }
   let user = null, owner = false, documents = [], active = null, timer = 0, revision = 0, savedRevision = 0, saving = Promise.resolve();
   let savedRange = null;
   const draftKey = id => `somo-notes-document-${id}`;
@@ -61,6 +71,7 @@
     if (!active) return;
     library.hidden = true; editor.hidden = false;
     title.value = active.title || ''; body.innerHTML = safeHtml(active.content || '');
+    resizeTitle();
     if (owner) {
       try {
         const recovery = JSON.parse(localStorage.getItem(draftKey(active.id)) || 'null');
@@ -78,6 +89,7 @@
     if (owner) body.focus({ preventScroll:true });
   }
   function snapshot() { return { title:title.value.trim() || 'Untitled', content:safeHtml(body.innerHTML), plain_text:body.innerText || '' }; }
+  function resizeTitle() { title.style.height = 'auto'; title.style.height = `${Math.max(title.scrollHeight, 38)}px`; }
   function changed() {
     if (!owner || !active) return;
     revision++; setStatus('Unsaved changes'); clearTimeout(timer); timer = setTimeout(flushSave, 850);
@@ -146,7 +158,14 @@
     if (revision === savedRevision) { setStatus('Saved'); return; }
     $('manualSave').disabled = true; await flushSave(); $('manualSave').disabled = false;
   });
-  title.addEventListener('input', changed); body.addEventListener('input', changed);
+  title.addEventListener('input', () => { resizeTitle(); changed(); });
+  title.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); body.focus(); } });
+  body.addEventListener('input', changed);
+  $('themeToggle').addEventListener('click', () => {
+    const next = $('notesApp').dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem('somoNotesTheme', next); } catch (_) { /* Theme still applies for this visit. */ }
+  });
   document.addEventListener('selectionchange', () => {
     const selection = getSelection();
     if (selection?.rangeCount && body.contains(selection.anchorNode) && body.contains(selection.focusNode)) savedRange = selection.getRangeAt(0).cloneRange();
