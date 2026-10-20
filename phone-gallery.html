@@ -20,7 +20,21 @@
           <span class="phone-status">● ● ▰</span>
         </header>
 
-        <section class="phone-home" id="profileChooser">
+        <section class="wallpaper-view" id="wallpaperView">
+          <img class="wallpaper-image" id="phoneWallpaperImage" alt="Phone wallpaper" hidden>
+          <div class="wallpaper-placeholder" id="wallpaperPlaceholder">A little space, just for us</div>
+          <div class="wallpaper-gradient"></div>
+          <div class="wallpaper-status" id="wallpaperStatus" role="status" aria-live="polite"></div>
+          <div class="wallpaper-actions">
+            <label class="wallpaper-add" id="wallpaperUploadWrap" hidden>＋ Add wallpaper
+              <input id="wallpaperInput" type="file" accept="image/*">
+            </label>
+            <button class="wallpaper-enter" id="enterPhone" type="button">Enter <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+
+        <section class="phone-home" id="profileChooser" hidden>
+          <button class="chooser-wallpaper-back" id="wallpaperBack" type="button">‹ Wallpaper</button>
           <div class="phone-app-title">Our Memories</div>
           <div class="phone-app-subtitle">Whose memories?</div>
           <div class="profile-options" id="profileOptions">
@@ -95,11 +109,13 @@
     // Immediate navigation: this is deliberately independent of Supabase.
     window.__openPhoneProfileFallback = function(profile) {
       var chooser = document.getElementById('profileChooser');
+      var wallpaper = document.getElementById('wallpaperView');
       var gallery = document.getElementById('galleryView');
       var title = document.getElementById('galleryTitle');
       if (!chooser || !gallery) return false;
       chooser.hidden = true;
       chooser.style.display = 'none';
+      if (wallpaper) { wallpaper.hidden = true; wallpaper.style.display = 'none'; }
       gallery.hidden = false;
       gallery.style.display = 'block';
       if (title) title.textContent = profile + "'s Memories";
@@ -109,6 +125,7 @@
       return false;
     };
   </script>
-  <script src="phone-gallery.js?v=20261011-safe-delete-3"></script>
+  <script src="phone-gallery.js?v=20261020-wallpaper-entry-1"></script>
 </body>
 </html>
+
