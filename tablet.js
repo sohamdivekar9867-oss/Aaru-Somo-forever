@@ -1,7 +1,7 @@
 /* Tablet apps. Replace SOMO_EMAIL with the email used by Somo's website account. */
 const SOMO_EMAIL = "sohamdivekar9867@gmail.com";
 const AARU_EMAIL = "aaru.saru090901@gmail.com";
-const tabletClient = window.supabase?.createClient(
+const tabletClient = window.appSupabaseClient || window.supabase?.createClient(
   "https://swqaakxywwajesuajflz.supabase.co",
   "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G",
   { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
@@ -106,14 +106,23 @@ async function uploadTabletWallpaper(file) {
 async function initTabletWallpaper() {
   if (!tabletClient) return;
   try {
-    const {data:{user}, error} = await tabletClient.auth.getUser();
-    if (error || !user) return;
+    // Use the shared client and local session so a temporary auth network check
+    // cannot leave Somo's wallpaper control hidden.
+    const {data:{session}, error} = await tabletClient.auth.getSession();
+    if (error) throw error;
+    const user = session?.user;
+    if (!user) {
+      tabletWallpaperStatus.textContent = 'Sign in again to manage the tablet wallpaper.';
+      return;
+    }
     tabletWallpaperUser = user;
-    tabletWallpaperUpload.hidden = user.email?.toLowerCase() !== SOMO_EMAIL.toLowerCase();
+    const isSomo = user.email?.trim().toLowerCase() === SOMO_EMAIL.toLowerCase();
+    tabletWallpaperUpload.hidden = !isSomo;
+    if (!isSomo) tabletWallpaperStatus.textContent = 'Only Somo can change the tablet wallpaper.';
     await loadTabletWallpaper();
   } catch (error) {
     console.error('Tablet wallpaper setup error:', error);
-    tabletWallpaperStatus.textContent = 'Could not load tablet wallpaper.';
+    tabletWallpaperStatus.textContent = 'Could not confirm your account. Refresh the page or sign in again.';
   }
 }
 if (tabletWallpaperInput) tabletWallpaperInput.addEventListener('change', () => uploadTabletWallpaper(tabletWallpaperInput.files?.[0]));
