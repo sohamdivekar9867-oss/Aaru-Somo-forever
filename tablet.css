@@ -175,3 +175,9 @@ tbody tr:last-child td{border-bottom:0}
 .home-footer{width:fit-content;padding:9px 13px 9px!important;border:1px solid #ead7d8;border-radius:999px;background:#fffaf7;color:#9d6f7b}
 .tablet-wallpaper-status{width:fit-content;max-width:calc(100% - 28px);padding:7px 10px;border:1px solid #ead7d8;border-radius:999px;background:#fffaf7;text-shadow:none}
 .tablet-wallpaper-upload{border-color:#e5cfd2;background:#fffaf7;backdrop-filter:none}
+
+
+/* Let the wallpaper sit directly behind the greeting and app icons. */
+.home-greeting,.app-grid{border-color:transparent;background:transparent;box-shadow:none}
+.home-footer{border-color:transparent;background:transparent;box-shadow:none}
+.tablet-wallpaper-status:empty{display:none}
