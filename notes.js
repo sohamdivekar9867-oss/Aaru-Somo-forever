@@ -38,7 +38,10 @@
   function renderLibrary() {
     const query = $('documentSearch').value.trim().toLocaleLowerCase();
     const ordered = [...documents].filter(d => (d.title || 'Untitled').toLocaleLowerCase().includes(query));
-    if ($('documentSort').value === 'title') ordered.sort((a,b) => (a.title || '').localeCompare(b.title || ''));
+    const sort = $('documentSort').value;
+    if (sort === 'title') ordered.sort((a,b) => (a.title || '').localeCompare(b.title || ''));
+    else if (sort === 'oldest') ordered.sort((a,b) => new Date(a.created_at || a.updated_at) - new Date(b.created_at || b.updated_at));
+    else if (sort === 'newest') ordered.sort((a,b) => new Date(b.created_at || b.updated_at) - new Date(a.created_at || a.updated_at));
     else ordered.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
     if (!ordered.length) {
       list.innerHTML = `<div class="library-empty"><span class="empty-mark">✎</span><h4>${query ? 'No matching documents' : 'A fresh page, whenever you are ready.'}</h4><p>${query ? 'Try another title.' : owner ? 'Create a journal, chapter, letter, or collect a passing thought.' : 'Somo’s writing will appear here.'}</p>${owner && !query ? '<button class="save-note" data-create-first type="button">＋ Create your first document</button>' : ''}</div>`;
@@ -48,7 +51,7 @@
   }
   async function refreshDocuments() {
     setStatus('Loading library…');
-    const { data, error } = await client.from('somo_documents').select('id,title,type,content,updated_at,plain_text').order('updated_at', { ascending:false });
+    const { data, error } = await client.from('somo_documents').select('id,title,type,content,created_at,updated_at,plain_text').order('updated_at', { ascending:false });
     if (error) { $('notesMessage').textContent = 'Could not load the cloud library. Run SOMO_NOTES_SETUP.sql in the Supabase SQL Editor, then retry.'; setStatus('Library unavailable'); return; }
     documents = data || []; renderLibrary(); setStatus(owner ? 'Your library' : 'Read only');
   }
@@ -103,7 +106,7 @@
     const initial = copy ? `${copy.title || 'Untitled'} copy` : '';
     const row = { title:initial, type:'Personal Journal', content:copy ? safeHtml(copy.content) : '', plain_text:copy?.plain_text || '' };
     setStatus('Creating…');
-    const { data, error } = await client.from('somo_documents').insert(row).select('id,title,type,content,plain_text,updated_at').single();
+    const { data, error } = await client.from('somo_documents').insert(row).select('id,title,type,content,plain_text,created_at,updated_at').single();
     if (error) { setStatus('Create failed'); $('notesMessage').textContent = 'Could not create that document. Please try again.'; return; }
     documents.unshift(data); $('notesMessage').textContent = ''; await openDocument(data.id);
     if (!copy) { title.focus(); title.select(); }
