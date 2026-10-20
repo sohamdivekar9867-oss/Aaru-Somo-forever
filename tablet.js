@@ -31,181 +31,93 @@ function updateClock() {
 updateClock(); setInterval(updateClock, 30000);
 
 const tabletWallpaperImage = document.getElementById('tabletWallpaperImage');
-
 const tabletWallpaperUpload = document.getElementById('tabletWallpaperUpload');
-
 const tabletWallpaperInput = document.getElementById('tabletWallpaperInput');
-
 const tabletWallpaperStatus = document.getElementById('tabletWallpaperStatus');
-
 let tabletWallpaperUser = null;
 
-
-
 async function loadTabletWallpaper() {
-
   try {
-
     const {data, error} = await tabletClient.from('tablet_wallpapers')
-
       .select('storage_path').eq('id', true).maybeSingle();
-
     if (error) throw error;
-
     if (!data?.storage_path) return;
-
     const {data:signed, error:signError} = await tabletClient.storage
-
       .from('tablet-wallpapers').createSignedUrl(data.storage_path, 3600);
-
     if (signError) throw signError;
-
     tabletWallpaperImage.src = signed.signedUrl;
-
     tabletWallpaperImage.hidden = false;
-
     tabletWallpaperImage.onerror = () => {
-
       tabletWallpaperImage.hidden = true;
-
       tabletWallpaperStatus.textContent = 'Could not display the tablet wallpaper.';
-
     };
-
     tabletWallpaperStatus.textContent = '';
-
   } catch (error) {
-
     console.error('Tablet wallpaper load error:', error);
-
     tabletWallpaperStatus.textContent = 'Wallpaper storage is not ready. Check TABLET_WALLPAPER_SETUP.sql.';
-
   }
-
 }
-
-
 
 async function uploadTabletWallpaper(file) {
-
   if (!file) return;
-
   if (tabletWallpaperUser?.email?.toLowerCase() !== SOMO_EMAIL.toLowerCase()) {
-
     tabletWallpaperStatus.textContent = 'Only Somo can change the tablet wallpaper.';
-
     return;
-
   }
-
   if (!file.type.startsWith('image/')) {
-
     tabletWallpaperStatus.textContent = 'Choose an image file for the wallpaper.';
-
     return;
-
   }
-
   if (file.size > 15 * 1024 * 1024) {
-
     tabletWallpaperStatus.textContent = 'Choose an image smaller than 15 MB.';
-
     return;
-
   }
-
   tabletWallpaperInput.disabled = true;
-
   tabletWallpaperStatus.textContent = 'Saving wallpaper…';
-
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'wallpaper';
-
   const path = `${tabletWallpaperUser.id}/${crypto.randomUUID()}-${safeName}`;
-
   try {
-
     const {error:uploadError} = await tabletClient.storage.from('tablet-wallpapers')
-
       .upload(path, file, {cacheControl:'3600', upsert:false, contentType:file.type});
-
     if (uploadError) throw uploadError;
-
     const {data:previous, error:readError} = await tabletClient.from('tablet_wallpapers')
-
       .select('storage_path').eq('id', true).maybeSingle();
-
     if (readError) throw readError;
-
     const {error:saveError} = await tabletClient.from('tablet_wallpapers').upsert({
-
       id:true, storage_path:path, uploaded_by:tabletWallpaperUser.id, updated_at:new Date().toISOString()
-
     }, {onConflict:'id'});
-
     if (saveError) throw saveError;
-
     await loadTabletWallpaper();
-
     if (previous?.storage_path) {
-
       const {error:cleanupError} = await tabletClient.storage.from('tablet-wallpapers').remove([previous.storage_path]);
-
       if (cleanupError) console.warn('Old tablet wallpaper cleanup failed:', cleanupError);
-
     }
-
     tabletWallpaperStatus.textContent = 'Tablet wallpaper saved.';
-
   } catch (error) {
-
     console.error('Tablet wallpaper upload error:', error);
-
     await tabletClient.storage.from('tablet-wallpapers').remove([path]);
-
     tabletWallpaperStatus.textContent = `Could not save wallpaper: ${error.message || 'Please try again.'}`;
-
   } finally {
-
     tabletWallpaperInput.disabled = false;
-
     tabletWallpaperInput.value = '';
-
   }
-
 }
-
-
 
 async function initTabletWallpaper() {
-
   if (!tabletClient) return;
-
   try {
-
     const {data:{user}, error} = await tabletClient.auth.getUser();
-
     if (error || !user) return;
-
     tabletWallpaperUser = user;
-
     tabletWallpaperUpload.hidden = user.email?.toLowerCase() !== SOMO_EMAIL.toLowerCase();
-
     await loadTabletWallpaper();
-
   } catch (error) {
-
     console.error('Tablet wallpaper setup error:', error);
-
     tabletWallpaperStatus.textContent = 'Could not load tablet wallpaper.';
-
   }
-
 }
-
 if (tabletWallpaperInput) tabletWallpaperInput.addEventListener('change', () => uploadTabletWallpaper(tabletWallpaperInput.files?.[0]));
-
 initTabletWallpaper();
-
 
 
 
