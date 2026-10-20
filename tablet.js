@@ -17,7 +17,7 @@ document.querySelectorAll('[data-home]').forEach(button => button.addEventListen
 document.getElementById('openUserApp').addEventListener('click', () => showApp(userApp));
 document.getElementById('openNotesApp').addEventListener('click', async () => {
   showApp(notesApp);
-  await loadNote();
+  await window.openSomoNotes?.();
 });
 const clockEl = document.getElementById('tabletClock');
 function updateClock() {
@@ -113,56 +113,3 @@ async function loadActivity() {
   }
   message.textContent='Showing Aaru’s sessions and section activity from the last 3 days.';
 }
-
-const noteTitle=document.getElementById('noteTitle');
-const noteBody=document.getElementById('noteBody');
-const saveState=document.getElementById('saveState');
-const notesMessage=document.getElementById('notesMessage');
-const localNoteKey='somo-notes-draft-v1';
-let noteUser=null;
-let noteLoadDone=false;
-async function loadNote() {
-  if(noteLoadDone) return;
-  const local=JSON.parse(localStorage.getItem(localNoteKey)||'{}');
-  noteTitle.value=local.title||'';
-  noteBody.value=local.body||'';
-  const {data:{user}}=await tabletClient.auth.getUser();
-  noteUser=user||null;
-  if(user && SOMO_EMAIL.includes('@') && user.email?.toLowerCase()===SOMO_EMAIL.toLowerCase()) {
-    const {data,error}=await tabletClient.from('somo_notes').select('title,body,updated_at').eq('user_id',user.id).maybeSingle();
-    if(!error && data) {
-      noteTitle.value=data.title||'';
-      noteBody.value=data.body||'';
-      notesMessage.textContent=`Saved to your private account · ${formatTime(data.updated_at)}`;
-    } else if(error) notesMessage.textContent='Cloud notes need setup. Your draft is still saved on this device.';
-  } else {
-    notesMessage.textContent='Draft saved on this device. Set your Somo account email to enable private cloud saving.';
-  }
-  noteLoadDone=true;
-}
-async function saveNote() {
-  const draft={title:noteTitle.value,body:noteBody.value,updated_at:new Date().toISOString()};
-  localStorage.setItem(localNoteKey,JSON.stringify(draft));
-  saveState.textContent='Saving…';
-  const {data:{user}}=await tabletClient.auth.getUser();
-  if(user && SOMO_EMAIL.includes('@') && user.email?.toLowerCase()===SOMO_EMAIL.toLowerCase()) {
-    const {error}=await tabletClient.from('somo_notes').upsert({user_id:user.id,title:draft.title,body:draft.body,updated_at:draft.updated_at},{onConflict:'user_id'});
-    if(error) {
-      saveState.textContent='Saved on device';
-      notesMessage.textContent='Cloud save failed; your draft is saved on this device. Check TABLET_SETUP.sql.';
-      return;
-    }
-    saveState.textContent='Saved';
-    notesMessage.textContent='Saved securely to your account.';
-  } else {
-    saveState.textContent='Saved locally';
-    notesMessage.textContent='Saved on this device. Cloud sync is available after configuring Somo’s account email and SQL policies.';
-  }
-}
-document.getElementById('saveNote').addEventListener('click',saveNote);
-let autosaveTimer;
-[noteTitle,noteBody].forEach(el=>el.addEventListener('input',()=>{
-  saveState.textContent='Unsaved changes';
-  clearTimeout(autosaveTimer);
-  autosaveTimer=setTimeout(saveNote,1200);
-}));
