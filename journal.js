@@ -10,6 +10,9 @@
   const entriesEl = $('journalEntries'), statusEl = $('journalStatus'), form = $('journalForm');
   const dateInput = $('journalDate'), thoughtInput = $('journalThought'), saveButton = $('saveThought');
   const SOMDA_EMAIL = 'sohamdivekar9867@gmail.com';
+  const monthInput = $('journalMonth');
+  const monthNow = new Date();
+  monthInput.value = `${monthNow.getFullYear()}-${String(monthNow.getMonth() + 1).padStart(2, '0')}`;
   let entries = [], activeEntry = null, canManage = false, dirty = false, busy = false;
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
@@ -35,7 +38,9 @@
   }
   function renderEntries() {
     if (!entries.length) {
-      entriesEl.innerHTML = `<div class="journal-empty"><span class="journal-empty-mark">♡</span><strong>A little space for today's thoughts</strong><p>${canManage ? 'Whenever you are ready, write down something you want to remember.' : 'Somo’s saved thoughts will be here.'}</p></div>`;
+      const [year, month] = monthInput.value.split('-').map(Number);
+      const label = new Intl.DateTimeFormat('en-IN', { month:'long', year:'numeric' }).format(new Date(year, month - 1, 1));
+      entriesEl.innerHTML = `<div class="journal-empty"><span class="journal-empty-mark">♡</span><strong>No thoughts for ${escapeHtml(label)}</strong><p>${canManage ? 'Whenever you are ready, write down something you want to remember.' : 'Somo’s saved thoughts for this month will be here.'}</p></div>`;
       return;
     }
     entriesEl.innerHTML = entries.map(entry => `
@@ -46,8 +51,15 @@
   }
   async function loadEntries({ quiet = false } = {}) {
     if (!quiet) setStatus('Opening your journal…');
+    const [year, month] = monthInput.value.split('-').map(Number);
+    if (!year || !month) { entriesEl.replaceChildren(); setStatus('Choose a month to see its thoughts.'); return false; }
+    const from = `${year}-${String(month).padStart(2, '0')}-01`;
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const until = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
     const { data, error } = await journalClient.from('somo_journal_entries')
       .select('id,entry_date,content,created_at,updated_at')
+      .gte('entry_date', from).lt('entry_date', until)
       .order('entry_date', { ascending:false })
       .order('created_at', { ascending:false })
       .order('id', { ascending:true });
@@ -58,7 +70,7 @@
     }
     entries = data || [];
     renderEntries();
-    if (!quiet) setStatus(entries.length ? (canManage ? 'Your thoughts, saved across your devices.' : 'Read-only journal') : '');
+    if (!quiet) setStatus(entries.length ? (canManage ? 'Your thoughts, saved across your devices.' : 'Somo’s thoughts for this month.') : '');
     return true;
   }
   function openReader(entry) {
@@ -92,7 +104,21 @@
     const { data:{ user }, error:authError } = await journalClient.auth.getUser();
     canManage = !authError && user?.email?.toLowerCase() === SOMDA_EMAIL;
     $('writeThought').hidden = !canManage;
+    $('journalSubtitle').textContent = canManage ? 'Little things I wanted to remember.' : 'Little things Somo wanted to remember.';
+    $('journalLibraryEyebrow').textContent = canManage ? 'MY POCKET JOURNAL' : 'SOMO’S POCKET JOURNAL';
+    $('journalThought').previousElementSibling.textContent = canManage ? 'Your thoughts' : 'Somo’s thoughts';
+    applyTheme(readTheme());
     return loadEntries();
+  }
+  function readTheme() { try { return localStorage.getItem('somoJournalTheme') || 'light'; } catch (_) { return 'light'; } }
+  function applyTheme(theme) {
+    const dark = theme === 'dark';
+    $('journalApp').dataset.theme = dark ? 'dark' : 'light';
+    const button = $('journalThemeToggle');
+    button.textContent = dark ? '☀' : '☾';
+    button.setAttribute('aria-pressed', String(dark));
+    const label = `Switch to ${dark ? 'light' : 'dark'} mode`;
+    button.setAttribute('aria-label', label); button.title = label;
   }
   async function saveEntry(event) {
     event.preventDefault();
@@ -149,5 +175,10 @@
   $('readerBack').addEventListener('click', () => { activeEntry = null; setView('list'); setStatus(''); });
   $('editThought').addEventListener('click', () => openComposer(activeEntry));
   $('deleteThought').addEventListener('click', deleteEntry);
+  monthInput.addEventListener('change', () => loadEntries());
+  $('journalThemeToggle').addEventListener('click', () => {
+    const theme = $('journalApp').dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(theme);
+    try { localStorage.setItem('somoJournalTheme', theme); } catch (_) { /* Theme still applies for this visit. */ }
+  });
 })();
-
