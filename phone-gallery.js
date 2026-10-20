@@ -62,9 +62,9 @@
   }
 
   function showChooser() {
-    if (wallpaperView) { wallpaperView.hidden = true; wallpaperView.style.display = 'none'; }
+    if (wallpaperView) { wallpaperView.hidden = false; wallpaperView.style.display = 'block'; }
     if (galleryView) { galleryView.hidden = true; galleryView.style.display = 'none'; }
-    if (chooser) { chooser.hidden = false; chooser.style.display = ''; }
+    if (chooser) { chooser.hidden = false; chooser.style.display = 'flex'; }
     selectedProfile = '';
     photoLoadRequestId += 1;
     setStatus('');
@@ -165,6 +165,7 @@
     if (galleryTitle) galleryTitle.textContent = `${profile}'s Memories`;
     if (uploadLabel) uploadLabel.classList.toggle('is-disabled', profile !== myProfile);
     if (input) input.disabled = profile !== myProfile;
+    if (wallpaperView) { wallpaperView.hidden = true; wallpaperView.style.display = 'none'; }
     if (chooser) { chooser.hidden = true; chooser.style.display = 'none'; }
     if (galleryView) { galleryView.hidden = false; galleryView.style.display = 'block'; }
     setStatus(profile === myProfile ? 'Your collection · you can add photos here.' : `${profile}'s collection · view only.`);
