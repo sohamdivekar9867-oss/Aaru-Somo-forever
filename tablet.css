@@ -149,3 +149,19 @@ tbody tr:last-child td{border-bottom:0}
 #notesApp[data-theme="dark"] .document-toolbar .toolbar-divider{background:#444}
 @media(max-width:600px){.tablet-shell{padding:0;background:#120a10}.tablet-frame{width:100%;height:100dvh;min-height:0;padding:7px;border-radius:0;border:0;box-shadow:none}.tablet-camera{top:2px}.tablet-screen{border-radius:16px}.tablet-statusbar{height:37px;padding:0 10px}.home-screen{padding:28px 22px 20px}.app-grid{gap:12px;margin-top:48px}.app-symbol{width:68px;height:68px;border-radius:20px}.app-header{padding:12px 10px;gap:6px}.app-header h2{font-size:19px}.app-content{padding:13px}.activity-summary strong{font-size:17px}.document-toolbar{padding:9px 10px;gap:10px;font-size:10px}.document-wrap{padding:10px}.document-paper{padding:22px 17px}.document-paper textarea{font-size:14px;min-height:240px}.tablet-dock{height:29px}.tablet-dock span{bottom:8px}}
 
+
+/* Shared tablet home wallpaper. A translucent veil preserves contrast for app icons. */
+.home-screen{position:relative;isolation:isolate;background:transparent}
+.tablet-wallpaper-layer{position:absolute;z-index:0;inset:0;overflow:hidden;background:radial-gradient(ellipse at 80% 15%,#f7c7c5a1,transparent 42%),linear-gradient(140deg,#fff3e9,#f8e7e9 60%,#efdae4)}
+.tablet-wallpaper-layer::after{content:"";position:absolute;inset:0;background:linear-gradient(140deg,rgba(255,246,239,.62),rgba(255,239,242,.55) 60%,rgba(245,224,233,.62))}
+.tablet-wallpaper-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.tablet-wallpaper-image[hidden]{display:none!important}
+.home-screen>:not(.tablet-wallpaper-layer){position:relative;z-index:1}
+.home-footer{padding-bottom:48px}
+.tablet-wallpaper-status{position:absolute!important;left:15px;bottom:58px;margin:0;color:#674c55;font:10px 'DM Mono',monospace;text-shadow:0 1px 6px rgba(255,255,255,.8)}
+.tablet-wallpaper-upload{position:absolute!important;z-index:3!important;left:14px;bottom:12px;display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.7);border-radius:999px;background:rgba(255,250,248,.9);box-shadow:0 5px 18px rgba(50,27,36,.16);backdrop-filter:blur(10px);color:#573b45;font:10px 'DM Mono',monospace;cursor:pointer}
+.tablet-wallpaper-upload[hidden]{display:none!important}
+.tablet-wallpaper-upload input{display:none}
+.tablet-wallpaper-upload:focus-within{outline:2px solid #9f5f74;outline-offset:3px}
+@media(max-width:600px){.tablet-wallpaper-upload{left:11px;bottom:10px}.tablet-wallpaper-status{left:12px;bottom:54px}}
+
