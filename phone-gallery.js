@@ -25,6 +25,7 @@
   const chooser = $('profileChooser');
   const wallpaperView = $('wallpaperView');
   const wallpaperImage = $('phoneWallpaperImage');
+  const phoneScreen = document.querySelector('.phone-screen');
   const wallpaperPlaceholder = $('wallpaperPlaceholder');
   const wallpaperStatus = $('wallpaperStatus');
   const wallpaperUploadWrap = $('wallpaperUploadWrap');
@@ -96,6 +97,7 @@
         .from('phone-wallpapers').createSignedUrl(data.storage_path, 3600);
       if (signError) throw signError;
       wallpaperImage.src = signed.signedUrl;
+      phoneScreen?.style.setProperty('--phone-wallpaper-image', `url("${signed.signedUrl}")`);
       wallpaperImage.hidden = false;
       wallpaperPlaceholder.hidden = true;
       wallpaperImage.onerror = () => {

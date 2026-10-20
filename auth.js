@@ -215,28 +215,23 @@ async function logout(button) {
     button.setAttribute("aria-busy", "true");
   }
 
-  // Activity logging is best-effort: a slow database request must not trap
-  // someone on the first page or prevent the local session from being cleared.
+  // Keep logging best-effort and never make the button wait on a database request.
+  void markActivityLogout().catch(error => console.warn("[activity tracker] Could not mark logout:", error));
   try {
-    await Promise.race([
-      markActivityLogout(),
-      new Promise(resolve => setTimeout(resolve, 1200))
-    ]);
-  } catch (error) {
-    console.warn("[activity tracker] Could not finish logout logging:", error);
-  }
-
-  try {
-    const {error} = await Promise.race([
+    const result = await Promise.race([
       supabaseClient.auth.signOut({scope: "local"}),
-      new Promise(resolve => setTimeout(() => resolve({error: new Error("Local sign-out timed out")}), 3000))
+      new Promise(resolve => setTimeout(() => resolve({error: new Error("Local sign-out timed out")}), 1500))
     ]);
-    if (error) console.error("[auth] Local sign-out failed:", error.message);
+    if (result.error) console.error("[auth] Local sign-out failed:", result.error.message);
   } catch (error) {
     console.error("[auth] Could not sign out:", error);
   } finally {
     window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
     window.sessionStorage.removeItem(ACTIVITY_EVENT_QUEUE_KEY);
+    // Supabase's session storage is scoped to this browser tab.
+    for (const key of Object.keys(window.sessionStorage)) {
+      if (key.startsWith("sb-") && key.endsWith("-auth-token")) window.sessionStorage.removeItem(key);
+    }
     window.location.replace("login.html");
   }
 }
