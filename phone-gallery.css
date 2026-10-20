@@ -28,3 +28,8 @@
 .phone-home{position:absolute;z-index:4;top:52px;right:0;bottom:0;left:0;height:auto;background:linear-gradient(180deg,rgba(255,248,248,.42),rgba(247,231,232,.52));backdrop-filter:blur(1px)}
 @media(max-width:460px){.phone-home{top:48px;height:auto}}
 
+
+/* The profile chooser is a solid screen; the wallpaper remains unchanged on its landing view. */
+.phone-home{background:linear-gradient(180deg,#fff8f8 0%,#f7e7e8 58%,#efd4d9 100%);backdrop-filter:none}
+.profile-card{background:#fffaf8}
+.chooser-wallpaper-back{background:#fffafa}
