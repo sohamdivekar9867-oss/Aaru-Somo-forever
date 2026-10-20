@@ -251,37 +251,4 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 document.addEventListener("DOMContentLoaded", () => {
   startWebsiteActivityTracking();
   installSectionActivityTracking();
-
-  const currentFile = window.location.pathname.split("/").pop() || "index.html";
-  if (currentFile === "login.html") return;
-  let button = document.getElementById("siteLogoutButton");
-  if (!button) {
-    button = document.createElement("button");
-    button.id = "siteLogoutButton";
-    button.type = "button";
-    button.textContent = "Log out";
-    button.setAttribute("aria-label", "Log out of our little world");
-    button.style.cssText = `
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 9999;
-    border: 1px solid rgba(255, 210, 220, .45);
-    border-radius: 999px;
-    padding: 9px 15px;
-    background: rgba(35, 12, 27, .82);
-    color: #f8dce5;
-    font: 12px/1.2 'DM Mono', monospace;
-    letter-spacing: .04em;
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 18px rgba(0,0,0,.16);
-  `;
-    document.body.appendChild(button);
-  }
-  button.addEventListener("click", event => {
-    event.preventDefault();
-    void logout(event.currentTarget);
-  });
 });
-
