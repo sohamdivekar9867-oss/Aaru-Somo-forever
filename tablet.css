@@ -103,9 +103,9 @@ tbody tr:last-child td{border-bottom:0}
 .empty-mark{font-size:25px;color:#b87989}
 .library-empty h4{margin:10px 0 5px;color:#664450;font:500 19px 'Playfair Display',Georgia,serif}
 .library-empty p{margin:0 auto 14px;color:#9b8188;font-size:11px;line-height:1.5}
-.editor-topline{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px clamp(10px,3vw,24px);background:#fcf9f6}
+.editor-topline{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px clamp(10px,3vw,24px);background:#fcf9f6}
 .library-back,.editor-actions button{border:1px solid #eadcde;border-radius:7px;background:#fffdfa;color:#795764;padding:8px 10px;font-size:10px;white-space:nowrap}
-.editor-actions{display:flex;gap:5px;align-items:center;min-width:0}
+.editor-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;align-items:center;min-width:0}
 .editor-actions .manual-save{padding:8px 11px}
 .document-type-badge{color:#9c707b;font:9px 'DM Mono',monospace}
 .editor-actions .danger-action{color:#a05260}
