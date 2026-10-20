@@ -24,4 +24,7 @@
 @media(max-width:460px){.wallpaper-view{height:calc(100% - 48px)}.wallpaper-actions{left:13px;right:13px;bottom:calc(25px + env(safe-area-inset-bottom))}}
 .chooser-wallpaper-back{position:absolute;top:17px;left:17px;border:0;background:rgba(255,255,255,.65);border-radius:999px;padding:7px 11px;color:#714c5a;font:9px 'DM Mono',monospace;cursor:pointer}
 .phone-home{position:relative}
+/* Keep the uploaded image visible behind the profile picker after Enter. */
+.phone-home{position:absolute;z-index:4;top:52px;right:0;bottom:0;left:0;height:auto;background:linear-gradient(180deg,rgba(255,248,248,.42),rgba(247,231,232,.52));backdrop-filter:blur(1px)}
+@media(max-width:460px){.phone-home{top:48px;height:auto}}
 
