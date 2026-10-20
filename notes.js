@@ -148,7 +148,7 @@
       ? 'Your personal writing space, for stories, thoughts, and little things worth keeping.'
       : 'Somo’s personal writing space, for stories, thoughts, and little things worth keeping.';
     $('newDocument').hidden = !owner;
-    $('notesMessage').textContent = owner ? 'Saved documents sync securely through your account.' : 'You can read and copy documents here.';
+    $('notesMessage').textContent = owner ? 'Saved documents sync securely through your account.' : 'Somo’s saved documents can be read and copied here.';
     await refreshDocuments();
   }
   window.openSomoNotes = initialize;
@@ -180,3 +180,4 @@
   $('editorMessage').addEventListener('click', () => { if (status.textContent.startsWith('Save failed')) flushSave(); });
   window.addEventListener('beforeunload', e => { if (owner && revision !== savedRevision) { e.preventDefault(); e.returnValue = ''; } });
 })();
+
