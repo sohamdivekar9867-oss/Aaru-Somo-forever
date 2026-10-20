@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tablet.css?v=20261020-tablet-wallpaper-2">
+  <link rel="stylesheet" href="tablet.css?v=20261020-tablet-wallpaper-3">
   <link rel="stylesheet" href="journal.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js" defer></script>
@@ -34,6 +34,10 @@
             <button class="app-icon journal-app" id="openJournalApp" type="button"><span class="app-symbol">▤</span><span>Somo's Journal</span><small>Little thoughts</small></button>
           </div>
           <div class="home-footer">made with a little love ♡</div>
+          <p class="tablet-wallpaper-status" id="tabletWallpaperStatus" role="status" aria-live="polite"></p>
+          <label class="tablet-wallpaper-upload" id="tabletWallpaperUpload" hidden>＋ Add wallpaper
+            <input id="tabletWallpaperInput" type="file" accept="image/*" aria-label="Choose tablet wallpaper">
+          </label>
         </section>
 
         <section class="app-view" id="userApp" hidden>
@@ -83,7 +87,7 @@
       </div>
     </div>
   </main>
-  <script src="tablet.js?v=20261020-tablet-wallpaper-2"></script>
+  <script src="tablet.js?v=20261020-tablet-wallpaper-3"></script>
   <script src="notes.js"></script>
   <script src="journal.js"></script>
 </body>
