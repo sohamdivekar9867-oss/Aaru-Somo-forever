@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tablet.css">
+  <link rel="stylesheet" href="tablet.css?v=20261020-tablet-wallpaper-1">
   <link rel="stylesheet" href="journal.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js" defer></script>
@@ -24,6 +24,9 @@
           <span class="status-icons">● ▰</span>
         </header>
         <section class="home-screen" id="homeScreen">
+          <div class="tablet-wallpaper-layer" aria-hidden="true">
+            <img id="tabletWallpaperImage" class="tablet-wallpaper-image" alt="" hidden>
+          </div>
           <div class="home-greeting"><p class="eyebrow">SOMO'S TABLET</p><h1>A little space for me. <span>♡</span></h1><p>Stories, thoughts, and little things worth keeping.</p></div>
           <div class="app-grid">
             <button class="app-icon secure-app" id="openUserApp" type="button"><span class="app-symbol">⌁</span><span>Control Panel</span><small>Private</small></button>
@@ -80,7 +83,7 @@
       </div>
     </div>
   </main>
-  <script src="tablet.js"></script>
+  <script src="tablet.js?v=20261020-tablet-wallpaper-1"></script>
   <script src="notes.js"></script>
   <script src="journal.js"></script>
 </body>

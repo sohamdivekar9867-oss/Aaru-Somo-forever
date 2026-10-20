@@ -205,10 +205,40 @@ async function startWebsiteActivityTracking() {
   }
 }
 
-async function logout() {
-  await markActivityLogout();
-  await supabaseClient.auth.signOut();
-  window.location.replace("login.html");
+let logoutInProgress = false;
+async function logout(button) {
+  if (logoutInProgress) return;
+  logoutInProgress = true;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Logging out…";
+    button.setAttribute("aria-busy", "true");
+  }
+
+  // Activity logging is best-effort: a slow database request must not trap
+  // someone on the first page or prevent the local session from being cleared.
+  try {
+    await Promise.race([
+      markActivityLogout(),
+      new Promise(resolve => setTimeout(resolve, 1200))
+    ]);
+  } catch (error) {
+    console.warn("[activity tracker] Could not finish logout logging:", error);
+  }
+
+  try {
+    const {error} = await Promise.race([
+      supabaseClient.auth.signOut({scope: "local"}),
+      new Promise(resolve => setTimeout(() => resolve({error: new Error("Local sign-out timed out")}), 3000))
+    ]);
+    if (error) console.error("[auth] Local sign-out failed:", error.message);
+  } catch (error) {
+    console.error("[auth] Could not sign out:", error);
+  } finally {
+    window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
+    window.sessionStorage.removeItem(ACTIVITY_EVENT_QUEUE_KEY);
+    window.location.replace("login.html");
+  }
 }
 
 // Start on existing sessions AND immediately after the login event.
@@ -254,6 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
     document.body.appendChild(button);
   }
-  button.addEventListener("click", logout);
+  button.addEventListener("click", event => {
+    event.preventDefault();
+    void logout(event.currentTarget);
+  });
 });
 
