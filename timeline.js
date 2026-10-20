@@ -41,32 +41,47 @@ const PLANNED_QUESTS_API=`${SUPABASE_URL}/rest/v1/planned_date_quests`;
 async function renderPlannedQuests(){
   const box=document.getElementById('plannedQuests');
   if(!box)return;
+  const completedButton=document.getElementById('showCompletedPlans');
+  const completedContent=document.getElementById('completedPlansContent');
   try{
     const {data:planned,error}=await dataClient.from('planned_date_quests').select('*').order('date',{ascending:true}).order('created_at',{ascending:false});
     if(error)throw error;
-    if(!planned.length){box.hidden=true;return;}
-    box.hidden=false;
+    const allPlans=planned||[];
+    const activePlans=allPlans.filter(x=>x.status!=='completed');
+    const completedPlans=allPlans.filter(x=>x.status==='completed');
+    completedButton.hidden=!completedPlans.length;
+    completedButton.textContent=`Completed plans · ${completedPlans.length}`;
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-    box.innerHTML=`<h2>Planned Little Adventures ♡</h2><p class="planned-sub">Date Cat's ideas that are waiting to become memories.</p><div class="planned-grid">${planned.map(x=>{const completed=x.status==='completed';return `<article class="planned-card${completed?' is-completed':''}"><div class="planned-label">🐱 DATE CAT QUEST</div><span class="planned-status">${completed?'COMPLETED':'PLANNED'}</span><h3>${esc(x.title)}</h3><p>📅 ${esc(x.date ? new Date(`${x.date}T00:00:00`).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : 'Date not set')}</p><p>📍 ${esc(x.location)}</p><p>🎯 ${esc(x.activity)}</p><p>⏱️ ${esc(x.duration)}</p><p>💰 ${esc(x.budget)}</p><p>💕 ${'❤️'.repeat(Number(x.romance)||3)}${'♡'.repeat(5-(Number(x.romance)||3))}</p><div class="planned-actions"><button data-toggle-planned="${esc(x.id)}">${completed?'Mark planned':'Mark completed'}</button><button data-remove-planned="${esc(x.id)}">Remove plan</button></div></article>`}).join('')}</div>`;
-    box.querySelectorAll('[data-toggle-planned]').forEach(btn=>btn.addEventListener('click',async()=>{
-      const quest=planned.find(x=>String(x.id)===btn.dataset.togglePlanned);
+    const card=x=>`<article class="planned-card${x.status==='completed'?' is-completed':''}"><div class="planned-label">🐱 DATE CAT QUEST</div><span class="planned-status">${x.status==='completed'?'COMPLETED':'PLANNED'}</span><h3>${esc(x.title)}</h3><p>📅 ${esc(x.date ? new Date(`${x.date}T00:00:00`).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : 'Date not set')}</p><p>📍 ${esc(x.location)}</p><p>🎯 ${esc(x.activity)}</p><p>⏱️ ${esc(x.duration)}</p><p>💰 ${esc(x.budget)}</p><p>💕 ${'❤️'.repeat(Number(x.romance)||3)}${'♡'.repeat(5-(Number(x.romance)||3))}</p><div class="planned-actions"><button data-toggle-planned="${esc(x.id)}">${x.status==='completed'?'Move back to planned':'Mark completed'}</button><button data-remove-planned="${esc(x.id)}">Remove plan</button></div></article>`;
+    box.hidden=!activePlans.length;
+    box.innerHTML=activePlans.length?`<h2>Planned Little Adventures ♡</h2><p class="planned-sub">Date Cat's ideas that are waiting to become memories.</p><div class="planned-grid">${activePlans.map(card).join('')}</div>`:'';
+    completedContent.innerHTML=completedPlans.map(card).join('');
+    const bindActions=root=>root.querySelectorAll('[data-toggle-planned]').forEach(btn=>btn.addEventListener('click',async()=>{
+      const quest=allPlans.find(x=>String(x.id)===btn.dataset.togglePlanned);
       if(!quest)return;
       btn.disabled=true;
       const {error}=await dataClient.from('planned_date_quests').update({status:quest.status==='completed'?'planned':'completed'}).eq('id',quest.id);
       if(error){btn.disabled=false;alert(`Could not update this planned date: ${error.message}`);return;}
       renderPlannedQuests();
     }));
-    box.querySelectorAll('[data-remove-planned]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const bindRemovals=root=>root.querySelectorAll('[data-remove-planned]').forEach(btn=>btn.addEventListener('click',async()=>{
       const id=btn.dataset.removePlanned;
       if(!confirm('Remove this planned date?'))return;
       const {error}=await dataClient.from('planned_date_quests').delete().eq('id',id);
       if(error){alert(`Could not remove this planned date: ${error.message}`);return;}
       renderPlannedQuests();
     }));
+    bindActions(box);bindActions(completedContent);bindRemovals(box);bindRemovals(completedContent);
   }catch(e){
     console.error('Could not load planned Date Cat quests:',e);
     box.hidden=false;
     box.innerHTML='<h2>Planned Little Adventures ♡</h2><p class="planned-sub">Date Cat plans could not be loaded. Make sure the planned-date table has been created in Supabase.</p>';
   }
 }
+const completedPlansModal=document.getElementById('completedPlansModal');
+function closeCompletedPlans(){completedPlansModal.classList.remove('open');completedPlansModal.setAttribute('aria-hidden','true');}
+document.getElementById('showCompletedPlans').addEventListener('click',()=>{completedPlansModal.classList.add('open');completedPlansModal.setAttribute('aria-hidden','false');});
+completedPlansModal.querySelectorAll('[data-close-completed-plans]').forEach(el=>el.addEventListener('click',closeCompletedPlans));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCompletedPlans();});
 renderPlannedQuests();
+

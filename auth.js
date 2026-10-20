@@ -229,14 +229,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const currentFile = window.location.pathname.split("/").pop() || "index.html";
   if (currentFile === "login.html") return;
-  if (document.getElementById("siteLogoutButton")) return;
-
-  const button = document.createElement("button");
-  button.id = "siteLogoutButton";
-  button.type = "button";
-  button.textContent = "Log out";
-  button.setAttribute("aria-label", "Log out of our little world");
-  button.style.cssText = `
+  let button = document.getElementById("siteLogoutButton");
+  if (!button) {
+    button = document.createElement("button");
+    button.id = "siteLogoutButton";
+    button.type = "button";
+    button.textContent = "Log out";
+    button.setAttribute("aria-label", "Log out of our little world");
+    button.style.cssText = `
     position: fixed;
     top: 18px;
     right: 18px;
@@ -252,12 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
     backdrop-filter: blur(8px);
     box-shadow: 0 4px 18px rgba(0,0,0,.16);
   `;
-  button.addEventListener("mouseenter", () => {
-    button.style.background = "rgba(110, 42, 70, .92)";
-  });
-  button.addEventListener("mouseleave", () => {
-    button.style.background = "rgba(35, 12, 27, .82)";
-  });
+    document.body.appendChild(button);
+  }
   button.addEventListener("click", logout);
-  document.body.appendChild(button);
 });
+
