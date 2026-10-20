@@ -73,4 +73,60 @@ tbody tr:last-child td{border-bottom:0}
 .document-paper textarea::placeholder{color:#c5b5b9}
 .document-footer{margin-top:30px;padding-top:10px;border-top:1px solid #eee4e2;color:#c1a6ae;font:9px 'DM Mono',monospace;letter-spacing:.12em}
 .notes-message{flex-shrink:0;margin:0;padding:7px 15px;background:#fff8f5;color:#a0838c;font-size:10px;text-align:center}
+
+/* Somo's Notes document library and continuous writing canvas */
+.notes-view{overflow:hidden;background:#f8f4f0}
+.notes-header{min-height:66px}
+.notes-save-state{font:10px 'DM Mono',monospace;color:#987d83;white-space:nowrap}
+.notes-library,.notes-editor{flex:1;min-height:0;overflow:auto}
+.notes-editor{display:flex;flex-direction:column}
+.notes-library{padding:clamp(20px,4vw,38px);background:radial-gradient(ellipse at 95% 0,#f5e3e4 0,transparent 42%),#f8f4f0}
+.library-intro{max-width:650px;margin:0 auto 20px}
+.library-intro h3{margin:0 0 8px;color:#52313d;font:500 clamp(28px,5vw,39px)/1.15 'Playfair Display',Georgia,serif}
+.library-intro>p:last-child{margin:0;color:#927a80;font-size:12px;line-height:1.6}
+.library-actions{max-width:650px;margin:0 auto 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.notes-search{display:flex;align-items:center;gap:7px;flex:1 1 160px;min-width:0;border:1px solid #e7dadd;border-radius:9px;background:#fffdfa;padding:0 10px;color:#a77d89}
+.notes-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;padding:10px 0;font-size:12px;color:#52313d}
+.sort-label{font-size:10px;color:#987d83}
+.library-actions select,.document-toolbar select{border:1px solid #eadcde;border-radius:7px;background:#fffdfa;color:#73545f;padding:8px 7px;font-size:10px}
+.library-actions #newDocumentType{max-width:122px}
+.library-actions .save-note{padding:10px 12px;white-space:nowrap}
+.document-library{max-width:650px;margin:0 auto;display:grid;gap:8px}
+.document-card{margin:0;border:1px solid #ecdedf;border-radius:11px;background:#fffdfa;box-shadow:0 3px 12px #502c3708;overflow:hidden}
+.document-open{width:100%;min-height:78px;display:flex;align-items:center;gap:12px;padding:13px;border:0;background:transparent;text-align:left;color:#51333e}
+.document-card-mark{flex:0 0 38px;width:38px;height:42px;display:grid;place-items:center;border:1px solid #eddde0;border-radius:7px;background:#fbf0ef;color:#99576c;font:20px 'Playfair Display',Georgia,serif}
+.document-card-copy{min-width:0;flex:1;display:grid;gap:4px}
+.document-card-copy strong{font:500 16px 'Playfair Display',Georgia,serif;overflow-wrap:anywhere}
+.document-card-copy>span{font:9px 'DM Mono',monospace;color:#a08189}
+.document-card-copy small{overflow:hidden;color:#927e82;font-size:10px;white-space:nowrap;text-overflow:ellipsis}
+.card-arrow{font-size:22px;color:#c2a5ad}
+.library-empty{padding:35px 18px;text-align:center;border:1px dashed #dfcbd0;border-radius:12px;background:#fffaf8}
+.empty-mark{font-size:25px;color:#b87989}
+.library-empty h4{margin:10px 0 5px;color:#664450;font:500 19px 'Playfair Display',Georgia,serif}
+.library-empty p{margin:0 auto 14px;color:#9b8188;font-size:11px;line-height:1.5}
+.editor-topline{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px clamp(10px,3vw,24px);background:#fcf9f6}
+.library-back,.editor-actions button{border:1px solid #eadcde;border-radius:7px;background:#fffdfa;color:#795764;padding:8px 10px;font-size:10px;white-space:nowrap}
+.editor-actions{display:flex;gap:5px;align-items:center;min-width:0}
+.document-type-badge{color:#9c707b;font:9px 'DM Mono',monospace}
+.editor-actions .danger-action{color:#a05260}
+.document-toolbar{gap:4px;flex-wrap:wrap;padding:7px clamp(8px,2vw,18px)}
+.document-toolbar button{min-width:31px;min-height:32px;border:1px solid transparent;border-radius:6px;background:transparent;color:#704e5a;padding:5px 7px;font-size:11px}
+.document-toolbar button:hover,.document-toolbar button:focus-visible{border-color:#e8d4da;background:#fbf0f1}
+.toolbar-divider{width:1px;height:22px;background:#e9dcde;margin:0 4px}
+.document-wrap{background:#eee7e3;overscroll-behavior:contain}
+.document-paper{min-height:100%;height:auto;padding:clamp(20px,5vw,52px) clamp(18px,6vw,66px);border:0;box-shadow:0 2px 8px #4c293010}
+.document-meta{display:flex;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid #f0e7e5;color:#b09299;font:9px 'DM Mono',monospace;letter-spacing:.08em}
+.document-title{margin:20px 0 16px;font-size:clamp(24px,4vw,34px)}
+.document-writing{min-height:45vh;outline:0;color:#4d4144;font:15px/1.85 Georgia,'Times New Roman',serif;overflow-wrap:anywhere;white-space:normal}
+.document-writing:empty:before{content:attr(data-placeholder);color:#c5b5b9;white-space:pre-line;pointer-events:none}
+.document-writing h1,.document-writing h2,.document-writing h3{color:#52313d;font-family:'Playfair Display',Georgia,serif;line-height:1.3}
+.document-writing h1{font-size:1.8em}.document-writing h2{font-size:1.5em}.document-writing h3{font-size:1.2em}
+.document-writing ul,.document-writing ol{padding-left:1.7em}
+.editor-message{min-height:26px}
+@media(max-width:600px){
+  .notes-library{padding:21px 13px}.library-actions{gap:6px}.library-actions .save-note{flex:1 0 100%}.sort-label{display:none}.document-open{padding:11px;min-height:72px}
+  .editor-topline{padding:7px 8px}.editor-actions{gap:4px}.library-back,.editor-actions button{padding:7px 8px;font-size:9px}.document-type-badge{font-size:8px}
+  .document-toolbar{display:flex;gap:2px;padding:6px 7px}.document-toolbar button{min-width:28px;min-height:34px;padding:4px 5px;font-size:10px}.document-toolbar select{max-width:87px;padding:7px 3px;font-size:9px}.toolbar-divider{margin:0 2px}
+  .document-wrap{padding:0}.document-paper{padding:18px 17px 36px}.document-writing{font-size:16px;line-height:1.8;min-height:55vh}.notes-header{padding-right:9px}.notes-save-state{font-size:9px}
+}
 @media(max-width:600px){.tablet-shell{padding:0;background:#120a10}.tablet-frame{width:100%;height:100dvh;min-height:0;padding:7px;border-radius:0;border:0;box-shadow:none}.tablet-camera{top:2px}.tablet-screen{border-radius:16px}.tablet-statusbar{height:37px;padding:0 10px}.home-screen{padding:28px 22px 20px}.app-grid{gap:12px;margin-top:48px}.app-symbol{width:68px;height:68px;border-radius:20px}.app-header{padding:12px 10px;gap:6px}.app-header h2{font-size:19px}.app-content{padding:13px}.activity-summary strong{font-size:17px}.document-toolbar{padding:9px 10px;gap:10px;font-size:10px}.document-wrap{padding:10px}.document-paper{padding:22px 17px}.document-paper textarea{font-size:14px;min-height:240px}.tablet-dock{height:29px}.tablet-dock span{bottom:8px}}
