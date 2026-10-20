@@ -5,3 +5,23 @@
 .phone-home[hidden]{display:none!important}
 .profile-main,.profile-card{position:relative;z-index:2}
 .profile-card{cursor:pointer}
+
+/* Immersive shared phone wallpaper landing screen */
+.wallpaper-view{position:relative;height:calc(100% - 52px);overflow:hidden;background:linear-gradient(155deg,#fff8f7 0%,#f6e6e8 52%,#d9aeb9 100%)}
+.wallpaper-view[hidden]{display:none!important}
+.wallpaper-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.wallpaper-image[hidden]{display:none!important}
+.wallpaper-placeholder{position:absolute;inset:0;display:grid;place-items:center;padding:30px;color:#714c5a;text-align:center;font:italic 23px 'Playfair Display',serif}
+.wallpaper-placeholder[hidden]{display:none!important}
+.wallpaper-gradient{position:absolute;inset:40% 0 0;background:linear-gradient(180deg,transparent,rgba(20,12,16,.48));pointer-events:none}
+.wallpaper-status{position:absolute;z-index:2;left:16px;right:16px;bottom:86px;text-align:center;color:#fff;font:10px 'DM Mono',monospace;text-shadow:0 1px 5px rgba(0,0,0,.8)}
+.wallpaper-actions{position:absolute;z-index:3;left:16px;right:16px;bottom:calc(27px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wallpaper-add,.wallpaper-enter{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:0 15px;background:rgba(255,250,250,.86);color:#432735;box-shadow:0 6px 20px rgba(20,10,15,.18);backdrop-filter:blur(12px);font:10px 'DM Mono',monospace;cursor:pointer}
+.wallpaper-add[hidden]{display:none!important}
+.wallpaper-add input{display:none}
+.wallpaper-enter{border-color:rgba(255,255,255,.3);background:rgba(57,32,45,.83);color:#fff}
+.wallpaper-add:focus-visible,.wallpaper-enter:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:460px){.wallpaper-view{height:calc(100% - 48px)}.wallpaper-actions{left:13px;right:13px;bottom:calc(25px + env(safe-area-inset-bottom))}}
+.chooser-wallpaper-back{position:absolute;top:17px;left:17px;border:0;background:rgba(255,255,255,.65);border-radius:999px;padding:7px 11px;color:#714c5a;font:9px 'DM Mono',monospace;cursor:pointer}
+.phone-home{position:relative}
+
