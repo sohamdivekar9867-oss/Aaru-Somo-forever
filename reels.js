@@ -17,9 +17,13 @@ const memoryPreview=document.getElementById('memoryPreview');
 const saveMemory=document.getElementById('saveMemory');
 const memoryStatus=document.getElementById('memoryStatus');
 const memoryTitle=document.getElementById('memoryModalTitle');
-let user=null,author=null,reels=[],memories={},filter='to_try',editingId=null,currentReel=null,selectedVideo=null,selectedPhotos=[];
+const completionDateModal=document.getElementById('completionDateModal');
+const completionDateForm=document.getElementById('completionDateForm');
+let user=null,author=null,reels=[],memories={},filter='to_try',editingId=null,currentReel=null,completionDateReelId=null,selectedVideo=null,selectedPhotos=[];
 
 function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function completedDateLabel(value){if(!value)return '';const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'long',year:'numeric'});}
+function completionDateInputValue(value){if(!value)return '';const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value));const get=type=>parts.find(part=>part.type===type)?.value||'';return `${get('year')}-${get('month')}-${get('day')}`;}
 function setStatus(v=''){status.textContent=v;}
 function validInstagram(raw){try{const u=new URL(raw);return u.protocol==='https:'&&['instagram.com','www.instagram.com'].includes(u.hostname.toLowerCase())&&(/\/reel\//i.test(u.pathname)||/\/p\//i.test(u.pathname));}catch{return false;}}
 function openModal(el){el.classList.add('open');el.setAttribute('aria-hidden','false');}
@@ -67,7 +71,7 @@ function render(){
     const approved=!!r.delete_approved_by;
     let actions='';
     if(r.status!=='done') actions+=`<button class="complete" data-complete="${esc(r.id)}">✨ We did it</button>`;
-    else actions+=`<button data-undo-done="${esc(r.id)}">↩ Undo — back to To try</button>`;
+    else actions+=`<button data-undo-done="${esc(r.id)}">↩ Undo — back to To try</button><button data-completion-date="${esc(r.id)}">${r.completed_at?'Edit completion date':'Add completion date'}</button>`;
     actions+=`<button class="memory-button" data-memory="${esc(r.id)}">📸 Add our version</button>`;
     if(canEdit(r)) actions+=`<button data-edit="${esc(r.id)}">Edit</button>`;
     if(r.created_by===user?.id&&!pending&&!approved) actions+=`<button data-request-delete="${esc(r.id)}">Request delete</button>`;
@@ -84,6 +88,7 @@ function render(){
       <div class="reel-card-top"><div class="reel-badge ${r.status==='done'?'done':''}">${r.status==='done'?'✓ done together':'to try'}</div><span class="reel-meta">♡ ${memoryCount(r.id)} memories</span></div>
       <h2 class="reel-title">${esc(r.title)}</h2>
       <div class="reel-meta">added by ${esc(r.added_by==='Somda'?'Somo':r.added_by)}</div>
+      ${r.status==='done'&&r.completed_at?`<div class="reel-completed-date">Completed on ${esc(completedDateLabel(r.completed_at))}</div>`:''}
       <a class="reel-link" href="${esc(r.instagram_url)}" target="_blank" rel="noopener noreferrer">View original Reel ↗</a>
       ${photoMemories.length?`<div class="memory-strip">${photoMemories.map(m=>`<button class="memory-thumb photo-memory" type="button" data-open-memory="${esc(m.storage_path)}" title="Open photo"><img data-memory-path="${esc(m.storage_path)}" alt="Our reel memory"></button>`).join('')}</div>`:''}
       <div class="reel-actions">${actions}</div>
@@ -123,6 +128,21 @@ reelForm.addEventListener('submit',async e=>{
 document.getElementById('openAddReel').addEventListener('click',()=>{resetReelForm();openModal(reelModal);reelName.focus();});
 document.getElementById('closeReelModal').addEventListener('click',()=>closeModal(reelModal));
 document.querySelector('[data-close-modal]').addEventListener('click',()=>closeModal(reelModal));
+function openCompletionDate(r){completionDateReelId=r.id;document.getElementById('completionDateTitle').textContent=`When did we try “${r.title}”?`;document.getElementById('completionDateInput').value=completionDateInputValue(r.completed_at);document.getElementById('completionDateStatus').textContent='';openModal(completionDateModal);}
+function closeCompletionDate(){closeModal(completionDateModal);completionDateReelId=null;}
+document.getElementById('closeCompletionDate').addEventListener('click',closeCompletionDate);
+document.querySelector('[data-close-completion-date]').addEventListener('click',closeCompletionDate);
+completionDateForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(!completionDateReelId)return;
+  const button=document.getElementById('saveCompletionDate');
+  const message=document.getElementById('completionDateStatus');
+  button.disabled=true;message.textContent='Saving the date…';
+  const {error}=await client.rpc('set_reel_completion_date',{p_reel_id:completionDateReelId,p_completion_date:document.getElementById('completionDateInput').value});
+  button.disabled=false;
+  if(error){message.textContent='Could not save the completion date. Run REELS_COMPLETION_DATE_SETUP.sql in Supabase first.';return;}
+  closeCompletionDate();await load();
+});
 document.getElementById('closeMemoryModal').addEventListener('click',()=>closeModal(memoryModal));
 document.querySelector('[data-close-memory]').addEventListener('click',()=>closeModal(memoryModal));
 
@@ -163,6 +183,7 @@ document.addEventListener('click',async e=>{
   const approve=e.target.closest('[data-approve-delete]');
   const final=e.target.closest('[data-final-delete]');
   const undo=e.target.closest('[data-undo-done]');
+  const completionDate=e.target.closest('[data-completion-date]');
   if(edit){const r=reels.find(x=>x.id===edit.dataset.edit);if(r&&canEdit(r))startEdit(r);return;}
   if(complete){const r=reels.find(x=>x.id===complete.dataset.complete);if(r){await markDone(r);return;}}
   if(memory){const r=reels.find(x=>x.id===memory.dataset.memory);if(r)openMemory(r);return;}
@@ -170,6 +191,7 @@ document.addEventListener('click',async e=>{
   if(approve){await approveDelete(approve.dataset.approveDelete);return;}
   if(final){await finalDelete(final.dataset.finalDelete);return;}
   if(undo){await undoDone(undo.dataset.undoDone);return;}
+  if(completionDate){const r=reels.find(x=>x.id===completionDate.dataset.completionDate);if(r&&r.status==='done')openCompletionDate(r);return;}
 });
 
 async function undoDone(id){
@@ -251,3 +273,4 @@ async function finalDelete(id){
 }
 
 init();
+

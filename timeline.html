@@ -25,9 +25,20 @@
     <section class="dates-toolbar">
       <button class="soft-button" id="addDateButton" hidden>＋ Add a date</button>
       <button class="outline-button" id="editDatesButton">🔒 Edit dates</button>
+      <button class="outline-button" id="showCompletedPlans" type="button" hidden>Completed plans</button>
     </section>
 
     <section class="planned-quests" id="plannedQuests" hidden></section>
+
+  <div class="modal completed-plans-modal" id="completedPlansModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-completed-plans></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="completedPlansTitle">
+      <button class="modal-close" type="button" data-close-completed-plans aria-label="Close completed plans">×</button>
+      <div class="modal-small">PLANS WE MADE HAPPEN ♡</div>
+      <h2 id="completedPlansTitle">Completed plans</h2>
+      <div class="planned-grid" id="completedPlansContent"></div>
+    </div>
+  </div>
 
     <section class="timeline" id="timeline" aria-live="polite">
       <div class="loading">Gathering our memories… ✿</div>
@@ -79,3 +90,4 @@
   <script src="timeline.js"></script>
 </body>
 </html>
+

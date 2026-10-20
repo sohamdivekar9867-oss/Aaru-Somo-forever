@@ -9,3 +9,8 @@
 .photo-inputs{grid-template-columns:1fr}.photo-inputs label{font-size:10px}.photo-selection-status{font:10px/1.5 'DM Mono',monospace;color:#a26b83}
 /* Date Cat completion controls */
 .planned-card.is-completed{background:#f1f8ef;border-color:rgba(88,139,87,.28)}.planned-status{display:inline-block;margin:2px 0 5px;padding:4px 7px;border-radius:999px;background:#fff4d6;color:#8b7132;font:500 8px 'DM Mono',monospace;letter-spacing:.7px}.planned-card.is-completed .planned-status{background:#e2f1df;color:#547b50}.planned-actions{display:flex;flex-wrap:wrap;gap:7px}.planned-card button:disabled{opacity:.55;cursor:wait}
+.dates-toolbar{flex-wrap:wrap}
+.completed-plans-modal .modal-card{max-height:86vh;overflow-y:auto}
+.completed-plans-modal .planned-grid{grid-template-columns:1fr}
+.completed-plans-modal .planned-card{background:#f8f7f1}
+
