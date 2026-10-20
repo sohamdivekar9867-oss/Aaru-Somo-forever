@@ -10,14 +10,19 @@ const tabletClient = window.supabase?.createClient(
 const homeScreen = document.getElementById('homeScreen');
 const userApp = document.getElementById('userApp');
 const notesApp = document.getElementById('notesApp');
+const journalApp = document.getElementById('journalApp');
 function showApp(app) {
-  [homeScreen, userApp, notesApp].forEach(el => el.hidden = el !== app);
+  [homeScreen, userApp, notesApp, journalApp].forEach(el => el.hidden = el !== app);
 }
 document.querySelectorAll('[data-home]').forEach(button => button.addEventListener('click', () => showApp(homeScreen)));
 document.getElementById('openUserApp').addEventListener('click', () => showApp(userApp));
 document.getElementById('openNotesApp').addEventListener('click', async () => {
   showApp(notesApp);
   await window.openSomoNotes?.();
+});
+document.getElementById('openJournalApp').addEventListener('click', async () => {
+  showApp(journalApp);
+  await window.openSomoJournal?.();
 });
 const clockEl = document.getElementById('tabletClock');
 function updateClock() {
@@ -113,3 +118,4 @@ async function loadActivity() {
   }
   message.textContent='Showing Aaru’s sessions and section activity from the last 3 days.';
 }
+
