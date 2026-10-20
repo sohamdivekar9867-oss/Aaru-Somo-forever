@@ -67,7 +67,7 @@ tbody tr:last-child td{border-bottom:0}
 .document-toolbar span:last-child{margin-left:auto;font-size:9px;color:#a0848d;white-space:nowrap}
 .document-wrap{padding:clamp(12px,3vw,28px);overflow:auto;flex:1}
 .document-paper{display:flex;flex-direction:column;min-height:100%;max-width:760px;margin:0 auto;padding:clamp(22px,5vw,60px);background:#fffefa;border:1px solid #ded1ce;box-shadow:0 8px 22px #4c29300c}
-.document-title{width:100%;border:0;outline:0;font:600 clamp(25px,4vw,36px)/1.25 'Playfair Display',Georgia,serif;color:#4c3039;background:transparent;margin-bottom:22px}
+.document-title{display:block;width:100%;max-width:100%;min-height:38px;resize:none;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap;border:0;outline:0;font:600 clamp(25px,4vw,36px)/1.25 'Playfair Display',Georgia,serif;color:#4c3039;background:transparent;margin:20px 0 16px;padding:0}
 .document-title::placeholder{color:#c9b7bc}
 .document-paper textarea{width:100%;flex:1;min-height:260px;resize:vertical;border:0;outline:0;background:transparent;color:#4d4144;font:15px/1.9 Georgia,'Times New Roman',serif}
 .document-paper textarea::placeholder{color:#c5b5b9}
@@ -129,5 +129,23 @@ tbody tr:last-child td{border-bottom:0}
   .document-toolbar{display:flex;gap:2px;padding:6px 7px}.document-toolbar button{min-width:28px;min-height:34px;padding:4px 5px;font-size:10px}.document-toolbar select{max-width:87px;padding:7px 3px;font-size:9px}.toolbar-divider{margin:0 2px}
   .document-wrap{padding:0}.document-paper{padding:18px 17px 36px}.document-writing{font-size:16px;line-height:1.8;min-height:55vh}.notes-header{padding-right:9px}.notes-save-state{font-size:9px}
 }
+/* The journal title stays in the document column and grows onto new lines. */
+.document-title{overflow-wrap:anywhere;word-break:normal;box-sizing:border-box}
+.theme-toggle{flex:0 0 34px;width:34px;height:34px;display:grid;place-items:center;border:1px solid #eadcde;border-radius:50%;background:#fffdfa;color:#795764;font-size:17px}
+#notesApp[data-theme="dark"]{color-scheme:dark;background:#080808;color:#f5f5f5}
+#notesApp[data-theme="dark"] .notes-header,#notesApp[data-theme="dark"] .editor-topline,#notesApp[data-theme="dark"] .document-toolbar,#notesApp[data-theme="dark"] .notes-message{background:#111;color:#eee;border-color:#303030}
+#notesApp[data-theme="dark"] .app-header h2,#notesApp[data-theme="dark"] .library-intro h3,#notesApp[data-theme="dark"] .document-card-copy strong,#notesApp[data-theme="dark"] .document-title,#notesApp[data-theme="dark"] .document-writing{color:#fff}
+#notesApp[data-theme="dark"] .notes-library{background:radial-gradient(ellipse at 95% 0,#21191d 0,transparent 42%),#090909}
+#notesApp[data-theme="dark"] .library-intro>p:last-child,#notesApp[data-theme="dark"] .document-card-copy small,#notesApp[data-theme="dark"] .notes-message{color:#c3c3c3}
+#notesApp[data-theme="dark"] .notes-search,#notesApp[data-theme="dark"] .document-card,#notesApp[data-theme="dark"] .library-empty,#notesApp[data-theme="dark"] .document-paper{background:#000;border-color:#333;color:#f4f4f4;box-shadow:none}
+#notesApp[data-theme="dark"] .notes-search input,#notesApp[data-theme="dark"] .document-toolbar select,#notesApp[data-theme="dark"] .library-actions select{background:#111;color:#fff;border-color:#444}
+#notesApp[data-theme="dark"] .document-card-mark{background:#171717;border-color:#383838;color:#eee}
+#notesApp[data-theme="dark"] .document-card-copy>span,#notesApp[data-theme="dark"] .document-type-badge,#notesApp[data-theme="dark"] .document-meta,#notesApp[data-theme="dark"] .document-footer,#notesApp[data-theme="dark"] .notes-save-state{color:#c6c6c6}
+#notesApp[data-theme="dark"] .document-meta,#notesApp[data-theme="dark"] .document-footer{border-color:#333}
+#notesApp[data-theme="dark"] .document-wrap{background:#000}
+#notesApp[data-theme="dark"] .document-title::placeholder,#notesApp[data-theme="dark"] .document-writing:empty:before{color:#888}
+#notesApp[data-theme="dark"] .editor-actions button,#notesApp[data-theme="dark"] .library-back,#notesApp[data-theme="dark"] .document-toolbar button,#notesApp[data-theme="dark"] .theme-toggle{background:#171717;border-color:#444;color:#fff}
+#notesApp[data-theme="dark"] .document-toolbar button:hover,#notesApp[data-theme="dark"] .document-toolbar button:focus-visible{background:#292929}
+#notesApp[data-theme="dark"] .document-toolbar .toolbar-divider{background:#444}
 @media(max-width:600px){.tablet-shell{padding:0;background:#120a10}.tablet-frame{width:100%;height:100dvh;min-height:0;padding:7px;border-radius:0;border:0;box-shadow:none}.tablet-camera{top:2px}.tablet-screen{border-radius:16px}.tablet-statusbar{height:37px;padding:0 10px}.home-screen{padding:28px 22px 20px}.app-grid{gap:12px;margin-top:48px}.app-symbol{width:68px;height:68px;border-radius:20px}.app-header{padding:12px 10px;gap:6px}.app-header h2{font-size:19px}.app-content{padding:13px}.activity-summary strong{font-size:17px}.document-toolbar{padding:9px 10px;gap:10px;font-size:10px}.document-wrap{padding:10px}.document-paper{padding:22px 17px}.document-paper textarea{font-size:14px;min-height:240px}.tablet-dock{height:29px}.tablet-dock span{bottom:8px}}
 
