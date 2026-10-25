@@ -76,3 +76,35 @@
   .journal-form-card textarea{min-height:38vh;resize:vertical}
   .journal-reading-content{font-size:16px;line-height:1.8}
 }
+
+/* Keep Somo's journal aligned with the tablet's slate-and-blue palette. */
+.journal-app .app-symbol{background:linear-gradient(145deg,#8ba5c2,#3e638d);color:#f5f8fc}
+.journal-view{background:#e9eef5}
+.journal-header .journal-subtitle{color:#687d96}
+.journal-library{background:radial-gradient(ellipse at 100% 0,#dce7f4 0,transparent 43%),linear-gradient(160deg,#f2f6fa,#e6edf5)}
+.journal-library-top h3{color:#2a405b}
+.journal-library-top h3 span,.journal-entry-arrow,.journal-empty-mark{color:#5b83b2}
+.journal-month-filter{color:#657a93}
+.journal-month-filter input{border-color:#ccd7e4;background:#fdfefe;color:#344b67}
+.journal-primary{background:#315f96;color:#f6f9ff;box-shadow:0 4px 12px #284e7520}
+.journal-primary:hover{background:#264f80}
+.journal-secondary{border-color:#cbd7e4;background:#fdfefe;color:#42658a}
+.journal-delete{border-color:#e4cbd0;background:#fff9fa;color:#995866}
+.journal-status{color:#71849a}
+.journal-form-error{color:#a04e5d}
+.journal-entry-card{border-color:#d1dce8;background:#fdfefe;box-shadow:0 4px 14px #263c550b;color:#2c425d}
+.journal-entry-card:hover,.journal-entry-card:focus-visible{border-color:#9eb8d5;box-shadow:0 5px 16px #345a8120}
+.journal-entry-date{color:#2d4868}
+.journal-entry-preview{color:#70839a}
+.journal-empty{border-color:#bdcddd;background:#f7f9fc;color:#71839a}
+.journal-empty strong{color:#3c5c7d}
+.journal-compose,.journal-reader{background:#e9eef5}
+.journal-back{color:#3f6e9f}
+.journal-form-card,.journal-reading-card{border-color:#d0dbe7;background:#fdfefe;box-shadow:0 8px 24px #263c5510}
+.journal-form-card h3,.journal-reading-card h3{color:#2d4968}
+.journal-form-card label{color:#526a85}
+.journal-form-card input,.journal-form-card textarea{border-color:#ced9e5;background:#fff;color:#34475e;outline-color:#4f82bd}
+.journal-form-card input::placeholder,.journal-form-card textarea::placeholder{color:#9aaabd}
+.journal-reading-card h3,.journal-reader-actions{border-color:#dce4ec}
+.journal-reading-content{color:#35485e}
+.journal-reader-actions{border-color:#dce4ec}
