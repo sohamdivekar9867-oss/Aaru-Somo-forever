@@ -25,9 +25,20 @@
     <section class="dates-toolbar">
       <button class="soft-button" id="addDateButton" hidden>＋ Add a date</button>
       <button class="outline-button" id="editDatesButton">🔒 Edit dates</button>
+      <button class="outline-button" id="showCompletedPlans" type="button" hidden>Completed plans</button>
     </section>
 
     <section class="planned-quests" id="plannedQuests" hidden></section>
+
+  <div class="modal completed-plans-modal" id="completedPlansModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-completed-plans></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="completedPlansTitle">
+      <button class="modal-close" type="button" data-close-completed-plans aria-label="Close completed plans">×</button>
+      <div class="modal-small">PLANS WE MADE HAPPEN ♡</div>
+      <h2 id="completedPlansTitle">Completed plans</h2>
+      <div class="planned-grid" id="completedPlansContent"></div>
+    </div>
+  </div>
 
     <section class="timeline" id="timeline" aria-live="polite">
       <div class="loading">Gathering our memories… ✿</div>
@@ -53,13 +64,13 @@
           <input id="dateInput" type="date" required />
         </label>
         <label>Description
-          <textarea id="descriptionInput" maxlength="1200" placeholder="Tell the story of this date…"></textarea>
+          <textarea id="descriptionInput" placeholder="Tell the story of this date…"></textarea>
         </label>
         <label>A little detail I remember
-          <textarea id="detailInput" maxlength="700" placeholder="A tiny moment I never want to forget…"></textarea>
+          <textarea id="detailInput" placeholder="A tiny moment I never want to forget…"></textarea>
         </label>
         <label>Favourite moment
-          <textarea id="favouriteInput" maxlength="700" placeholder="The moment that stayed with me…"></textarea>
+          <textarea id="favouriteInput" placeholder="The moment that stayed with me…"></textarea>
         </label>
         <p class="photo-help" id="photoHelp" role="status">Add up to 10 photos. Saved photos stay in place when you add more.</p>
         <div class="photo-inputs">
@@ -68,10 +79,18 @@
           </label>
           <span class="photo-selection-status" id="photoSelectionStatus" aria-live="polite"></span>
         </div>
+        <p class="photo-help" id="videoHelp" role="status">Add one video to this date memory (up to 50 MB).</p>
+        <div class="photo-inputs">
+          <label for="videoInput">Add one video
+            <input id="videoInput" type="file" accept="video/*">
+          </label>
+          <span id="videoSelectionStatus" aria-live="polite"></span>
+        </div>
         <div class="modal-actions">
           <button type="button" class="outline-button" data-close-modal>Cancel</button>
           <button type="submit" class="soft-button" id="saveDateButton">Save date</button>
         </div>
+        <p class="photo-help">Text changes save automatically as you type. Use Save date to save now and upload selected photos.</p>
         <p class="form-status" id="formStatus" role="status"></p>
       </form>
     </div>

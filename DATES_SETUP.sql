@@ -27,6 +27,7 @@ create table if not exists public.date_entries (
   detail text,
   favourite_moment text,
   photo_urls jsonb not null default '[]'::jsonb,
+  video_url text,
   display_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -36,6 +37,7 @@ alter table public.date_entries add column if not exists description text;
 alter table public.date_entries add column if not exists detail text;
 alter table public.date_entries add column if not exists favourite_moment text;
 alter table public.date_entries add column if not exists photo_urls jsonb not null default '[]'::jsonb;
+alter table public.date_entries add column if not exists video_url text;
 alter table public.date_entries add column if not exists display_order integer not null default 0;
 alter table public.date_entries add column if not exists created_at timestamptz not null default now();
 alter table public.date_entries add column if not exists updated_at timestamptz not null default now();
@@ -59,5 +61,13 @@ create policy "Couple can delete date photos" on storage.objects for delete to a
 drop policy if exists "Couple can read date photos" on storage.objects;
 create policy "Couple can read date photos" on storage.objects for select to authenticated
 using (bucket_id='date-photos' and public.is_couple_member());
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types) values ('date-videos','date-videos',false,52428800,array['video/mp4','video/webm','video/quicktime','video/ogg'])
+on conflict (id) do update set public=false,file_size_limit=52428800,allowed_mime_types=array['video/mp4','video/webm','video/quicktime','video/ogg'];
+drop policy if exists "Couple can upload date videos" on storage.objects;
+drop policy if exists "Couple can delete date videos" on storage.objects;
+drop policy if exists "Couple can read date videos" on storage.objects;
+create policy "Couple can upload date videos" on storage.objects for insert to authenticated with check (bucket_id='date-videos' and public.is_couple_member());
+create policy "Couple can delete date videos" on storage.objects for delete to authenticated using (bucket_id='date-videos' and public.is_couple_member());
+create policy "Couple can read date videos" on storage.objects for select to authenticated using (bucket_id='date-videos' and public.is_couple_member());
 -- Existing public URLs are converted to signed URLs by date-detail.js.
 
