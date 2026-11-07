@@ -23,6 +23,15 @@
 
   const $ = id => document.getElementById(id);
   const chooser = $('profileChooser');
+  const wallpaperView = $('wallpaperView');
+  const wallpaperImage = $('phoneWallpaperImage');
+  const phoneScreen = document.querySelector('.phone-screen');
+  const wallpaperPlaceholder = $('wallpaperPlaceholder');
+  const wallpaperStatus = $('wallpaperStatus');
+  const wallpaperUploadWrap = $('wallpaperUploadWrap');
+  const wallpaperInput = $('wallpaperInput');
+  const enterPhone = $('enterPhone');
+  const wallpaperBack = $('wallpaperBack');
   const galleryView = $('galleryView');
   const galleryBack = $('galleryBack');
   const galleryTitle = $('galleryTitle');
@@ -54,11 +63,102 @@
   }
 
   function showChooser() {
+    if (wallpaperView) { wallpaperView.hidden = false; wallpaperView.style.display = 'block'; }
     if (galleryView) { galleryView.hidden = true; galleryView.style.display = 'none'; }
-    if (chooser) { chooser.hidden = false; chooser.style.display = ''; }
+    if (chooser) { chooser.hidden = false; chooser.style.display = 'flex'; }
     selectedProfile = '';
     photoLoadRequestId += 1;
     setStatus('');
+  }
+
+  function showWallpaper() {
+    if (chooser) { chooser.hidden = true; chooser.style.display = 'none'; }
+    if (galleryView) { galleryView.hidden = true; galleryView.style.display = 'none'; }
+    if (wallpaperView) { wallpaperView.hidden = false; wallpaperView.style.display = 'block'; }
+    selectedProfile = '';
+    photoLoadRequestId += 1;
+  }
+
+  async function loadWallpaper() {
+    if (!phoneClient) {
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Wallpaper storage is unavailable.';
+      return;
+    }
+    try {
+      const { data, error } = await phoneClient.from('phone_wallpapers')
+        .select('storage_path').eq('id', true).maybeSingle();
+      if (error) throw error;
+      if (!data?.storage_path) {
+        wallpaperImage.hidden = true;
+        wallpaperPlaceholder.hidden = false;
+        return;
+      }
+      const { data: signed, error: signError } = await phoneClient.storage
+        .from('phone-wallpapers').createSignedUrl(data.storage_path, 3600);
+      if (signError) throw signError;
+      wallpaperImage.src = signed.signedUrl;
+      phoneScreen?.style.setProperty('--phone-wallpaper-image', `url("${signed.signedUrl}")`);
+      wallpaperImage.hidden = false;
+      wallpaperPlaceholder.hidden = true;
+      wallpaperImage.onerror = () => {
+        wallpaperImage.hidden = true;
+        wallpaperPlaceholder.hidden = false;
+        if (wallpaperStatus) wallpaperStatus.textContent = 'Could not display the wallpaper.';
+      };
+      if (wallpaperStatus) wallpaperStatus.textContent = '';
+    } catch (err) {
+      console.error('Phone wallpaper load error:', err);
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Could not load wallpaper. Check PHONE_WALLPAPER_SETUP.sql.';
+    }
+  }
+
+  async function uploadWallpaper(file) {
+    if (!file) return;
+    if (myProfile !== 'Aaru' || !currentUser) {
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Only Aaru can change this wallpaper.';
+      return;
+    }
+    if (!phoneClient) {
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Wallpaper storage is unavailable.';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Choose an image file for the wallpaper.';
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Choose an image smaller than 15 MB.';
+      return;
+    }
+    if (wallpaperStatus) wallpaperStatus.textContent = 'Saving wallpaper…';
+    wallpaperInput.disabled = true;
+    const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'wallpaper';
+    const path = `${currentUser.id}/${crypto.randomUUID()}-${safeName}`;
+    try {
+      const { error: uploadError } = await phoneClient.storage.from('phone-wallpapers')
+        .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const { data: previous, error: readError } = await phoneClient.from('phone_wallpapers')
+        .select('storage_path').eq('id', true).maybeSingle();
+      if (readError) throw readError;
+      const { error: saveError } = await phoneClient.from('phone_wallpapers').upsert({
+        id: true, storage_path: path, uploaded_by: currentUser.id, updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      if (saveError) throw saveError;
+      await loadWallpaper();
+      if (previous?.storage_path) {
+        const { error: cleanupError } = await phoneClient.storage.from('phone-wallpapers').remove([previous.storage_path]);
+        if (cleanupError) console.warn('Old wallpaper cleanup failed:', cleanupError);
+      }
+      if (wallpaperStatus) wallpaperStatus.textContent = 'Wallpaper saved.';
+    } catch (err) {
+      console.error('Phone wallpaper upload error:', err);
+      await phoneClient.storage.from('phone-wallpapers').remove([path]);
+      if (wallpaperStatus) wallpaperStatus.textContent = `Could not save wallpaper: ${err.message || 'Please try again.'}`;
+    } finally {
+      wallpaperInput.disabled = false;
+      wallpaperInput.value = '';
+    }
   }
 
   window.openPhoneProfile = async function(profile) {
@@ -67,6 +167,7 @@
     if (galleryTitle) galleryTitle.textContent = `${profile}'s Memories`;
     if (uploadLabel) uploadLabel.classList.toggle('is-disabled', profile !== myProfile);
     if (input) input.disabled = profile !== myProfile;
+    if (wallpaperView) { wallpaperView.hidden = true; wallpaperView.style.display = 'none'; }
     if (chooser) { chooser.hidden = true; chooser.style.display = 'none'; }
     if (galleryView) { galleryView.hidden = false; galleryView.style.display = 'block'; }
     setStatus(profile === myProfile ? 'Your collection · you can add photos here.' : `${profile}'s collection · view only.`);
@@ -263,6 +364,9 @@
   }
 
   if (galleryBack) galleryBack.addEventListener('click', showChooser);
+  if (enterPhone) enterPhone.addEventListener('click', showChooser);
+  if (wallpaperBack) wallpaperBack.addEventListener('click', showWallpaper);
+  if (wallpaperInput) wallpaperInput.addEventListener('change', () => uploadWallpaper(wallpaperInput.files?.[0]));
   if (input) input.addEventListener('change',()=>uploadPhotos(Array.from(input.files||[])));
   for (const profile of ['Aaru','Somo']) {
     const inputEl = $(`profileInput${profile}`);
@@ -286,10 +390,13 @@
       if(error||!user){ window.location.replace('login.html'); return; }
       currentUser=user;
       myProfile=await resolveMyProfile();
+      if (wallpaperUploadWrap) wallpaperUploadWrap.hidden = myProfile !== 'Aaru';
+      await loadWallpaper();
       await loadProfilePictures();
-      showChooser();
+      showWallpaper();
     } catch(err) { console.error('Phone gallery init error:',err); }
   }
 
   init();
 })();
+

@@ -97,3 +97,4 @@ document.getElementById('showCompletedPlans').addEventListener('click',()=>{comp
 completedPlansModal.querySelectorAll('[data-close-completed-plans]').forEach(el=>el.addEventListener('click',closeCompletedPlans));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCompletedPlans();});
 renderPlannedQuests();
+

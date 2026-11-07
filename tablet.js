@@ -1,7 +1,7 @@
 /* Tablet apps. Replace SOMO_EMAIL with the email used by Somo's website account. */
 const SOMO_EMAIL = "sohamdivekar9867@gmail.com";
 const AARU_EMAIL = "aaru.saru090901@gmail.com";
-const tabletClient = window.supabase?.createClient(
+const tabletClient = window.appSupabaseClient || window.supabase?.createClient(
   "https://swqaakxywwajesuajflz.supabase.co",
   "sb_publishable_LfHzOfkinZEd_D8AZpNqCw_075eKf-G",
   { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
@@ -10,20 +10,125 @@ const tabletClient = window.supabase?.createClient(
 const homeScreen = document.getElementById('homeScreen');
 const userApp = document.getElementById('userApp');
 const notesApp = document.getElementById('notesApp');
+const journalApp = document.getElementById('journalApp');
 function showApp(app) {
-  [homeScreen, userApp, notesApp].forEach(el => el.hidden = el !== app);
+  [homeScreen, userApp, notesApp, journalApp].forEach(el => el.hidden = el !== app);
 }
 document.querySelectorAll('[data-home]').forEach(button => button.addEventListener('click', () => showApp(homeScreen)));
 document.getElementById('openUserApp').addEventListener('click', () => showApp(userApp));
 document.getElementById('openNotesApp').addEventListener('click', async () => {
   showApp(notesApp);
-  await loadNote();
+  await window.openSomoNotes?.();
+});
+document.getElementById('openJournalApp').addEventListener('click', async () => {
+  showApp(journalApp);
+  await window.openSomoJournal?.();
 });
 const clockEl = document.getElementById('tabletClock');
 function updateClock() {
   clockEl.textContent = new Intl.DateTimeFormat('en-IN', {timeZone:'Asia/Kolkata', weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hour12:true}).format(new Date());
 }
 updateClock(); setInterval(updateClock, 30000);
+
+const tabletWallpaperImage = document.getElementById('tabletWallpaperImage');
+const tabletWallpaperUpload = document.getElementById('tabletWallpaperUpload');
+const tabletWallpaperInput = document.getElementById('tabletWallpaperInput');
+const tabletWallpaperStatus = document.getElementById('tabletWallpaperStatus');
+let tabletWallpaperUser = null;
+
+async function loadTabletWallpaper() {
+  try {
+    const {data, error} = await tabletClient.from('tablet_wallpapers')
+      .select('storage_path').eq('id', true).maybeSingle();
+    if (error) throw error;
+    if (!data?.storage_path) return;
+    const {data:signed, error:signError} = await tabletClient.storage
+      .from('tablet-wallpapers').createSignedUrl(data.storage_path, 3600);
+    if (signError) throw signError;
+    tabletWallpaperImage.src = signed.signedUrl;
+    tabletWallpaperImage.hidden = false;
+    tabletWallpaperImage.onerror = () => {
+      tabletWallpaperImage.hidden = true;
+      tabletWallpaperStatus.textContent = 'Could not display the tablet wallpaper.';
+    };
+    tabletWallpaperStatus.textContent = '';
+  } catch (error) {
+    console.error('Tablet wallpaper load error:', error);
+    tabletWallpaperStatus.textContent = 'Wallpaper storage is not ready. Check TABLET_WALLPAPER_SETUP.sql.';
+  }
+}
+
+async function uploadTabletWallpaper(file) {
+  if (!file) return;
+  if (tabletWallpaperUser?.email?.toLowerCase() !== SOMO_EMAIL.toLowerCase()) {
+    tabletWallpaperStatus.textContent = 'Only Somo can change the tablet wallpaper.';
+    return;
+  }
+  if (!file.type.startsWith('image/')) {
+    tabletWallpaperStatus.textContent = 'Choose an image file for the wallpaper.';
+    return;
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    tabletWallpaperStatus.textContent = 'Choose an image smaller than 15 MB.';
+    return;
+  }
+  tabletWallpaperInput.disabled = true;
+  tabletWallpaperStatus.textContent = 'Saving wallpaper…';
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'wallpaper';
+  const path = `${tabletWallpaperUser.id}/${crypto.randomUUID()}-${safeName}`;
+  try {
+    const {error:uploadError} = await tabletClient.storage.from('tablet-wallpapers')
+      .upload(path, file, {cacheControl:'3600', upsert:false, contentType:file.type});
+    if (uploadError) throw uploadError;
+    const {data:previous, error:readError} = await tabletClient.from('tablet_wallpapers')
+      .select('storage_path').eq('id', true).maybeSingle();
+    if (readError) throw readError;
+    const {error:saveError} = await tabletClient.from('tablet_wallpapers').upsert({
+      id:true, storage_path:path, uploaded_by:tabletWallpaperUser.id, updated_at:new Date().toISOString()
+    }, {onConflict:'id'});
+    if (saveError) throw saveError;
+    await loadTabletWallpaper();
+    if (previous?.storage_path) {
+      const {error:cleanupError} = await tabletClient.storage.from('tablet-wallpapers').remove([previous.storage_path]);
+      if (cleanupError) console.warn('Old tablet wallpaper cleanup failed:', cleanupError);
+    }
+    tabletWallpaperStatus.textContent = 'Tablet wallpaper saved.';
+  } catch (error) {
+    console.error('Tablet wallpaper upload error:', error);
+    await tabletClient.storage.from('tablet-wallpapers').remove([path]);
+    tabletWallpaperStatus.textContent = `Could not save wallpaper: ${error.message || 'Please try again.'}`;
+  } finally {
+    tabletWallpaperInput.disabled = false;
+    tabletWallpaperInput.value = '';
+  }
+}
+
+async function initTabletWallpaper() {
+  if (!tabletClient) return;
+  try {
+    // Use the shared client and local session so a temporary auth network check
+    // cannot leave Somo's wallpaper control hidden.
+    const {data:{session}, error} = await tabletClient.auth.getSession();
+    if (error) throw error;
+    const user = session?.user;
+    if (!user) {
+      tabletWallpaperStatus.textContent = 'Sign in again to manage the tablet wallpaper.';
+      return;
+    }
+    tabletWallpaperUser = user;
+    const isSomo = user.email?.trim().toLowerCase() === SOMO_EMAIL.toLowerCase();
+    tabletWallpaperUpload.hidden = !isSomo;
+    if (!isSomo) tabletWallpaperStatus.textContent = 'Only Somo can change the tablet wallpaper.';
+    await loadTabletWallpaper();
+  } catch (error) {
+    console.error('Tablet wallpaper setup error:', error);
+    tabletWallpaperStatus.textContent = 'Could not confirm your account. Refresh the page or sign in again.';
+  }
+}
+if (tabletWallpaperInput) tabletWallpaperInput.addEventListener('change', () => uploadTabletWallpaper(tabletWallpaperInput.files?.[0]));
+initTabletWallpaper();
+
+
 
 const unlockForm = document.getElementById('unlockForm');
 const unlockMessage = document.getElementById('unlockMessage');
@@ -114,55 +219,3 @@ async function loadActivity() {
   message.textContent='Showing Aaru’s sessions and section activity from the last 3 days.';
 }
 
-const noteTitle=document.getElementById('noteTitle');
-const noteBody=document.getElementById('noteBody');
-const saveState=document.getElementById('saveState');
-const notesMessage=document.getElementById('notesMessage');
-const localNoteKey='somo-notes-draft-v1';
-let noteUser=null;
-let noteLoadDone=false;
-async function loadNote() {
-  if(noteLoadDone) return;
-  const local=JSON.parse(localStorage.getItem(localNoteKey)||'{}');
-  noteTitle.value=local.title||'';
-  noteBody.value=local.body||'';
-  const {data:{user}}=await tabletClient.auth.getUser();
-  noteUser=user||null;
-  if(user && SOMO_EMAIL.includes('@') && user.email?.toLowerCase()===SOMO_EMAIL.toLowerCase()) {
-    const {data,error}=await tabletClient.from('somo_notes').select('title,body,updated_at').eq('user_id',user.id).maybeSingle();
-    if(!error && data) {
-      noteTitle.value=data.title||'';
-      noteBody.value=data.body||'';
-      notesMessage.textContent=`Saved to your private account · ${formatTime(data.updated_at)}`;
-    } else if(error) notesMessage.textContent='Cloud notes need setup. Your draft is still saved on this device.';
-  } else {
-    notesMessage.textContent='Draft saved on this device. Set your Somo account email to enable private cloud saving.';
-  }
-  noteLoadDone=true;
-}
-async function saveNote() {
-  const draft={title:noteTitle.value,body:noteBody.value,updated_at:new Date().toISOString()};
-  localStorage.setItem(localNoteKey,JSON.stringify(draft));
-  saveState.textContent='Saving…';
-  const {data:{user}}=await tabletClient.auth.getUser();
-  if(user && SOMO_EMAIL.includes('@') && user.email?.toLowerCase()===SOMO_EMAIL.toLowerCase()) {
-    const {error}=await tabletClient.from('somo_notes').upsert({user_id:user.id,title:draft.title,body:draft.body,updated_at:draft.updated_at},{onConflict:'user_id'});
-    if(error) {
-      saveState.textContent='Saved on device';
-      notesMessage.textContent='Cloud save failed; your draft is saved on this device. Check TABLET_SETUP.sql.';
-      return;
-    }
-    saveState.textContent='Saved';
-    notesMessage.textContent='Saved securely to your account.';
-  } else {
-    saveState.textContent='Saved locally';
-    notesMessage.textContent='Saved on this device. Cloud sync is available after configuring Somo’s account email and SQL policies.';
-  }
-}
-document.getElementById('saveNote').addEventListener('click',saveNote);
-let autosaveTimer;
-[noteTitle,noteBody].forEach(el=>el.addEventListener('input',()=>{
-  saveState.textContent='Unsaved changes';
-  clearTimeout(autosaveTimer);
-  autosaveTimer=setTimeout(saveNote,1200);
-}));

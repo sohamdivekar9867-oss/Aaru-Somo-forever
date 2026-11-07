@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Logging out · Our Little World</title>
+  <style>
+    body{min-height:100vh;margin:0;display:grid;place-items:center;background:#191218;color:#f8dce5;font:16px 'DM Mono',monospace}
+    main{text-align:center;padding:24px}
+    a{color:inherit}
+  </style>
+  <script>
+    try { window.sessionStorage.clear(); } catch (error) { console.error("Could not clear this tab's session:", error); }
+    window.location.replace("login.html");
+  </script>
+</head>
+<body>
+  <main>
+    <p>Signing you out…</p>
+    <a href="login.html">Continue to login</a>
+  </main>
+</body>
+</html>

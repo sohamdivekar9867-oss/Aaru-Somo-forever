@@ -60,6 +60,20 @@
     </div>
   </div>
 
+  <div class="reel-modal" id="completionDateModal" aria-hidden="true">
+    <div class="reel-modal-backdrop" data-close-completion-date></div>
+    <div class="reel-modal-card" role="dialog" aria-modal="true" aria-labelledby="completionDateTitle">
+      <button class="modal-close" id="closeCompletionDate" type="button" aria-label="Close">×</button>
+      <div class="modal-kicker">A LITTLE MEMORY ♡</div>
+      <h2 id="completionDateTitle">When did we try it?</h2>
+      <form id="completionDateForm">
+        <label>Completion date (optional)<input id="completionDateInput" type="date" required></label>
+        <button class="primary-button" id="saveCompletionDate" type="submit">Save date ♡</button>
+      </form>
+      <div class="modal-status" id="completionDateStatus"></div>
+    </div>
+  </div>
+
   <div class="reel-modal" id="memoryModal" aria-hidden="true">
     <div class="reel-modal-backdrop" data-close-memory></div>
     <div class="reel-modal-card memory-modal-card" role="dialog" aria-modal="true" aria-labelledby="memoryModalTitle">
@@ -88,3 +102,4 @@
   <script src="reels.js"></script>
 </body>
 </html>
+

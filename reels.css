@@ -13,3 +13,6 @@
 .media-viewer-card img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;box-shadow:0 25px 80px rgba(0,0,0,.5);}
 .media-viewer-close{position:absolute;right:-8px;top:-14px;width:40px;height:40px;border:0;border-radius:50%;background:#fff;color:#7c3454;font-size:25px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 8px 25px rgba(0,0,0,.25);}
 @media(max-width:700px){.memory-strip{grid-template-columns:repeat(5,1fr);}.media-viewer{padding:14px;}.media-viewer-close{right:0;top:-5px;}}
+#completionDateInput{width:100%;margin-top:7px;border:1px solid #e4c3ce;border-radius:10px;padding:11px;background:#fff;color:#4f3040;font:10px "DM Mono",monospace}
+.reel-completed-date{margin-top:7px;color:#8f596e;font:9px/1.5 "DM Mono",monospace}
+

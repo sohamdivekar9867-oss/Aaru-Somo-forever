@@ -205,10 +205,35 @@ async function startWebsiteActivityTracking() {
   }
 }
 
-async function logout() {
-  await markActivityLogout();
-  await supabaseClient.auth.signOut();
-  window.location.replace("login.html");
+let logoutInProgress = false;
+async function logout(button) {
+  if (logoutInProgress) return;
+  logoutInProgress = true;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Logging out…";
+    button.setAttribute("aria-busy", "true");
+  }
+
+  // Keep logging best-effort and never make the button wait on a database request.
+  void markActivityLogout().catch(error => console.warn("[activity tracker] Could not mark logout:", error));
+  try {
+    const result = await Promise.race([
+      supabaseClient.auth.signOut({scope: "local"}),
+      new Promise(resolve => setTimeout(() => resolve({error: new Error("Local sign-out timed out")}), 1500))
+    ]);
+    if (result.error) console.error("[auth] Local sign-out failed:", result.error.message);
+  } catch (error) {
+    console.error("[auth] Could not sign out:", error);
+  } finally {
+    window.sessionStorage.removeItem(ACTIVITY_SESSION_KEY);
+    window.sessionStorage.removeItem(ACTIVITY_EVENT_QUEUE_KEY);
+    // Supabase's session storage is scoped to this browser tab.
+    for (const key of Object.keys(window.sessionStorage)) {
+      if (key.startsWith("sb-") && key.endsWith("-auth-token")) window.sessionStorage.removeItem(key);
+    }
+    window.location.replace("login.html");
+  }
 }
 
 // Start on existing sessions AND immediately after the login event.
@@ -226,38 +251,4 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 document.addEventListener("DOMContentLoaded", () => {
   startWebsiteActivityTracking();
   installSectionActivityTracking();
-
-  const currentFile = window.location.pathname.split("/").pop() || "index.html";
-  if (currentFile === "login.html") return;
-  if (document.getElementById("siteLogoutButton")) return;
-
-  const button = document.createElement("button");
-  button.id = "siteLogoutButton";
-  button.type = "button";
-  button.textContent = "Log out";
-  button.setAttribute("aria-label", "Log out of our little world");
-  button.style.cssText = `
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 9999;
-    border: 1px solid rgba(255, 210, 220, .45);
-    border-radius: 999px;
-    padding: 9px 15px;
-    background: rgba(35, 12, 27, .82);
-    color: #f8dce5;
-    font: 12px/1.2 'DM Mono', monospace;
-    letter-spacing: .04em;
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 18px rgba(0,0,0,.16);
-  `;
-  button.addEventListener("mouseenter", () => {
-    button.style.background = "rgba(110, 42, 70, .92)";
-  });
-  button.addEventListener("mouseleave", () => {
-    button.style.background = "rgba(35, 12, 27, .82)";
-  });
-  button.addEventListener("click", logout);
-  document.body.appendChild(button);
 });
