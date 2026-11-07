@@ -79,6 +79,13 @@
           </label>
           <span class="photo-selection-status" id="photoSelectionStatus" aria-live="polite"></span>
         </div>
+        <p class="photo-help" id="videoHelp" role="status">Add one video to this date memory (up to 50 MB).</p>
+        <div class="photo-inputs">
+          <label for="videoInput">Add one video
+            <input id="videoInput" type="file" accept="video/*">
+          </label>
+          <span id="videoSelectionStatus" aria-live="polite"></span>
+        </div>
         <div class="modal-actions">
           <button type="button" class="outline-button" data-close-modal>Cancel</button>
           <button type="submit" class="soft-button" id="saveDateButton">Save date</button>
